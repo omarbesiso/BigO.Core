@@ -5,10 +5,32 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>BigO base utilities, types and extensions.</Title>
+    <Product>BigO Library</Product>
+    <Description>BigO.Core contains base utilities and extensions for the BigO .NET library.</Description>
+    <Copyright>Copyright © Omar Besiso 2022</Copyright>
+    <PackageProjectUrl>https://github.com/omarbesiso/BigO.Core</PackageProjectUrl>
+    <PackageIcon>bigo.png</PackageIcon>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/omarbesiso/BigO.Core.git</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\bigo.png" />
+  </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Resources\bigo.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </Resource>
 	</ItemGroup>
 
 </Project>
