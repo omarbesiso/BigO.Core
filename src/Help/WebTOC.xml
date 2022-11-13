@@ -1,0 +1,309 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<HelpTOC>
+
+  <HelpTOCNode Id="90fa080f-9dfd-4204-b7d6-5afd8d505fc5" Title="BigO.Core Namespace" Url="html/N-BigO.Core.htm">
+    <HelpTOCNode Id="dbd88806-8c00-45a5-9751-b1576f5da06f" Title="DisposableObject Class" Url="html/T-BigO.Core.DisposableObject.htm">
+      <HelpTOCNode Title="DisposableObject Members" Url="html/AllMembers.T-BigO.Core.DisposableObject.htm" />
+      <HelpTOCNode Id="0144ea3b-cf89-4725-8236-ea675810a074" Title="DisposableObject Methods" Url="html/Methods.T-BigO.Core.DisposableObject.htm">
+        <HelpTOCNode Title="Dispose Method " Url="html/M-BigO.Core.DisposableObject.Dispose.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="87eaa714-edb0-4b63-9d08-ed3a296c49ae" Title="DisposableObject Properties" Url="html/Properties.T-BigO.Core.DisposableObject.htm">
+        <HelpTOCNode Title="IsDisposed Property " Url="html/P-BigO.Core.DisposableObject.IsDisposed.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="5ce68ff3-b990-4fc3-b1be-a67a146a778c" Title="GuidFactory Class" Url="html/T-BigO.Core.GuidFactory.htm">
+      <HelpTOCNode Title="GuidFactory Members" Url="html/AllMembers.T-BigO.Core.GuidFactory.htm" />
+      <HelpTOCNode Id="d213dd5d-e096-4a9d-bc79-582a9014f9eb" Title="GuidFactory Methods" Url="html/Methods.T-BigO.Core.GuidFactory.htm">
+        <HelpTOCNode Title="NewSequentialGuid Method " Url="html/M-BigO.Core.GuidFactory.NewSequentialGuid.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="3d742934-b3be-46ea-9d00-f1cf022c7786" Title="RandomGenerator Class" Url="html/T-BigO.Core.RandomGenerator.htm">
+      <HelpTOCNode Title="RandomGenerator Members" Url="html/AllMembers.T-BigO.Core.RandomGenerator.htm" />
+      <HelpTOCNode Id="4ac62699-b944-42be-877b-70b64cc74dce" Title="RandomGenerator Methods" Url="html/Methods.T-BigO.Core.RandomGenerator.htm">
+        <HelpTOCNode Title="RandomBool Method " Url="html/M-BigO.Core.RandomGenerator.RandomBool.htm" />
+        <HelpTOCNode Id="e362f17e-65d2-454d-93c4-3413a55c5f35" Title="RandomDate Method " Url="html/Overload-BigO.Core.RandomGenerator.RandomDate.htm">
+          <HelpTOCNode Title="RandomDate Method " Url="html/M-BigO.Core.RandomGenerator.RandomDate.htm" />
+          <HelpTOCNode Title="RandomDate Method (DateTime, DateTime)" Url="html/M-BigO.Core.RandomGenerator.RandomDate_1.htm" />
+        </HelpTOCNode>
+        <HelpTOCNode Title="RandomInt Method " Url="html/M-BigO.Core.RandomGenerator.RandomInt.htm" />
+        <HelpTOCNode Title="RandomNumber Method " Url="html/M-BigO.Core.RandomGenerator.RandomNumber.htm" />
+        <HelpTOCNode Title="RandomString Method " Url="html/M-BigO.Core.RandomGenerator.RandomString.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="4378647d-e7b1-4d3c-8a5b-bab5d65a5212" Title="TransactionFactory Class" Url="html/T-BigO.Core.TransactionFactory.htm">
+      <HelpTOCNode Title="TransactionFactory Members" Url="html/AllMembers.T-BigO.Core.TransactionFactory.htm" />
+      <HelpTOCNode Id="48238e0e-6165-4510-b0f2-3398ed45c2aa" Title="TransactionFactory Methods" Url="html/Methods.T-BigO.Core.TransactionFactory.htm">
+        <HelpTOCNode Title="CreateTransaction Method " Url="html/M-BigO.Core.TransactionFactory.CreateTransaction.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+  </HelpTOCNode>
+  <HelpTOCNode Id="85e4c220-29b9-4c0d-b364-8bf6ea50b2ae" Title="BigO.Core.Extensions Namespace" Url="html/N-BigO.Core.Extensions.htm">
+    <HelpTOCNode Id="8f6be280-06b1-41de-85b1-f0b2f76dc5af" Title="ActionExtensions Class" Url="html/T-BigO.Core.Extensions.ActionExtensions.htm">
+      <HelpTOCNode Title="ActionExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.ActionExtensions.htm" />
+      <HelpTOCNode Id="898431a0-7337-42e7-931e-1bdcdc0119c6" Title="ActionExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.ActionExtensions.htm">
+        <HelpTOCNode Title="ExecuteAndTime Method " Url="html/M-BigO.Core.Extensions.ActionExtensions.ExecuteAndTime.htm" />
+        <HelpTOCNode Title="RunAsynchronously Method " Url="html/M-BigO.Core.Extensions.ActionExtensions.RunAsynchronously.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="f780ddef-e02d-4dfe-9c23-9f4fe0de3f41" Title="ArrayExtensions Class" Url="html/T-BigO.Core.Extensions.ArrayExtensions.htm">
+      <HelpTOCNode Title="ArrayExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.ArrayExtensions.htm" />
+      <HelpTOCNode Id="dd12ddac-5de8-4a0b-80d9-ff603228003e" Title="ArrayExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.ArrayExtensions.htm">
+        <HelpTOCNode Title="Clear Method " Url="html/M-BigO.Core.Extensions.ArrayExtensions.Clear.htm" />
+        <HelpTOCNode Title="Shuffle(T) Method " Url="html/M-BigO.Core.Extensions.ArrayExtensions.Shuffle--1.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="94718312-5b44-413d-935b-912c1d4242f8" Title="BooleanExtensions Class" Url="html/T-BigO.Core.Extensions.BooleanExtensions.htm">
+      <HelpTOCNode Title="BooleanExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.BooleanExtensions.htm" />
+      <HelpTOCNode Id="9fcb622f-5e3e-4ad2-9faa-80ea4ae7bd27" Title="BooleanExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.BooleanExtensions.htm">
+        <HelpTOCNode Title="ToBinary Method " Url="html/M-BigO.Core.Extensions.BooleanExtensions.ToBinary.htm" />
+        <HelpTOCNode Title="ToString Method " Url="html/M-BigO.Core.Extensions.BooleanExtensions.ToString.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="d056943a-5829-4eae-8ee2-fdbdbe9724c4" Title="ByteExtensions Class" Url="html/T-BigO.Core.Extensions.ByteExtensions.htm">
+      <HelpTOCNode Title="ByteExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.ByteExtensions.htm" />
+      <HelpTOCNode Id="25dbf392-a494-4f4c-9333-8d538238bce3" Title="ByteExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.ByteExtensions.htm">
+        <HelpTOCNode Title="ToMemoryStream Method " Url="html/M-BigO.Core.Extensions.ByteExtensions.ToMemoryStream.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="5dee1487-5b37-43ff-9aa0-b46e3dec12a4" Title="CollectionExtensions Class" Url="html/T-BigO.Core.Extensions.CollectionExtensions.htm">
+      <HelpTOCNode Title="CollectionExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.CollectionExtensions.htm" />
+      <HelpTOCNode Id="8daf2dd1-80a1-45e7-8ddd-44f4f1bbed88" Title="CollectionExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.CollectionExtensions.htm">
+        <HelpTOCNode Title="AddIf(T) Method " Url="html/M-BigO.Core.Extensions.CollectionExtensions.AddIf--1.htm" />
+        <HelpTOCNode Title="AddUnique(T) Method " Url="html/M-BigO.Core.Extensions.CollectionExtensions.AddUnique--1.htm" />
+        <HelpTOCNode Title="AddUniqueRange(T) Method " Url="html/M-BigO.Core.Extensions.CollectionExtensions.AddUniqueRange--1.htm" />
+        <HelpTOCNode Title="ContainsAny(T) Method " Url="html/M-BigO.Core.Extensions.CollectionExtensions.ContainsAny--1.htm" />
+        <HelpTOCNode Title="RemoveWhere(T) Method " Url="html/M-BigO.Core.Extensions.CollectionExtensions.RemoveWhere--1.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="bd86e362-e472-488e-ad3b-e785ac3bc37a" Title="ComparableExtensions Class" Url="html/T-BigO.Core.Extensions.ComparableExtensions.htm">
+      <HelpTOCNode Title="ComparableExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.ComparableExtensions.htm" />
+      <HelpTOCNode Id="c6a4eb47-6b8f-4c7c-9e28-1e8b098e226f" Title="ComparableExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.ComparableExtensions.htm">
+        <HelpTOCNode Title="ConstrainToRange(T) Method " Url="html/M-BigO.Core.Extensions.ComparableExtensions.ConstrainToRange--1.htm" />
+        <HelpTOCNode Title="IsBetween(T) Method " Url="html/M-BigO.Core.Extensions.ComparableExtensions.IsBetween--1.htm" />
+        <HelpTOCNode Title="Limit(T) Method " Url="html/M-BigO.Core.Extensions.ComparableExtensions.Limit--1.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="80993202-b1b4-41f7-8c00-08f22a466986" Title="DateOnlyExtensions Class" Url="html/T-BigO.Core.Extensions.DateOnlyExtensions.htm">
+      <HelpTOCNode Title="DateOnlyExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.DateOnlyExtensions.htm" />
+      <HelpTOCNode Id="0fe34940-1b7b-43c2-a3d6-bf59ffaa396c" Title="DateOnlyExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.DateOnlyExtensions.htm">
+        <HelpTOCNode Title="AddWeeks Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.AddWeeks.htm" />
+        <HelpTOCNode Title="Age Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.Age.htm" />
+        <HelpTOCNode Title="GetCountOfDaysInMonth Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.GetCountOfDaysInMonth.htm" />
+        <HelpTOCNode Title="GetDatesInRange Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.GetDatesInRange.htm" />
+        <HelpTOCNode Title="GetFirstDateOfMonth Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.GetFirstDateOfMonth.htm" />
+        <HelpTOCNode Title="GetFirstDateOfWeek Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.GetFirstDateOfWeek.htm" />
+        <HelpTOCNode Title="GetLastDateOfMonth Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.GetLastDateOfMonth.htm" />
+        <HelpTOCNode Title="GetLastDateOfWeek Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.GetLastDateOfWeek.htm" />
+        <HelpTOCNode Title="GetNumberOfDays Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.GetNumberOfDays.htm" />
+        <HelpTOCNode Title="IsAfter Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.IsAfter.htm" />
+        <HelpTOCNode Title="IsBefore Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.IsBefore.htm" />
+        <HelpTOCNode Title="IsBetween Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.IsBetween.htm" />
+        <HelpTOCNode Title="IsLeapDay Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.IsLeapDay.htm" />
+        <HelpTOCNode Title="IsToday Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.IsToday.htm" />
+        <HelpTOCNode Title="IsWeekendDay Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.IsWeekendDay.htm" />
+        <HelpTOCNode Title="IsWorkingDay Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.IsWorkingDay.htm" />
+        <HelpTOCNode Title="NextDay Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.NextDay.htm" />
+        <HelpTOCNode Title="NextWorkday Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.NextWorkday.htm" />
+        <HelpTOCNode Title="PreviousDay Method " Url="html/M-BigO.Core.Extensions.DateOnlyExtensions.PreviousDay.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="037fde3c-b978-4989-9539-8c9f6b822f48" Title="DateTimeExtensions Class" Url="html/T-BigO.Core.Extensions.DateTimeExtensions.htm">
+      <HelpTOCNode Title="DateTimeExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.DateTimeExtensions.htm" />
+      <HelpTOCNode Id="28079ca6-6124-4e71-a68f-48706ff84a5b" Title="DateTimeExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.DateTimeExtensions.htm">
+        <HelpTOCNode Title="AddWeeks Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.AddWeeks.htm" />
+        <HelpTOCNode Title="Age Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.Age.htm" />
+        <HelpTOCNode Title="Elapsed Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.Elapsed.htm" />
+        <HelpTOCNode Title="GenerateTimestamp Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.GenerateTimestamp.htm" />
+        <HelpTOCNode Title="GetCountOfDaysInMonth Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.GetCountOfDaysInMonth.htm" />
+        <HelpTOCNode Title="GetDatesInRange Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.GetDatesInRange.htm" />
+        <HelpTOCNode Title="GetFirstDateOfMonth Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.GetFirstDateOfMonth.htm" />
+        <HelpTOCNode Title="GetFirstDateOfWeek Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.GetFirstDateOfWeek.htm" />
+        <HelpTOCNode Title="GetLastDateOfMonth Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.GetLastDateOfMonth.htm" />
+        <HelpTOCNode Title="GetLastDateOfWeek Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.GetLastDateOfWeek.htm" />
+        <HelpTOCNode Title="GetNumberOfDays Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.GetNumberOfDays.htm" />
+        <HelpTOCNode Title="GetNumberOfDaysInYear Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.GetNumberOfDaysInYear.htm" />
+        <HelpTOCNode Title="IsAfter Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.IsAfter.htm" />
+        <HelpTOCNode Title="IsBefore Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.IsBefore.htm" />
+        <HelpTOCNode Title="IsBetween Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.IsBetween.htm" />
+        <HelpTOCNode Title="IsDateEqual Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.IsDateEqual.htm" />
+        <HelpTOCNode Title="IsLeapDay Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.IsLeapDay.htm" />
+        <HelpTOCNode Title="IsTimeEqual Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.IsTimeEqual.htm" />
+        <HelpTOCNode Title="IsToday Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.IsToday.htm" />
+        <HelpTOCNode Title="IsWeekendDay Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.IsWeekendDay.htm" />
+        <HelpTOCNode Title="IsWorkingDay Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.IsWorkingDay.htm" />
+        <HelpTOCNode Title="Midnight Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.Midnight.htm" />
+        <HelpTOCNode Title="NextDay Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.NextDay.htm" />
+        <HelpTOCNode Title="NextWorkday Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.NextWorkday.htm" />
+        <HelpTOCNode Title="Noon Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.Noon.htm" />
+        <HelpTOCNode Title="PreviousDay Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.PreviousDay.htm" />
+        <HelpTOCNode Id="dd463494-939d-44e6-9b71-0ea37b71cb35" Title="SetTime Method " Url="html/Overload-BigO.Core.Extensions.DateTimeExtensions.SetTime.htm">
+          <HelpTOCNode Title="SetTime Method (DateTime, Int32, Int32, Int32, Int32)" Url="html/M-BigO.Core.Extensions.DateTimeExtensions.SetTime.htm" />
+          <HelpTOCNode Title="SetTime Method (DateTime, TimeSpan)" Url="html/M-BigO.Core.Extensions.DateTimeExtensions.SetTime_1.htm" />
+          <HelpTOCNode Title="SetTime Method (DateTime, TimeOnly)" Url="html/M-BigO.Core.Extensions.DateTimeExtensions.SetTime_2.htm" />
+        </HelpTOCNode>
+        <HelpTOCNode Title="ToDateOnly Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.ToDateOnly.htm" />
+        <HelpTOCNode Title="ToTimeOnly Method " Url="html/M-BigO.Core.Extensions.DateTimeExtensions.ToTimeOnly.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="0ecac806-788a-4a10-9c2b-4f4468f97df3" Title="DecimalExtensions Class" Url="html/T-BigO.Core.Extensions.DecimalExtensions.htm">
+      <HelpTOCNode Title="DecimalExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.DecimalExtensions.htm" />
+      <HelpTOCNode Id="f9f3aa8b-766f-44b9-adcb-c449921644ca" Title="DecimalExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.DecimalExtensions.htm">
+        <HelpTOCNode Title="ToCurrency Method " Url="html/M-BigO.Core.Extensions.DecimalExtensions.ToCurrency.htm" />
+        <HelpTOCNode Title="ToStringWithCulture Method " Url="html/M-BigO.Core.Extensions.DecimalExtensions.ToStringWithCulture.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="26953564-4847-4325-9346-b1b25925bd2f" Title="DictionaryExtensions Class" Url="html/T-BigO.Core.Extensions.DictionaryExtensions.htm">
+      <HelpTOCNode Title="DictionaryExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.DictionaryExtensions.htm" />
+      <HelpTOCNode Id="095afd16-27b6-4c2e-88cf-e472a4ac73c9" Title="DictionaryExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.DictionaryExtensions.htm">
+        <HelpTOCNode Id="fae703fe-8915-42d0-aa8a-1831166383e2" Title="AddIfNotContainsKey Method " Url="html/Overload-BigO.Core.Extensions.DictionaryExtensions.AddIfNotContainsKey-.htm">
+          <HelpTOCNode Title="AddIfNotContainsKey(TKey, TValue) Method (IDictionary(TKey, TValue), TKey, TValue)" Url="html/M-BigO.Core.Extensions.DictionaryExtensions.AddIfNotContainsKey--2.htm" />
+          <HelpTOCNode Title="AddIfNotContainsKey(TKey, TValue) Method (IDictionary(TKey, TValue), TKey, Func(TValue))" Url="html/M-BigO.Core.Extensions.DictionaryExtensions.AddIfNotContainsKey--2_1.htm" />
+          <HelpTOCNode Title="AddIfNotContainsKey(TKey, TValue) Method (IDictionary(TKey, TValue), TKey, Func(TKey, TValue))" Url="html/M-BigO.Core.Extensions.DictionaryExtensions.AddIfNotContainsKey--2_2.htm" />
+        </HelpTOCNode>
+        <HelpTOCNode Title="RemoveIfContainsKey(TKey, TValue) Method " Url="html/M-BigO.Core.Extensions.DictionaryExtensions.RemoveIfContainsKey--2.htm" />
+        <HelpTOCNode Id="d80c8644-220c-447b-a400-e95fdacf4378" Title="ToSortedDictionary Method " Url="html/Overload-BigO.Core.Extensions.DictionaryExtensions.ToSortedDictionary-.htm">
+          <HelpTOCNode Title="ToSortedDictionary(TKey, TValue) Method (IDictionary(TKey, TValue))" Url="html/M-BigO.Core.Extensions.DictionaryExtensions.ToSortedDictionary--2.htm" />
+          <HelpTOCNode Title="ToSortedDictionary(TKey, TValue) Method (IDictionary(TKey, TValue), IComparer(TKey))" Url="html/M-BigO.Core.Extensions.DictionaryExtensions.ToSortedDictionary--2_1.htm" />
+        </HelpTOCNode>
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="290fce27-7e6f-4ca3-a6b8-0f3056b995bc" Title="EnumerableExtensions Class" Url="html/T-BigO.Core.Extensions.EnumerableExtensions.htm">
+      <HelpTOCNode Title="EnumerableExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.EnumerableExtensions.htm" />
+      <HelpTOCNode Id="b77ba914-d6cd-4edd-bff8-c90a5bb8c784" Title="EnumerableExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.EnumerableExtensions.htm">
+        <HelpTOCNode Title="IsEmpty Method " Url="html/M-BigO.Core.Extensions.EnumerableExtensions.IsEmpty.htm" />
+        <HelpTOCNode Title="IsNotEmpty Method " Url="html/M-BigO.Core.Extensions.EnumerableExtensions.IsNotEmpty.htm" />
+        <HelpTOCNode Title="IsNotNullOrEmpty Method " Url="html/M-BigO.Core.Extensions.EnumerableExtensions.IsNotNullOrEmpty.htm" />
+        <HelpTOCNode Title="IsNullOrEmpty Method " Url="html/M-BigO.Core.Extensions.EnumerableExtensions.IsNullOrEmpty.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="7dae6682-14dc-448f-b04e-45fd3ed33b1d" Title="GuidExtensions Class" Url="html/T-BigO.Core.Extensions.GuidExtensions.htm">
+      <HelpTOCNode Title="GuidExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.GuidExtensions.htm" />
+      <HelpTOCNode Id="5fa6e2e7-4774-49f2-b9fd-633ffaf23403" Title="GuidExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.GuidExtensions.htm">
+        <HelpTOCNode Title="IsEmpty Method " Url="html/M-BigO.Core.Extensions.GuidExtensions.IsEmpty.htm" />
+        <HelpTOCNode Title="IsNotEmpty Method " Url="html/M-BigO.Core.Extensions.GuidExtensions.IsNotEmpty.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="cd6eef2f-9718-4633-a0e8-4fb8ff36bce6" Title="QueryableExtensions Class" Url="html/T-BigO.Core.Extensions.QueryableExtensions.htm">
+      <HelpTOCNode Title="QueryableExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.QueryableExtensions.htm" />
+      <HelpTOCNode Id="fd38aa98-3f4e-40f6-851b-77b02dd229b3" Title="QueryableExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.QueryableExtensions.htm">
+        <HelpTOCNode Title="Page(T) Method " Url="html/M-BigO.Core.Extensions.QueryableExtensions.Page--1.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="44bc6cdc-4b4e-4e39-86a9-27c44f365e06" Title="StreamExtensions Class" Url="html/T-BigO.Core.Extensions.StreamExtensions.htm">
+      <HelpTOCNode Title="StreamExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.StreamExtensions.htm" />
+      <HelpTOCNode Id="76550218-ab6b-410e-8d66-65e6130fd18e" Title="StreamExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.StreamExtensions.htm">
+        <HelpTOCNode Title="ToByteArray Method " Url="html/M-BigO.Core.Extensions.StreamExtensions.ToByteArray.htm" />
+        <HelpTOCNode Title="ToByteArrayAsync Method " Url="html/M-BigO.Core.Extensions.StreamExtensions.ToByteArrayAsync.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="897655c6-70c5-4b69-a742-bf2939897aa2" Title="StringBuilderExtensions Class" Url="html/T-BigO.Core.Extensions.StringBuilderExtensions.htm">
+      <HelpTOCNode Title="StringBuilderExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.StringBuilderExtensions.htm" />
+      <HelpTOCNode Id="874f623d-c1d5-4e6c-b9c9-4a31fb84a1aa" Title="StringBuilderExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.StringBuilderExtensions.htm">
+        <HelpTOCNode Title="AppendCharToLength Method " Url="html/M-BigO.Core.Extensions.StringBuilderExtensions.AppendCharToLength.htm" />
+        <HelpTOCNode Title="AppendFormatLine Method " Url="html/M-BigO.Core.Extensions.StringBuilderExtensions.AppendFormatLine.htm" />
+        <HelpTOCNode Title="AppendLine Method " Url="html/M-BigO.Core.Extensions.StringBuilderExtensions.AppendLine.htm" />
+        <HelpTOCNode Title="AppendMultiple Method " Url="html/M-BigO.Core.Extensions.StringBuilderExtensions.AppendMultiple.htm" />
+        <HelpTOCNode Title="EnsureEndsWith Method " Url="html/M-BigO.Core.Extensions.StringBuilderExtensions.EnsureEndsWith.htm" />
+        <HelpTOCNode Title="EnsureStartsWith Method " Url="html/M-BigO.Core.Extensions.StringBuilderExtensions.EnsureStartsWith.htm" />
+        <HelpTOCNode Title="IsEmpty Method " Url="html/M-BigO.Core.Extensions.StringBuilderExtensions.IsEmpty.htm" />
+        <HelpTOCNode Title="ReduceToLength Method " Url="html/M-BigO.Core.Extensions.StringBuilderExtensions.ReduceToLength.htm" />
+        <HelpTOCNode Title="RemoveAllOccurrences Method " Url="html/M-BigO.Core.Extensions.StringBuilderExtensions.RemoveAllOccurrences.htm" />
+        <HelpTOCNode Title="Reverse Method " Url="html/M-BigO.Core.Extensions.StringBuilderExtensions.Reverse.htm" />
+        <HelpTOCNode Title="Trim Method " Url="html/M-BigO.Core.Extensions.StringBuilderExtensions.Trim.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="4b5c7136-9cdc-4a43-8490-02b8124faee4" Title="StringExtensions Class" Url="html/T-BigO.Core.Extensions.StringExtensions.htm">
+      <HelpTOCNode Title="StringExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.StringExtensions.htm" />
+      <HelpTOCNode Id="a5768988-ee78-4cd6-b9f8-c4ac6cd5c9ee" Title="StringExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.StringExtensions.htm">
+        <HelpTOCNode Title="IsGuid Method " Url="html/M-BigO.Core.Extensions.StringExtensions.IsGuid.htm" />
+        <HelpTOCNode Title="IsValidEmail Method " Url="html/M-BigO.Core.Extensions.StringExtensions.IsValidEmail.htm" />
+        <HelpTOCNode Title="IsValidWebsiteUrl Method " Url="html/M-BigO.Core.Extensions.StringExtensions.IsValidWebsiteUrl.htm" />
+        <HelpTOCNode Title="RemoveCharacters Method " Url="html/M-BigO.Core.Extensions.StringExtensions.RemoveCharacters.htm" />
+        <HelpTOCNode Title="Shuffle Method " Url="html/M-BigO.Core.Extensions.StringExtensions.Shuffle.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="51ed7c6e-541b-4cba-9496-79da0799978a" Title="TypeExtensions Class" Url="html/T-BigO.Core.Extensions.TypeExtensions.htm">
+      <HelpTOCNode Title="TypeExtensions Members" Url="html/AllMembers.T-BigO.Core.Extensions.TypeExtensions.htm" />
+      <HelpTOCNode Id="dd860760-b974-4bef-9eb5-b1813d53e0d0" Title="TypeExtensions Methods" Url="html/Methods.T-BigO.Core.Extensions.TypeExtensions.htm">
+        <HelpTOCNode Title="DefaultValue Method " Url="html/M-BigO.Core.Extensions.TypeExtensions.DefaultValue.htm" />
+        <HelpTOCNode Title="GetNameOrAlias Method " Url="html/M-BigO.Core.Extensions.TypeExtensions.GetNameOrAlias.htm" />
+        <HelpTOCNode Id="aebffcda-e0d0-47df-8fb1-dc4c8421cce4" Title="Overload:BigO.Core.Extensions.TypeExtensions.HasAttribute">
+          <HelpTOCNode Title="HasAttribute Method (Type, Type)" Url="html/M-BigO.Core.Extensions.TypeExtensions.HasAttribute.htm" />
+          <HelpTOCNode Title="HasAttribute(T) Method (Type, Func(T, Boolean))" Url="html/M-BigO.Core.Extensions.TypeExtensions.HasAttribute--1.htm" />
+        </HelpTOCNode>
+        <HelpTOCNode Title="IsNullable Method " Url="html/M-BigO.Core.Extensions.TypeExtensions.IsNullable.htm" />
+        <HelpTOCNode Title="IsNumeric Method " Url="html/M-BigO.Core.Extensions.TypeExtensions.IsNumeric.htm" />
+        <HelpTOCNode Id="4de61bc1-8c30-4abd-8a49-71e27690f9a4" Title="IsOfNullableType Method " Url="html/Overload-BigO.Core.Extensions.TypeExtensions.IsOfNullableType-.htm">
+          <HelpTOCNode Title="IsOfNullableType(T) Method (T)" Url="html/M-BigO.Core.Extensions.TypeExtensions.IsOfNullableType--1.htm" />
+          <HelpTOCNode Title="IsOfNullableType(T) Method " Url="html/M-BigO.Core.Extensions.TypeExtensions.IsOfNullableType--1_1.htm" />
+        </HelpTOCNode>
+        <HelpTOCNode Title="IsOpenGeneric Method " Url="html/M-BigO.Core.Extensions.TypeExtensions.IsOpenGeneric.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+  </HelpTOCNode>
+  <HelpTOCNode Id="74b54066-b80f-45bc-bf33-98a03ce71099" Title="BigO.Core.Types Namespace" Url="html/N-BigO.Core.Types.htm">
+    <HelpTOCNode Id="e8b42991-7ded-41b0-90bc-4e1da3e45889" Title="DateRange Structure" Url="html/T-BigO.Core.Types.DateRange.htm">
+      <HelpTOCNode Title="DateRange Members" Url="html/AllMembers.T-BigO.Core.Types.DateRange.htm" />
+      <HelpTOCNode Title="DateRange Constructor " Url="html/M-BigO.Core.Types.DateRange.-ctor.htm" />
+      <HelpTOCNode Id="2f2d62ff-bcd4-4278-a6fb-6e9edf5239a7" Title="DateRange Methods" Url="html/Methods.T-BigO.Core.Types.DateRange.htm">
+        <HelpTOCNode Title="Contains Method " Url="html/M-BigO.Core.Types.DateRange.Contains.htm" />
+        <HelpTOCNode Id="34fe0d18-4f54-4ea8-b937-04052bded9ae" Title="Equals Method " Url="html/Overload-BigO.Core.Types.DateRange.Equals.htm">
+          <HelpTOCNode Title="Equals Method (DateRange)" Url="html/M-BigO.Core.Types.DateRange.Equals.htm" />
+          <HelpTOCNode Title="Equals Method (Nullable(Object))" Url="html/M-BigO.Core.Types.DateRange.Equals_1.htm" />
+        </HelpTOCNode>
+        <HelpTOCNode Title="GetHashCode Method " Url="html/M-BigO.Core.Types.DateRange.GetHashCode.htm" />
+        <HelpTOCNode Title="Overlaps Method " Url="html/M-BigO.Core.Types.DateRange.Overlaps.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="48430ad6-d449-4327-9ad7-c745973433de" Title="DateRange Operators" Url="html/Operators.T-BigO.Core.Types.DateRange.htm">
+        <HelpTOCNode Title="Equality Operator " Url="html/M-BigO.Core.Types.DateRange.op_Equality.htm" />
+        <HelpTOCNode Title="Inequality Operator " Url="html/M-BigO.Core.Types.DateRange.op_Inequality.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="50f55c97-655c-4dde-a5df-8601f657d0db" Title="DateRange Properties" Url="html/Properties.T-BigO.Core.Types.DateRange.htm">
+        <HelpTOCNode Title="EndDate Property " Url="html/P-BigO.Core.Types.DateRange.EndDate.htm" />
+        <HelpTOCNode Title="StartDate Property " Url="html/P-BigO.Core.Types.DateRange.StartDate.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="34413373-1b10-47bc-9ca3-621591ae683e" Title="DateTimeRange Structure" Url="html/T-BigO.Core.Types.DateTimeRange.htm">
+      <HelpTOCNode Title="DateTimeRange Members" Url="html/AllMembers.T-BigO.Core.Types.DateTimeRange.htm" />
+      <HelpTOCNode Title="DateTimeRange Constructor " Url="html/M-BigO.Core.Types.DateTimeRange.-ctor.htm" />
+      <HelpTOCNode Id="ca1767a1-3136-4ec6-934e-a7f6ddbb1935" Title="DateTimeRange Methods" Url="html/Methods.T-BigO.Core.Types.DateTimeRange.htm">
+        <HelpTOCNode Title="Contains Method " Url="html/M-BigO.Core.Types.DateTimeRange.Contains.htm" />
+        <HelpTOCNode Id="a73d05e5-99d4-4ca0-acd4-9904d9430e07" Title="Equals Method " Url="html/Overload-BigO.Core.Types.DateTimeRange.Equals.htm">
+          <HelpTOCNode Title="Equals Method (DateTimeRange)" Url="html/M-BigO.Core.Types.DateTimeRange.Equals.htm" />
+          <HelpTOCNode Title="Equals Method (Nullable(Object))" Url="html/M-BigO.Core.Types.DateTimeRange.Equals_1.htm" />
+        </HelpTOCNode>
+        <HelpTOCNode Title="GetHashCode Method " Url="html/M-BigO.Core.Types.DateTimeRange.GetHashCode.htm" />
+        <HelpTOCNode Title="Overlaps Method " Url="html/M-BigO.Core.Types.DateTimeRange.Overlaps.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="841cbb74-4aaa-41da-a30d-7280183f10aa" Title="DateTimeRange Operators" Url="html/Operators.T-BigO.Core.Types.DateTimeRange.htm">
+        <HelpTOCNode Title="Equality Operator " Url="html/M-BigO.Core.Types.DateTimeRange.op_Equality.htm" />
+        <HelpTOCNode Title="Inequality Operator " Url="html/M-BigO.Core.Types.DateTimeRange.op_Inequality.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="f3a46948-8f04-465e-90af-d4be818b7763" Title="DateTimeRange Properties" Url="html/Properties.T-BigO.Core.Types.DateTimeRange.htm">
+        <HelpTOCNode Title="EndDateTime Property " Url="html/P-BigO.Core.Types.DateTimeRange.EndDateTime.htm" />
+        <HelpTOCNode Title="StartDateTime Property " Url="html/P-BigO.Core.Types.DateTimeRange.StartDateTime.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+    <HelpTOCNode Id="f243477b-c07e-430b-8288-0b686c5e95bd" Title="TimeRange Structure" Url="html/T-BigO.Core.Types.TimeRange.htm">
+      <HelpTOCNode Title="TimeRange Members" Url="html/AllMembers.T-BigO.Core.Types.TimeRange.htm" />
+      <HelpTOCNode Title="TimeRange Constructor " Url="html/M-BigO.Core.Types.TimeRange.-ctor.htm" />
+      <HelpTOCNode Id="3a4bc01c-96f9-49a3-869b-7ed0457d5e42" Title="TimeRange Methods" Url="html/Methods.T-BigO.Core.Types.TimeRange.htm">
+        <HelpTOCNode Title="Contains Method " Url="html/M-BigO.Core.Types.TimeRange.Contains.htm" />
+        <HelpTOCNode Id="dfa6804d-b357-421b-9c5f-8b98a02ac37b" Title="Equals Method " Url="html/Overload-BigO.Core.Types.TimeRange.Equals.htm">
+          <HelpTOCNode Title="Equals Method (TimeRange)" Url="html/M-BigO.Core.Types.TimeRange.Equals.htm" />
+          <HelpTOCNode Title="Equals Method (Nullable(Object))" Url="html/M-BigO.Core.Types.TimeRange.Equals_1.htm" />
+        </HelpTOCNode>
+        <HelpTOCNode Title="GetHashCode Method " Url="html/M-BigO.Core.Types.TimeRange.GetHashCode.htm" />
+        <HelpTOCNode Title="Overlaps Method " Url="html/M-BigO.Core.Types.TimeRange.Overlaps.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="445a2a79-fc3e-4063-89b3-15247a5dac04" Title="TimeRange Operators" Url="html/Operators.T-BigO.Core.Types.TimeRange.htm">
+        <HelpTOCNode Title="Equality Operator " Url="html/M-BigO.Core.Types.TimeRange.op_Equality.htm" />
+        <HelpTOCNode Title="Inequality Operator " Url="html/M-BigO.Core.Types.TimeRange.op_Inequality.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="cf25cda1-d40a-4859-ab76-c723305e3a3f" Title="TimeRange Properties" Url="html/Properties.T-BigO.Core.Types.TimeRange.htm">
+        <HelpTOCNode Title="EndTime Property " Url="html/P-BigO.Core.Types.TimeRange.EndTime.htm" />
+        <HelpTOCNode Title="StartTime Property " Url="html/P-BigO.Core.Types.TimeRange.StartTime.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+  </HelpTOCNode>
+</HelpTOC>
