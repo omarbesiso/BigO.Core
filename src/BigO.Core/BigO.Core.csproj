@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>BigO base utilities, types and extensions.</Title>
+    <Title>BigO Library Core</Title>
     <Product>BigO Library</Product>
     <Description>BigO.Core contains base utilities and extensions for the BigO .NET library.</Description>
     <Copyright>Copyright © Omar Besiso 2022</Copyright>
@@ -16,6 +16,7 @@
     <RepositoryUrl>https://github.com/omarbesiso/BigO.Core.git</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <Authors>Omar Besiso</Authors>
   </PropertyGroup>
 
   <ItemGroup>

@@ -17,6 +17,11 @@ public static class DecimalExtensions
     /// <returns>The <paramref name="value" /> represented in currency format according to the specified culture.</returns>
     public static string ToCurrencyString(this decimal value, string cultureName = "en-US")
     {
+        if (string.IsNullOrWhiteSpace(cultureName))
+        {
+            throw new ArgumentException("The culture name cannot be null or whitespace.", nameof(cultureName));
+        }
+
         var currentCulture = new CultureInfo(cultureName);
         return string.Format(currentCulture, "{0:C}", value);
     }

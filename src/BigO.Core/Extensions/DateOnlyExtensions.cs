@@ -76,8 +76,7 @@ public static class DateOnlyExtensions
     /// </returns>
     public static int GetCountOfDaysInMonth(this DateOnly date)
     {
-        var nextMonth = date.AddMonths(1);
-        return new DateTime(nextMonth.Year, nextMonth.Month, 1).AddDays(-1).Day;
+        return DateTime.DaysInMonth(date.Year, date.Month);
     }
 
     /// <summary>

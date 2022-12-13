@@ -104,6 +104,8 @@ public static class StringBuilderExtensions
             return stringBuilder;
         }
 
+        stringBuilder.Reverse();
+
         var originalString = stringBuilder.ToString();
 
         stringBuilder.Clear();

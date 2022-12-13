@@ -27,7 +27,7 @@ public static class StringExtensions
     /// <returns><c>true</c> if <paramref name="value" /> is a valid email; otherwise, <c>false</c>.</returns>
     public static bool IsValidEmail(this string? value)
     {
-        return MailAddress.TryCreate(value, out _);
+        return !string.IsNullOrWhiteSpace(value) && MailAddress.TryCreate(value, out _);
     }
 
     /// <summary>
@@ -37,6 +37,11 @@ public static class StringExtensions
     /// <returns><c>true</c> if <paramref name="value" /> is a valid URL; otherwise, <c>false</c>.</returns>
     public static bool IsValidWebsiteUrl(this string? value)
     {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
         var result = Uri.TryCreate(value, UriKind.Absolute, out var uriResult)
                      && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
         return result;

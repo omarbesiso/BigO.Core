@@ -10,8 +10,7 @@ public static class ComparableExtensions
 {
     /// <summary>
     ///     Determines if the specified <paramref name="value" /> is equal to one of the specified boundaries or exists in the
-    ///     range
-    ///     provided.
+    ///     range provided.
     /// </summary>
     /// <typeparam name="T">
     ///     The type of object to compare. This type parameter is contravariant.That is, you can use either the
@@ -25,7 +24,7 @@ public static class ComparableExtensions
     public static bool IsBetween<T>(this T value, T lowerBoundary, T upperBoundary) where T : IComparable<T>
     {
         ArgumentNullException.ThrowIfNull(value);
-        return value.CompareTo(lowerBoundary) >= 0 && value.CompareTo(upperBoundary) < 0;
+        return value.CompareTo(lowerBoundary) >= 0 && value.CompareTo(upperBoundary) <= 0;
     }
 
     /// <summary>

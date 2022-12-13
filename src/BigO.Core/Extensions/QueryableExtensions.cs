@@ -23,8 +23,7 @@ public static class QueryableExtensions
         ArgumentNullException.ThrowIfNull(source);
 
         var skipCount = (pageNumber - 1) * pageSize;
-        source = source.Skip(skipCount);
-        source = source.Take(pageSize);
+        source = source.Skip(skipCount).Take(pageSize);
 
         return source;
     }

@@ -17,7 +17,10 @@ public static class ArrayExtensions
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="array" /> is <c>null</c>.</exception>
     public static T[] Shuffle<T>(this T[] array)
     {
-        ArgumentNullException.ThrowIfNull(array);
+        if (array == null)
+        {
+            throw new ArgumentNullException(nameof(array));
+        }
 
         for (var i = 0; i < array.Length; i++)
         {
@@ -47,7 +50,11 @@ public static class ArrayExtensions
     /// </exception>
     public static void Clear(this Array array, int index, int length)
     {
-        ArgumentNullException.ThrowIfNull(array);
+        if (array == null)
+        {
+            throw new ArgumentNullException(nameof(array));
+        }
+
         Array.Clear(array, index, length);
     }
 }

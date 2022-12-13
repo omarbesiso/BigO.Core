@@ -33,6 +33,7 @@ public static class DateTimeExtensions
                 $"The maturity date '{maturityDate}' cannot occur before the birth date '{dateOfBirth}'");
         }
 
+
         if (maturityDate.Value.Month < dateOfBirth.Month ||
             (maturityDate.Value.Month == dateOfBirth.Month &&
              maturityDate.Value.Day < dateOfBirth.Day))
@@ -76,8 +77,7 @@ public static class DateTimeExtensions
     /// </returns>
     public static int GetCountOfDaysInMonth(this DateTime date)
     {
-        var nextMonth = date.AddMonths(1);
-        return new DateTime(nextMonth.Year, nextMonth.Month, 1).AddDays(-1).Day;
+        return DateTime.DaysInMonth(date.Year, date.Month);
     }
 
     /// <summary>

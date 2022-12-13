@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.ObjectModel;
+using JetBrains.Annotations;
 
 namespace BigO.Core.Extensions;
 
@@ -21,8 +22,7 @@ public static class CollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(collection);
 
-        var itemExists = collection.Contains(value);
-        if (itemExists)
+        if (collection.Count != 0 && collection.Contains(value))
         {
             return false;
         }
@@ -43,7 +43,15 @@ public static class CollectionExtensions
     public static int AddUniqueRange<T>(this ICollection<T> collection, IEnumerable<T>? values)
     {
         ArgumentNullException.ThrowIfNull(collection);
-        return values?.Count(collection.AddUnique) ?? 0;
+
+        var numbersOfItemsAdded = 0;
+
+        if (values == null || values.IsEmpty())
+        {
+            return numbersOfItemsAdded;
+        }
+
+        return values.Count(collection.AddUnique);
     }
 
     /// <summary>
@@ -62,9 +70,33 @@ public static class CollectionExtensions
         ArgumentNullException.ThrowIfNull(collection);
         ArgumentNullException.ThrowIfNull(predicate);
 
-        var deleteList = collection.Where(child => predicate(child)).ToList();
+        if (collection.IsEmpty())
+        {
+            return 0;
+        }
+
+        if (collection is List<T> list)
+        {
+            return list.RemoveAll(predicate);
+        }
+
+        var deleteList = new Collection<T>();
+
+        foreach (var item in collection)
+        {
+            if (predicate(item))
+            {
+                deleteList.Add(item);
+            }
+        }
+
         var count = deleteList.Count;
-        deleteList.ForEach(t => collection.Remove(t));
+
+        foreach (var item in deleteList)
+        {
+            collection.Remove(item);
+        }
+
         return count;
     }
 
@@ -113,6 +145,6 @@ public static class CollectionExtensions
     public static bool ContainsAny<T>(this ICollection<T> collection, params T[] values)
     {
         ArgumentNullException.ThrowIfNull(collection);
-        return values.Any(collection.Contains);
+        return !collection.IsEmpty() && values.Any(collection.Contains);
     }
 }
