@@ -58,4 +58,34 @@ public static class EnumerableExtensions
     {
         return !IsNullOrEmpty(collection);
     }
+
+    /// <summary>
+    ///     Chunks the specified list into chunks of the specified <paramref name="chunkSize" />.
+    /// </summary>
+    /// <typeparam name="T">The type of element in the list.</typeparam>
+    /// <param name="list">The list to be chunked.</param>
+    /// <param name="chunkSize">Size of the chunk.</param>
+    /// <returns>The list of the chunks created.</returns>
+    /// <exception cref="System.ArgumentNullException">The <paramref name="list" /> cannot be null.</exception>
+    /// <exception cref="System.ArgumentException">The <paramref name="chunkSize" /> has to be greater than 0.</exception>
+    public static IEnumerable<IEnumerable<T>> Chunk<T>(IEnumerable<T> list, int chunkSize)
+    {
+        if (list == null)
+        {
+            throw new ArgumentNullException(nameof(list), $"The {list} cannot be null.");
+        }
+
+        if (chunkSize <= 0)
+        {
+            throw new ArgumentException($"The {chunkSize} has to be greater than 0.");
+        }
+
+        var internalList = list.ToList();
+
+        for (var i = 0; i < internalList.Count; i += chunkSize)
+        {
+            var chunk = internalList.Skip(i).Take(chunkSize);
+            yield return chunk;
+        }
+    }
 }

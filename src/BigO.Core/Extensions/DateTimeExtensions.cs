@@ -510,4 +510,31 @@ public static class DateTimeExtensions
         return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond,
             dateTime.Microsecond);
     }
+
+    /// <summary>
+    ///     Gets the list of dates between two dates.
+    /// </summary>
+    /// <param name="fromDate">The starting date of range.</param>
+    /// <param name="toDate">The end date of the range.</param>
+    /// <returns>
+    ///     <c>null</c> if <paramref name="fromDate" /> is greater than or equal to <paramref name="toDate" /> otherwise
+    ///     it return a list of all the <see cref="DateTime" /> objects occurring between the two dates.
+    /// </returns>
+    public static IEnumerable<DateTime>? GetDatesList(this DateTime fromDate, DateTime toDate)
+    {
+        if (fromDate >= toDate)
+        {
+            return null;
+        }
+
+        var days = (toDate - fromDate).Days;
+        var dates = new DateTime[days];
+
+        for (var i = 0; i < days; i++)
+        {
+            dates[i] = fromDate.AddDays(i);
+        }
+
+        return dates;
+    }
 }
