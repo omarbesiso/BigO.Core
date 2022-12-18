@@ -113,7 +113,10 @@ public static class StringExtensions
     /// <param name="start">The starting position for the replacement.</param>
     /// <param name="length">The number of characters to replace.</param>
     /// <param name="replaceWith">The string to insert at the specified position.</param>
-    /// <returns>The string  after removing the specified number of characters starting at the specified position and inserting the replacement string at that position..</returns>
+    /// <returns>
+    ///     The string  after removing the specified number of characters starting at the specified position and inserting
+    ///     the replacement string at that position..
+    /// </returns>
     /// <exception cref="System.ArgumentOutOfRangeException">
     ///     start - The value of {nameof(start)} cannot be less than 1 or
     ///     grater than {nameof(length)}.

@@ -20,10 +20,14 @@ public static class ComparableExtensions
     /// <param name="lowerBoundary">The <paramref name="lowerBoundary" /> boundary of the range.</param>
     /// <param name="upperBoundary">The <paramref name="upperBoundary" /> boundary of the range.</param>
     /// <returns><c>true</c> if the <paramref name="value" /> value falls within the specified range, <c>false</c> otherwise.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="value" /> is <c>null</c>.</exception>
-    public static bool IsBetween<T>(this T value, T lowerBoundary, T upperBoundary) where T : IComparable<T>
+    public static bool IsBetween<T>(this T? value, T lowerBoundary, T upperBoundary) where T : IComparable<T>
     {
-        ArgumentNullException.ThrowIfNull(value);
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (value == null)
+        {
+            return false;
+        }
+
         return value.CompareTo(lowerBoundary) >= 0 && value.CompareTo(upperBoundary) <= 0;
     }
 

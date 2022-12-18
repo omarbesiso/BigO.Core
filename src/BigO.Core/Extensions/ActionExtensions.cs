@@ -31,11 +31,10 @@ public static class ActionExtensions
     {
         ArgumentNullException.ThrowIfNull(action);
 
-        var stopwatch = Stopwatch.StartNew();
+        var startTime = Stopwatch.GetTimestamp();
 
         action.Invoke();
 
-        stopwatch.Stop();
-        return stopwatch.Elapsed;
+        return Stopwatch.GetElapsedTime(startTime);
     }
 }

@@ -25,23 +25,7 @@ public static class DateTimeExtensions
     /// </exception>
     public static int Age(this DateTime dateOfBirth, DateTime? maturityDate = null)
     {
-        maturityDate ??= DateTime.Today;
-
-        if (maturityDate < dateOfBirth)
-        {
-            throw new ArgumentException(
-                $"The maturity date '{maturityDate}' cannot occur before the birth date '{dateOfBirth}'");
-        }
-
-
-        if (maturityDate.Value.Month < dateOfBirth.Month ||
-            (maturityDate.Value.Month == dateOfBirth.Month &&
-             maturityDate.Value.Day < dateOfBirth.Day))
-        {
-            return maturityDate.Value.Year - dateOfBirth.Year - 1;
-        }
-
-        return maturityDate.Value.Year - dateOfBirth.Year;
+        return dateOfBirth.ToDateOnly().Age(maturityDate?.ToDateOnly());
     }
 
     /// <summary>
@@ -64,7 +48,7 @@ public static class DateTimeExtensions
     /// </exception>
     public static DateTime AddWeeks(this DateTime date, double numberOfWeeks)
     {
-        return date.AddDays(numberOfWeeks * 7);
+        return date.AddDays(Convert.ToInt32(Math.Ceiling(numberOfWeeks * 7)));
     }
 
     /// <summary>
@@ -75,7 +59,7 @@ public static class DateTimeExtensions
     /// <returns>
     ///     The number of days in the month.
     /// </returns>
-    public static int GetCountOfDaysInMonth(this DateTime date)
+    public static int DaysInMonth(this DateTime date)
     {
         return DateTime.DaysInMonth(date.Year, date.Month);
     }
@@ -147,7 +131,7 @@ public static class DateTimeExtensions
     /// </returns>
     public static DateTime GetLastDateOfMonth(this DateTime date, DayOfWeek? dayOfWeek = null)
     {
-        var lastDateOfMonth = new DateTime(date.Year, date.Month, GetCountOfDaysInMonth(date));
+        var lastDateOfMonth = new DateTime(date.Year, date.Month, DaysInMonth(date));
 
         if (!dayOfWeek.HasValue)
         {
@@ -192,7 +176,7 @@ public static class DateTimeExtensions
     /// </exception>
     public static int GetNumberOfDays(this DateTime fromDate, DateTime toDate)
     {
-        return Convert.ToInt32(toDate.Subtract(fromDate).TotalDays);
+        return Convert.ToInt32(toDate.Date.Subtract(fromDate.Date).TotalDays);
     }
 
     /// <summary>
@@ -258,7 +242,7 @@ public static class DateTimeExtensions
     /// </returns>
     public static bool IsTimeEqual(this DateTime time, DateTime timeToCompare)
     {
-        return time.TimeOfDay == timeToCompare.TimeOfDay;
+        return time.ToTimeOnly() == timeToCompare.ToTimeOnly();
     }
 
     /// <summary>
@@ -296,7 +280,7 @@ public static class DateTimeExtensions
     /// <returns><c>true</c> if the specified date is a leap day; otherwise, <c>false</c>.</returns>
     public static bool IsLeapDay(this DateTime date)
     {
-        return date.Month == 2 && date.Day == 29;
+        return date is { Month: 2, Day: 29 };
     }
 
     /// <summary>
@@ -430,64 +414,29 @@ public static class DateTimeExtensions
     /// <returns>The list of dates between the two days.</returns>
     public static IEnumerable<DateTime> GetDatesInRange(this DateTime fromDate, DateTime toDate)
     {
-        var days = (toDate - fromDate).Days;
-        var dates = new DateTime[days];
-
-        for (var i = 0; i < days; i++)
+        if (fromDate == toDate)
         {
-            dates[i] = fromDate.AddDays(i).Date;
+            return new[] { new DateTime(toDate.Year, toDate.Month, toDate.Day) };
+        }
+
+        var dates = new List<DateTime>();
+
+        if (fromDate < toDate)
+        {
+            for (var dt = fromDate; dt <= toDate; dt = dt.AddDays(1))
+            {
+                dates.Add(dt);
+            }
+        }
+        else
+        {
+            for (var dt = fromDate; dt >= toDate; dt = dt.AddDays(-1))
+            {
+                dates.Add(dt);
+            }
         }
 
         return dates;
-    }
-
-    /// <summary>
-    ///     Determines whether the specified date is a working day.
-    /// </summary>
-    /// <param name="date">The date to be checked.</param>
-    /// <param name="cultureInfo">The culture information. Default is "en-US".</param>
-    /// <returns><c>true</c> if the date is a working day; otherwise, <c>false</c>.</returns>
-    public static bool IsWorkingDay(this DateTime date, CultureInfo? cultureInfo = null)
-    {
-        return !date.IsWeekendDay(cultureInfo);
-    }
-
-    /// <summary>
-    ///     Determines whether the specified date is a weekend day.
-    /// </summary>
-    /// <param name="date">The date to be checked.</param>
-    /// <param name="cultureInfo">The culture information. Default is the culture of the current thread".</param>
-    /// <returns><c>true</c> if the date is a weekend day; otherwise, <c>false</c>.</returns>
-    public static bool IsWeekendDay(this DateTime date, CultureInfo? cultureInfo = null)
-    {
-        var internalCultureInfo = cultureInfo ?? Thread.CurrentThread.CurrentCulture;
-
-        var firstDay = internalCultureInfo.DateTimeFormat.FirstDayOfWeek;
-
-        var currentDayInProvidedDatetime = date.DayOfWeek;
-        var lastDayOfWeek = firstDay + 4;
-
-        var isInWeekend = currentDayInProvidedDatetime == lastDayOfWeek + 1 ||
-                          currentDayInProvidedDatetime == lastDayOfWeek + 2;
-
-        return isInWeekend;
-    }
-
-    /// <summary>
-    ///     Get the next working day after the date provided.
-    /// </summary>
-    /// <param name="date">The date to be to be used.</param>
-    /// <param name="cultureInfo">The culture information. Default is "en-US".</param>
-    /// <returns>A <see cref="DateTime" /> object indicating the next working day.</returns>
-    public static DateTime NextWorkday(this DateTime date, CultureInfo? cultureInfo = null)
-    {
-        var nextDay = date.AddDays(1);
-        while (!nextDay.IsWorkingDay(cultureInfo))
-        {
-            nextDay = nextDay.AddDays(1);
-        }
-
-        return nextDay;
     }
 
     /// <summary>
@@ -509,32 +458,5 @@ public static class DateTimeExtensions
     {
         return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond,
             dateTime.Microsecond);
-    }
-
-    /// <summary>
-    ///     Gets the list of dates between two dates.
-    /// </summary>
-    /// <param name="fromDate">The starting date of range.</param>
-    /// <param name="toDate">The end date of the range.</param>
-    /// <returns>
-    ///     <c>null</c> if <paramref name="fromDate" /> is greater than or equal to <paramref name="toDate" /> otherwise
-    ///     it return a list of all the <see cref="DateTime" /> objects occurring between the two dates.
-    /// </returns>
-    public static IEnumerable<DateTime>? GetDatesList(this DateTime fromDate, DateTime toDate)
-    {
-        if (fromDate >= toDate)
-        {
-            return null;
-        }
-
-        var days = (toDate - fromDate).Days;
-        var dates = new DateTime[days];
-
-        for (var i = 0; i < days; i++)
-        {
-            dates[i] = fromDate.AddDays(i);
-        }
-
-        return dates;
     }
 }

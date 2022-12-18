@@ -74,7 +74,7 @@ public static class DateOnlyExtensions
     /// <returns>
     ///     The number of days in the month.
     /// </returns>
-    public static int GetCountOfDaysInMonth(this DateOnly date)
+    public static int DaysInMonth(this DateOnly date)
     {
         return DateTime.DaysInMonth(date.Year, date.Month);
     }
@@ -146,7 +146,7 @@ public static class DateOnlyExtensions
     /// </returns>
     public static DateOnly GetLastDateOfMonth(this DateOnly date, DayOfWeek? dayOfWeek = null)
     {
-        var lastDateOfMonth = new DateOnly(date.Year, date.Month, GetCountOfDaysInMonth(date));
+        var lastDateOfMonth = new DateOnly(date.Year, date.Month, DaysInMonth(date));
 
         if (!dayOfWeek.HasValue)
         {
@@ -234,7 +234,7 @@ public static class DateOnlyExtensions
     /// <returns><c>true</c> if the specified date is a leap day; otherwise, <c>false</c>.</returns>
     public static bool IsLeapDay(this DateOnly date)
     {
-        return date.Month == 2 && date.Day == 29;
+        return date is { Month: 2, Day: 29 };
     }
 
     /// <summary>
@@ -273,12 +273,26 @@ public static class DateOnlyExtensions
     /// <returns>The list of dates between the two days.</returns>
     public static IEnumerable<DateOnly> GetDatesInRange(this DateOnly fromDate, DateOnly toDate)
     {
-        var days = (toDate.ToDateTime(TimeOnly.MinValue) - fromDate.ToDateTime(TimeOnly.MinValue)).Days;
-        var dates = new DateOnly[days];
-
-        for (var i = 0; i < days; i++)
+        if (fromDate == toDate)
         {
-            dates[i] = fromDate.AddDays(i);
+            return new[] { new DateOnly(toDate.Year, toDate.Month, toDate.Day) };
+        }
+
+        var dates = new List<DateOnly>();
+
+        if (fromDate < toDate)
+        {
+            for (var dt = fromDate; dt <= toDate; dt = dt.AddDays(1))
+            {
+                dates.Add(dt);
+            }
+        }
+        else
+        {
+            for (var dt = fromDate; dt >= toDate; dt = dt.AddDays(-1))
+            {
+                dates.Add(dt);
+            }
         }
 
         return dates;
@@ -294,60 +308,17 @@ public static class DateOnlyExtensions
     /// <returns><c>true</c> if the date is within the range, <c>false</c> otherwise.</returns>
     public static bool IsBetween(this DateOnly dt, DateOnly rangeBeg, DateOnly rangeEnd, bool isInclusive = true)
     {
+        // ReSharper disable once InvertIf
         if (isInclusive)
         {
+            if (rangeBeg == rangeEnd)
+            {
+                return dt == rangeBeg;
+            }
+
             return dt >= rangeBeg && dt <= rangeEnd;
         }
 
         return dt > rangeBeg && dt < rangeEnd;
-    }
-
-    /// <summary>
-    ///     Determines whether the specified date is a working day.
-    /// </summary>
-    /// <param name="date">The date to be checked.</param>
-    /// <param name="cultureInfo">The culture information. Default is "en-US".</param>
-    /// <returns><c>true</c> if the date is a working day; otherwise, <c>false</c>.</returns>
-    public static bool IsWorkingDay(this DateOnly date, CultureInfo? cultureInfo = null)
-    {
-        return !date.ToDateTime(TimeOnly.MinValue).IsWeekendDay(cultureInfo);
-    }
-
-    /// <summary>
-    ///     Determines whether the specified date is a weekend day.
-    /// </summary>
-    /// <param name="date">The date to be checked.</param>
-    /// <param name="cultureInfo">The culture information. Default is the culture of the current thread".</param>
-    /// <returns><c>true</c> if the date is a weekend day; otherwise, <c>false</c>.</returns>
-    public static bool IsWeekendDay(this DateOnly date, CultureInfo? cultureInfo = null)
-    {
-        var internalCultureInfo = cultureInfo ?? Thread.CurrentThread.CurrentCulture;
-
-        var firstDay = internalCultureInfo.DateTimeFormat.FirstDayOfWeek;
-
-        var currentDayInProvidedDatetime = date.DayOfWeek;
-        var lastDayOfWeek = firstDay + 4;
-
-        var isInWeekend = currentDayInProvidedDatetime == lastDayOfWeek + 1 ||
-                          currentDayInProvidedDatetime == lastDayOfWeek + 2;
-
-        return isInWeekend;
-    }
-
-    /// <summary>
-    ///     Get the next working day after the date provided.
-    /// </summary>
-    /// <param name="date">The date to be to be used.</param>
-    /// <param name="cultureInfo">The culture information. Default is "en-US".</param>
-    /// <returns>A <see cref="DateOnly" /> object indicating the next working day.</returns>
-    public static DateOnly NextWorkday(this DateOnly date, CultureInfo? cultureInfo = null)
-    {
-        var nextDay = date.AddDays(1);
-        while (!nextDay.IsWorkingDay(cultureInfo))
-        {
-            nextDay = nextDay.AddDays(1);
-        }
-
-        return nextDay;
     }
 }
