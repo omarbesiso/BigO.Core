@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.32916.344
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BigO.Core", "BigO.Core\BigO.Core.csproj", "{059E22F7-2F00-4B84-A9B6-DA7DB682576F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigO.Core.Tests", "BigO.Core.Tests\BigO.Core.Tests.csproj", "{3B109DF4-8D47-4B57-B5E1-D30D2FA2F002}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BigO.Core.Tests", "BigO.Core.Tests\BigO.Core.Tests.csproj", "{3B109DF4-8D47-4B57-B5E1-D30D2FA2F002}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

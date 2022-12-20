@@ -44,6 +44,7 @@ public static class DictionaryExtensions
         Func<TValue> valueFactory)
     {
         ArgumentNullException.ThrowIfNull(dictionary);
+        ArgumentNullException.ThrowIfNull(valueFactory);
 
         if (dictionary.ContainsKey(key))
         {
@@ -67,6 +68,7 @@ public static class DictionaryExtensions
         Func<TKey, TValue> valueFactory)
     {
         ArgumentNullException.ThrowIfNull(dictionary);
+        ArgumentNullException.ThrowIfNull(valueFactory);
 
         if (dictionary.ContainsKey(key))
         {

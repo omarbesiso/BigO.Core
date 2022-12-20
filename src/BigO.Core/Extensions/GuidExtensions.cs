@@ -8,17 +8,31 @@ namespace BigO.Core.Extensions;
 [PublicAPI]
 public static class GuidExtensions
 {
-    /// <summary>Indicates if <see cref="Guid" /> value value is empty.</summary>
-    /// <param name="value">The value to be checked.</param>
-    /// <returns><c>true</c> if the <paramref name="value" /> is empty, otherwise <c>false</c>.</returns>
+    /// <summary>
+    /// Determines whether the specified <see cref="Guid"/> is empty.
+    /// </summary>
+    /// <param name="value">The <see cref="Guid"/> to check.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified <see cref="Guid"/> is empty; otherwise, <c>false</c>.
+    /// </returns>
+    /// <remarks>
+    ///   A <see cref="Guid"/> is considered empty if it has a value of <c>Guid.Empty</c>.
+    /// </remarks>
     public static bool IsEmpty(this Guid value)
     {
         return value == Guid.Empty;
     }
 
-    /// <summary>Indicates if <see cref="Guid" /> value value is not empty.</summary>
-    /// <param name="value">The value to be checked.</param>
-    /// <returns><c>true</c> if the <paramref name="value" /> is not empty, otherwise <c>false</c>.</returns>
+    /// <summary>
+    /// Determines whether the specified <see cref="Guid"/> is not empty.
+    /// </summary>
+    /// <param name="value">The <see cref="Guid"/> to check.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified <see cref="Guid"/> is not empty; otherwise, <c>false</c>.
+    /// </returns>
+    /// <remarks>
+    ///   A <see cref="Guid"/> is considered not empty if it has a value other than <c>Guid.Empty</c>.
+    /// </remarks>
     public static bool IsNotEmpty(this Guid value)
     {
         return value != Guid.Empty;

@@ -3,23 +3,26 @@
 namespace BigO.Core.Extensions;
 
 /// <summary>
-///     Contains useful utility/extensions methods for working with <see cref="IComparable" /> objects.
+///     Provides a set of useful extension methods for working with <see cref="IComparable{T}" /> objects.
 /// </summary>
 [PublicAPI]
 public static class ComparableExtensions
 {
     /// <summary>
-    ///     Determines if the specified <paramref name="value" /> is equal to one of the specified boundaries or exists in the
-    ///     range provided.
+    ///     Determines whether the given nullable value is between the specified lower and upper boundaries.
     /// </summary>
-    /// <typeparam name="T">
-    ///     The type of object to compare. This type parameter is contravariant.That is, you can use either the
-    ///     type you specified or any type that is less derived.
-    /// </typeparam>
-    /// <param name="value">The <paramref name="value" /> to be checked against the range.</param>
-    /// <param name="lowerBoundary">The <paramref name="lowerBoundary" /> boundary of the range.</param>
-    /// <param name="upperBoundary">The <paramref name="upperBoundary" /> boundary of the range.</param>
-    /// <returns><c>true</c> if the <paramref name="value" /> value falls within the specified range, <c>false</c> otherwise.</returns>
+    /// <typeparam name="T">The type of the value to compare. Must implement <see cref="IComparable{T}" />.</typeparam>
+    /// <param name="value">The nullable value to compare.</param>
+    /// <param name="lowerBoundary">The lower boundary to compare against.</param>
+    /// <param name="upperBoundary">The upper boundary to compare against.</param>
+    /// <returns>True if the value is between the lower and upper boundaries (inclusive), false otherwise.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown if the value is <c>null</c> and the type <typeparamref name="T" /> is a
+    ///     reference type.
+    /// </exception>
+    /// <remarks>
+    ///     If the value is <c>null</c>, the method will return false.
+    /// </remarks>
     public static bool IsBetween<T>(this T? value, T lowerBoundary, T upperBoundary) where T : IComparable<T>
     {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -32,23 +35,19 @@ public static class ComparableExtensions
     }
 
     /// <summary>
-    ///     Limits the <paramref name="value" /> to a  specified <paramref name="maximum" /> value.
+    ///     Limits the given value to the specified maximum value.
     /// </summary>
-    /// <typeparam name="T">
-    ///     The type of object to compare. This type parameter is contravariant.That is, you can use either the
-    ///     type you specified or any type that is less derived.
-    /// </typeparam>
-    /// <param name="value">The value to be limited.</param>
-    /// <param name="maximum">The maximum limit of the value.</param>
+    /// <typeparam name="T">The type of the value to compare. Must implement <see cref="IComparable{T}" />.</typeparam>
+    /// <param name="value">The value to compare and potentially limit.</param>
+    /// <param name="maximum">The maximum value to limit to.</param>
+    /// <returns>The given value if it is less than the maximum value, the maximum value otherwise.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown if the value is <c>null</c> and the type <typeparamref name="T" /> is a
+    ///     reference type.
+    /// </exception>
     /// <remarks>
-    ///     This is useful in instances such as feeding a progress bar with values from a source
-    ///     which eventually might exceed an expected maximum.
+    ///     This method can be used to ensure that a value does not exceed a certain limit.
     /// </remarks>
-    /// <returns>
-    ///     If the <paramref name="value" /> does not exceed the limit then the value will be returned. Otherwise, the
-    ///     limit will be returned.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="value" /> is <c>null</c>.</exception>
     public static T Limit<T>(this T value, T maximum) where T : IComparable<T>
     {
         ArgumentNullException.ThrowIfNull(value);
@@ -56,18 +55,23 @@ public static class ComparableExtensions
     }
 
     /// <summary>
-    ///     Limits the <paramref name="value" /> to a specified <paramref name="minimum" /> and <paramref name="maximum" />
-    ///     values.
+    ///     Limits the given value to the specified minimum and maximum values.
     /// </summary>
-    /// <typeparam name="T">
-    ///     The type of object to compare. This type parameter is contravariant.That is, you can use either the
-    ///     type you specified or any type that is less derived.
-    /// </typeparam>
-    /// <param name="value">The value to be limited.</param>
-    /// <param name="minimum">The minimum limit of the value.</param>
-    /// <param name="maximum">The maximum limit of the value.</param>
-    /// <returns>The value, truncated by a minimum or maximum boundary.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="value" /> is <c>null</c>.</exception>
+    /// <typeparam name="T">The type of the value to compare. Must implement <see cref="IComparable" />.</typeparam>
+    /// <param name="value">The value to compare and potentially limit.</param>
+    /// <param name="minimum">The minimum value to limit to.</param>
+    /// <param name="maximum">The maximum value to limit to.</param>
+    /// <returns>
+    ///     The given value if it is between the minimum and maximum values (inclusive), the minimum value if it is less
+    ///     than the minimum, or the maximum value if it is greater than the maximum.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown if the value is <c>null</c> and the type <typeparamref name="T" /> is a
+    ///     reference type.
+    /// </exception>
+    /// <remarks>
+    ///     This method can be used to ensure that a value stays within a certain range.
+    /// </remarks>
     public static T Limit<T>(this T value, T minimum, T maximum) where T : IComparable
     {
         ArgumentNullException.ThrowIfNull(value);

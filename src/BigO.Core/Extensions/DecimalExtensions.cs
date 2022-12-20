@@ -10,19 +10,27 @@ namespace BigO.Core.Extensions;
 public static class DecimalExtensions
 {
     /// <summary>
-    ///     Convert a decimal to string formatted in the currency format of the specified culture.
+    ///     Converts a decimal value to a currency string using a specified culture.
     /// </summary>
-    /// <param name="value">The value to be formatted.</param>
-    /// <param name="cultureName">Name of the culture to be used when formatting the value.</param>
-    /// <returns>The <paramref name="value" /> represented in currency format according to the specified culture.</returns>
+    /// <param name="value">The decimal value to convert.</param>
+    /// <param name="cultureName">The name of the culture to use for the currency string formatting. Default is "en-US".</param>
+    /// <returns>A string representing the given decimal value as a currency in the specified culture.</returns>
+    /// <exception cref="ArgumentNullException">The <paramref name="cultureName" /> parameter is <c>null</c> or empty.</exception>
+    /// <exception cref="CultureNotFoundException">
+    ///     The culture specified by the <paramref name="cultureName" /> parameter is
+    ///     not found.
+    /// </exception>
+    /// <remarks>
+    ///     This method converts the given decimal value to a currency string using the specified culture. If no culture is
+    ///     specified, or if the culture is "en-US", the invariant culture is used.
+    ///     The resulting currency string is formatted according to the conventions of the specified culture.
+    /// </remarks>
     public static string ToCurrencyString(this decimal value, string cultureName = "en-US")
     {
-        if (string.IsNullOrWhiteSpace(cultureName))
-        {
-            throw new ArgumentException("The culture name cannot be null or whitespace.", nameof(cultureName));
-        }
-
-        var currentCulture = new CultureInfo(cultureName);
+        var currentCulture = string.IsNullOrWhiteSpace(cultureName) &&
+                             !cultureName.Equals("en-US", StringComparison.OrdinalIgnoreCase)
+            ? CultureInfo.InvariantCulture
+            : new CultureInfo(cultureName);
         return string.Format(currentCulture, "{0:C}", value);
     }
 }

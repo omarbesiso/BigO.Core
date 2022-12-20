@@ -1,41 +1,63 @@
 ﻿using System.Net.Mail;
 using System.Text;
-using BigO.Core.Validation;
 using JetBrains.Annotations;
 
 namespace BigO.Core.Extensions;
 
 /// <summary>
-///     Contains useful utility methods for working with strings.
+///     Provides a set of useful extension methods for working with <see cref="IComparable{T}" /> objects.
 /// </summary>
 [PublicAPI]
 public static class StringExtensions
 {
     /// <summary>
-    ///     Indicates whether the specified string represents a valid <see cref="Guid" />.
+    ///     Determines whether the given string is a valid <see cref="Guid" />.
     /// </summary>
-    /// <param name="value">The string value to be checked.</param>
-    /// <returns><c>true</c> if the string represents a valid <see cref="Guid" />; otherwise <c>false</c>.</returns>
+    /// <param name="value">The string to check.</param>
+    /// <returns><c>true</c> if the string is a valid <see cref="Guid" />; otherwise, <c>false</c>.</returns>
+    /// <remarks>
+    ///     This method uses the <see cref="Guid.TryParse(ReadOnlySpan{char}, out Guid)" /> and
+    ///     <see cref="Guid.TryParseExact(string, string, out Guid)" /> methods to check if the given string is a valid
+    ///     <see cref="Guid" />.
+    ///     If the string is <c>null</c> or empty, the method returns <c>false</c>.
+    /// </remarks>
     public static bool IsGuid(this string value)
     {
-        return !string.IsNullOrWhiteSpace(value) && Guid.TryParse(value.AsSpan(), out _);
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        var guidSpan = value.AsSpan();
+        return Guid.TryParse(guidSpan, out _) || Guid.TryParseExact(value, "N", out _);
     }
 
     /// <summary>
-    ///     Indicates whether the specified string represents a valid email.
+    ///     Determines whether the given string is a valid email address.
     /// </summary>
-    /// <param name="value">The string value to be checked.</param>
-    /// <returns><c>true</c> if <paramref name="value" /> is a valid email; otherwise, <c>false</c>.</returns>
+    /// <param name="value">The string to check.</param>
+    /// <returns><c>true</c> if the string is a valid email address; otherwise, <c>false</c>.</returns>
+    /// <remarks>
+    ///     This method uses the <see cref="MailAddress.TryCreate(string, out MailAddress)" /> method to check if the given
+    ///     string is a valid email address.
+    ///     If the string is <c>null</c> or empty, the method returns <c>false</c>.
+    /// </remarks>
     public static bool IsValidEmail(this string? value)
     {
         return !string.IsNullOrWhiteSpace(value) && MailAddress.TryCreate(value, out _);
     }
 
     /// <summary>
-    ///     Indicates whether the specified string represents a valid website URL.
+    ///     Determines whether the given string is a valid URL for a website.
     /// </summary>
-    /// <param name="value">The string value to be checked.</param>
-    /// <returns><c>true</c> if <paramref name="value" /> is a valid URL; otherwise, <c>false</c>.</returns>
+    /// <param name="value">The string to check.</param>
+    /// <returns><c>true</c> if the string is a valid URL for a website; otherwise, <c>false</c>.</returns>
+    /// <remarks>
+    ///     This method uses the <see cref="Uri.TryCreate(string, UriKind, out Uri)" /> method to check if the given string is
+    ///     a valid URL for a website.
+    ///     The URL must have the scheme "http" or "https".
+    ///     If the string is <c>null</c> or empty, the method returns <c>false</c>.
+    /// </remarks>
     public static bool IsValidWebsiteUrl(this string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -49,14 +71,17 @@ public static class StringExtensions
     }
 
     /// <summary>
-    ///     Removes a specified set of characters from a string.
+    ///     Removes specified characters from the string.
     /// </summary>
-    /// <param name="value">The string from which characters are to eb removed.</param>
-    /// <param name="charactersToExclude">The set of characters to be removed.</param>
-    /// <returns>
-    ///     If the string is empty or the list of characters to be excluded is null or empty then the original string is
-    ///     returned, otherwise a string with the specified characters removed is returned.
-    /// </returns>
+    /// <param name="value">The string to remove the characters from.</param>
+    /// <param name="charactersToExclude">The characters to remove from the string.</param>
+    /// <returns>The string with the specified characters removed.</returns>
+    /// <remarks>
+    ///     This method iterates through the <paramref name="value" /> string and removes any occurrences of the specified
+    ///     characters.
+    ///     If the <paramref name="value" /> string is <c>null</c> or empty, or if <paramref name="charactersToExclude" /> is
+    ///     <c>null</c> or empty, the method returns the original string.
+    /// </remarks>
     public static string RemoveCharacters(this string value, params char[]? charactersToExclude)
     {
         if (string.IsNullOrEmpty(value) || charactersToExclude.IsNullOrEmpty())
@@ -81,10 +106,16 @@ public static class StringExtensions
     }
 
     /// <summary>
-    ///     Shuffles/Scrambles the characters in a string.
+    ///     Shuffles the characters in the string.
     /// </summary>
-    /// <param name="value">The value of the string to be shuffled.</param>
-    /// <returns>The shuffled string. If the string is <c>null</c> or empty then the string is returned as is.</returns>
+    /// <param name="value">The string to shuffle.</param>
+    /// <returns>The shuffled string.</returns>
+    /// <remarks>
+    ///     This method converts the <paramref name="value" /> string to a character array and shuffles the characters using
+    ///     the Fisher-Yates shuffle algorithm.
+    ///     It then rebuilds the string using the shuffled character array.
+    ///     If the <paramref name="value" /> string is <c>null</c> or empty, the method returns the original string.
+    /// </remarks>
     public static string Shuffle(this string value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -105,32 +136,38 @@ public static class StringExtensions
     }
 
     /// <summary>
-    ///     Replicates the logic of T-SQL STUFF function. The STUFF function inserts a string into another string. It deletes a
-    ///     specified length of characters in the first string at the start position and then inserts the second string into
-    ///     the first string at the start position.
+    ///     Replaces a specified number of characters in the string with a specified replacement string.
     /// </summary>
-    /// <param name="value">The string value to be apply the replacement to.</param>
-    /// <param name="start">The starting position for the replacement.</param>
+    /// <param name="value">The string to modify.</param>
+    /// <param name="start">The starting position of the characters to replace. The first character is 1.</param>
     /// <param name="length">The number of characters to replace.</param>
-    /// <param name="replaceWith">The string to insert at the specified position.</param>
-    /// <returns>
-    ///     The string  after removing the specified number of characters starting at the specified position and inserting
-    ///     the replacement string at that position..
-    /// </returns>
-    /// <exception cref="System.ArgumentOutOfRangeException">
-    ///     start - The value of {nameof(start)} cannot be less than 1 or
-    ///     grater than {nameof(length)}.
+    /// <param name="replaceWith">The replacement string.</param>
+    /// <returns>The modified string.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown if <paramref name="value" /> or <paramref name="replaceWith" /> is
+    ///     <c>null</c> or empty.
     /// </exception>
-    /// <exception cref="System.ArgumentOutOfRangeException">
-    ///     length - The value of {nameof(length)} cannot be less than 0 and
-    ///     the {nameof(start)} + {nameof(length)} cannot be longer than the value string in length.
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Thrown if <paramref name="start" /> is less than 1 or greater than the length of the <paramref name="value" />
+    ///     string,
+    ///     or if <paramref name="length" /> is less than 0 or the sum of <paramref name="start" /> and
+    ///     <paramref name="length" /> is greater than the length of the <paramref name="value" /> string.
     /// </exception>
-    /// <exception cref="ArgumentNullException"><paramref name="value" /> is <c>null</c>.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="replaceWith" /> is <c>null</c>.</exception>
+    /// <remarks>
+    ///     This method uses the <see cref="StringBuilder.Replace(string, string, int, int)" /> method to replace a specified
+    ///     number of characters in the <paramref name="value" /> string with the <paramref name="replaceWith" /> string.
+    /// </remarks>
     public static string Stuff(this string value, int start, int length, string replaceWith)
     {
-        Guard.NotNull(value);
-        Guard.NotNull(replaceWith);
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
+
+        if (string.IsNullOrWhiteSpace(replaceWith))
+        {
+            throw new ArgumentNullException(nameof(replaceWith));
+        }
 
         if (start < 1 || start > value.Length)
         {

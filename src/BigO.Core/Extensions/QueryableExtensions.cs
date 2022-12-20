@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+// ReSharper disable InvalidXmlDocComment
 
 namespace BigO.Core.Extensions;
 
@@ -9,15 +10,23 @@ namespace BigO.Core.Extensions;
 public static class QueryableExtensions
 {
     /// <summary>
-    ///     Returns a specified number of contiguous elements after bypassing a specified number of elements in a sequence and
-    ///     then returns the remaining elements.
+    /// Returns a specified number of contiguous elements from the start of a sequence.
     /// </summary>
-    /// <typeparam name="T">The type of elements in <paramref name="source" />.</typeparam>
-    /// <param name="source">An <see cref="IQueryable{T}" /> to return elements from.</param>
-    /// <param name="pageNumber">The number of the page to return the elements of.</param>
-    /// <param name="pageSize">The number of elements to return per page.</param>
-    /// <returns>An <see cref="IQueryable{T}" /> that contains the specified number of elements specified.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="source" /> is <c>null</c>.</exception>
+    /// <typeparam name="T">The type of the elements of <paramref name="source"/>.</typeparam>
+    /// <param name="source">The <see cref="IQueryable{T}"/> to return elements from.</param>
+    /// <param name="pageNumber">The page number to retrieve.</param>
+    /// <param name="pageSize">The number of elements to retrieve in each page.</param>
+    /// <returns>
+    ///   An <see cref="IQueryable{T}"/> that contains the specified number of elements from the start of the input sequence.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   If <paramref name="source"/> is <c>null</c>.
+    /// </exception>
+    /// <remarks>
+    ///   This method applies the <see cref="IQueryable{T}.Skip(int)"/> and <see cref="IQueryable{T}.Take(int)"/> methods to the input
+    ///   <paramref name="source"/> to implement paging. The <paramref name="pageNumber"/> parameter determines the number of elements to skip,
+    ///   and the <paramref name="pageSize"/> parameter determines the number of elements to take.
+    /// </remarks>
     public static IQueryable<T> Page<T>(this IQueryable<T> source, int pageNumber, int pageSize)
     {
         ArgumentNullException.ThrowIfNull(source);
