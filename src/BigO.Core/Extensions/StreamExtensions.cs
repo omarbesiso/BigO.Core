@@ -9,18 +9,19 @@ namespace BigO.Core.Extensions;
 public static class StreamExtensions
 {
     /// <summary>
-    /// Converts the specified <see cref="Stream"/> to a byte array.
+    ///     Converts the specified <see cref="Stream" /> to a byte array.
     /// </summary>
-    /// <param name="stream">The <see cref="Stream"/> to convert.</param>
+    /// <param name="stream">The <see cref="Stream" /> to convert.</param>
     /// <returns>
-    ///   A byte array that contains the contents of the input <paramref name="stream"/>.
+    ///     A byte array that contains the contents of the input <paramref name="stream" />.
     /// </returns>
     /// <exception cref="ArgumentNullException">
-    ///   If <paramref name="stream"/> is <c>null</c>.
+    ///     If <paramref name="stream" /> is <c>null</c>.
     /// </exception>
     /// <remarks>
-    ///   This method uses a <see cref="MemoryStream"/> to copy the contents of the input <paramref name="stream"/> and then calls the
-    ///   <see cref="MemoryStream.ToArray"/> method to convert the contents to a byte array.
+    ///     This method uses a <see cref="MemoryStream" /> to copy the contents of the input <paramref name="stream" /> and
+    ///     then calls the
+    ///     <see cref="MemoryStream.ToArray" /> method to convert the contents to a byte array.
     /// </remarks>
     public static byte[] ToByteArray(this Stream stream)
     {
@@ -32,19 +33,21 @@ public static class StreamExtensions
     }
 
     /// <summary>
-    /// Asynchronously converts the specified <see cref="Stream"/> to a byte array.
+    ///     Asynchronously converts the specified <see cref="Stream" /> to a byte array.
     /// </summary>
-    /// <param name="stream">The <see cref="Stream"/> to convert.</param>
+    /// <param name="stream">The <see cref="Stream" /> to convert.</param>
     /// <returns>
-    ///   A task that represents the asynchronous operation. The task result contains a byte array that contains the contents of the
-    ///   input <paramref name="stream"/>.
+    ///     A task that represents the asynchronous operation. The task result contains a byte array that contains the contents
+    ///     of the
+    ///     input <paramref name="stream" />.
     /// </returns>
     /// <exception cref="ArgumentNullException">
-    ///   If <paramref name="stream"/> is <c>null</c>.
+    ///     If <paramref name="stream" /> is <c>null</c>.
     /// </exception>
     /// <remarks>
-    ///   This method uses a <see cref="MemoryStream"/> to asynchronously copy the contents of the input <paramref name="stream"/> and then calls the
-    ///   <see cref="MemoryStream.ToArray"/> method to convert the contents to a byte array.
+    ///     This method uses a <see cref="MemoryStream" /> to asynchronously copy the contents of the input
+    ///     <paramref name="stream" /> and then calls the
+    ///     <see cref="MemoryStream.ToArray" /> method to convert the contents to a byte array.
     /// </remarks>
     public static async Task<byte[]> ToByteArrayAsync(this Stream stream)
     {

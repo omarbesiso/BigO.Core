@@ -131,4 +131,14 @@ public struct DateTimeWithTimeZone : IComparable<DateTimeWithTimeZone>, IEquatab
     {
         return !left.Equals(right);
     }
+
+    public DateTimeWithTimeZone AddMinutes(int minutes)
+    {
+        return new DateTimeWithTimeZone(Value.AddMinutes(minutes), TimeZone);
+    }
+
+    public DateTimeWithTimeZone AddHours(int hours)
+    {
+        return new DateTimeWithTimeZone(Value.AddHours(hours), TimeZone);
+    }
 }

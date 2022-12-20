@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Runtime.Serialization;
 using System.Text;
 using BigO.Core.Extensions;
 
@@ -77,7 +75,7 @@ public class TypeExtensionsTests
     {
         Assert.Equal(expected, type.DefaultValue());
     }
-    
+
     [Fact]
     public void DefaultValue_ReturnsNull_ForReferenceTypes()
     {
@@ -172,10 +170,10 @@ public class TypeExtensionsTests
     public void IsNullable_TypeIsNotNullable_ReturnsFalse()
     {
         // Arrange
-        Type type = typeof(int);
+        var type = typeof(int);
 
         // Act
-        bool result = type.IsNullable();
+        var result = type.IsNullable();
 
         // Assert
         Assert.False(result);
@@ -185,10 +183,10 @@ public class TypeExtensionsTests
     public void IsNullable_TypeIsNullable_ReturnsTrue()
     {
         // Arrange
-        Type type = typeof(int?);
+        var type = typeof(int?);
 
         // Act
-        bool result = type.IsNullable();
+        var result = type.IsNullable();
 
         // Assert
         Assert.True(result);
@@ -259,7 +257,7 @@ public class TypeExtensionsTests
     [Fact]
     public void IsNumeric_GivenNullableTypeThatIsNumeric_ExcludesNullableTypes_ReturnsFalse()
     {
-        var result = typeof(int?).IsNumeric(includeNullableTypes: false);
+        var result = typeof(int?).IsNumeric(false);
 
         Assert.False(result);
     }
@@ -283,7 +281,7 @@ public class TypeExtensionsTests
     [Fact]
     public void IsOpenGeneric_GivenNullType_ThrowsArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => (((Type?)null)!).IsOpenGeneric());
+        Assert.Throws<ArgumentNullException>(() => ((Type?)null)!.IsOpenGeneric());
     }
 
     [Fact]
@@ -297,7 +295,7 @@ public class TypeExtensionsTests
     [Fact]
     public void HasAttribute_GivenNullType_ThrowsArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => (((Type?)null)!).HasAttribute(typeof(TestAttribute)));
+        Assert.Throws<ArgumentNullException>(() => ((Type?)null)!.HasAttribute(typeof(TestAttribute)));
     }
 
     [Fact]
@@ -316,7 +314,7 @@ public class TypeExtensionsTests
         Assert.False(result);
     }
 
-    [Test()]
+    [Test]
     private class ClassWithAttribute
     {
         [Test("test")]
@@ -324,7 +322,7 @@ public class TypeExtensionsTests
         {
         }
     }
-    
+
     private class ClassWithInheritedAttribute : ClassWithAttribute
     {
     }
