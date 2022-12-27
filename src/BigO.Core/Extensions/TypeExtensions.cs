@@ -5,10 +5,11 @@ using JetBrains.Annotations;
 
 // ReSharper disable InvalidXmlDocComment
 
+
 namespace BigO.Core.Extensions;
 
 /// <summary>
-///     Contains useful utility/extensions methods for working with <see cref="Type" /> objects.
+///     Provides a set of useful extension methods for working with <see cref="Type" /> objects.
 /// </summary>
 [PublicAPI]
 public static class TypeExtensions

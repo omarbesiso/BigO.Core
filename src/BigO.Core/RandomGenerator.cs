@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Security.Cryptography;
+using JetBrains.Annotations;
 
 namespace BigO.Core;
 
@@ -8,6 +9,10 @@ namespace BigO.Core;
 [PublicAPI]
 public static class RandomGenerator
 {
+    private const string LowerCaseCharacters = "abcdefghijklmnopqrstuvwxyz";
+    private const string UpperCaseCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private const string Digits = "0123456789";
+    private const string SpecialCharacters = @"!#$%&*+-/:;<=>?@[\]^_`{|}~";
     private static Random RandomSeed => Random.Shared;
 
     /// <summary>
@@ -76,18 +81,76 @@ public static class RandomGenerator
     ///     Generates a random string complying with the specifications provided.
     /// </summary>
     /// <param name="stringSize">The size of the string. Cannot be less than 1.</param>
-    /// <param name="allowLowerCaseCharacters">Allows uppercase characters in the string.</param>
-    /// <param name="allowUpperCaseCharacters">Allows lowercase characters in the string.</param>
-    /// <param name="allowDigits">Allows digits in the string.</param>
-    /// <param name="allowSpecialCharacters">Allows special characters in the string.</param>
+    /// <param name="includeLowerCaseCharacters">Includes uppercase characters in the string.</param>
+    /// <param name="includeUpperCaseCharacters">Includes lowercase characters in the string.</param>
+    /// <param name="includeDigits">Includes digits in the string.</param>
+    /// <param name="includeSpecialCharacters">Includes special characters in the string.</param>
     /// <param name="charactersToExclude">(Optional) The characters to exclude from the </param>
     /// <returns>The random string that was generated.</returns>
-    public static string RandomString(int stringSize, bool allowLowerCaseCharacters = true,
-        bool allowUpperCaseCharacters = true, bool allowDigits = true,
-        bool allowSpecialCharacters = true, params char[]? charactersToExclude)
+    public static string RandomString(int stringSize, bool includeLowerCaseCharacters = true,
+        bool includeUpperCaseCharacters = true, bool includeDigits = true,
+        bool includeSpecialCharacters = true, params char[]? charactersToExclude)
     {
-        var randomStringBuilder = new RandomStringBuilder(stringSize, allowLowerCaseCharacters,
-            allowUpperCaseCharacters, allowDigits, allowSpecialCharacters, charactersToExclude);
-        return randomStringBuilder.Build();
+        var allowedCharacters = string.Empty;
+        if (includeLowerCaseCharacters)
+        {
+            allowedCharacters += LowerCaseCharacters;
+        }
+
+        if (includeUpperCaseCharacters)
+        {
+            allowedCharacters += UpperCaseCharacters;
+        }
+
+        if (includeDigits)
+        {
+            allowedCharacters += Digits;
+        }
+
+        if (includeSpecialCharacters)
+        {
+            allowedCharacters += SpecialCharacters;
+        }
+
+        if (charactersToExclude != null && charactersToExclude.Any())
+        {
+            allowedCharacters = new string(allowedCharacters.Except(charactersToExclude).ToArray());
+        }
+
+        if (string.IsNullOrEmpty(allowedCharacters))
+        {
+            throw new ArgumentException("At least one type of character must be included.");
+        }
+
+        var bytes = new byte[stringSize * sizeof(char)];
+        using var randomNumberGenerator = RandomNumberGenerator.Create();
+        randomNumberGenerator.GetBytes(bytes);
+        var result = new char[stringSize];
+        var span = new Span<char>(result);
+        for (var i = 0; i < stringSize; i++)
+        {
+            var value = BitConverter.ToUInt16(bytes, i * 2);
+            span[i] = allowedCharacters[value % allowedCharacters.Length];
+        }
+
+        return new string(result);
+    }
+
+    /// <summary>
+    ///     Generates a random email address using a random local part and domain.
+    /// </summary>
+    /// <returns>A random email address in the form of `localpart@domain.com`.</returns>
+    /// <remarks>
+    ///     The local part and domain are generated using random strings of length 10, which do not include special characters.
+    /// </remarks>
+    public static string GenerateRandomEmail()
+    {
+        // Generate a random local part for the email address
+        var localPart = RandomString(10, includeSpecialCharacters: false).ToLower();
+
+        // Generate a random domain for the email address
+        var domain = RandomString(10, includeSpecialCharacters: false).ToLower() + ".com";
+
+        return $"{localPart}@{domain}";
     }
 }

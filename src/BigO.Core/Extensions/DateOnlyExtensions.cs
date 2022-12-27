@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
 namespace BigO.Core.Extensions;
@@ -10,76 +11,98 @@ namespace BigO.Core.Extensions;
 public static class DateOnlyExtensions
 {
     /// <summary>
-    ///     Calculates the age based on the specified date of birth and maturity date.
+    ///     Calculates the age in years between the given <paramref name="dateOfBirth" /> and the optional
+    ///     <paramref name="maturityDate" />. If the <paramref name="maturityDate" /> is not provided, the current date is
+    ///     used.
     /// </summary>
-    /// <param name="dateOfBirth">The date of birth.</param>
-    /// <param name="maturityDate">The maturity date. If not specified, the current date is used.</param>
-    /// <returns>The age in years.</returns>
-    /// <exception cref="ArgumentException">Thrown if the maturity date occurs before the birth date.</exception>
-    /// <remarks>
-    ///     This method calculates the age by subtracting the year of the birth date from the year of the maturity date. If the
-    ///     maturity date is before the birthday in the current year, the age is reduced by 1.
-    /// </remarks>
+    /// <param name="dateOfBirth">The date of birth to calculate the age from.</param>
+    /// <param name="maturityDate">Optional date to calculate the age up to. If not provided, the current date is used.</param>
+    /// <returns>
+    ///     The age in years between the given <paramref name="dateOfBirth" /> and the optional
+    ///     <paramref name="maturityDate" />. If the <paramref name="maturityDate" /> is not provided, the current date is
+    ///     used.
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    ///     Thrown when the <paramref name="maturityDate" /> occurs before the <paramref name="dateOfBirth" />.
+    /// </exception>
     public static int Age(this DateOnly dateOfBirth, DateOnly? maturityDate = null)
     {
-        maturityDate ??= DateTime.Today.ToDateOnly();
+        var maturity = maturityDate ?? DateTime.Now.ToDateOnly();
 
         if (maturityDate < dateOfBirth)
         {
             throw new ArgumentException(
-                $"The maturity date '{maturityDate}' cannot occur before the birth date '{dateOfBirth}'");
+                $"The maturity date '{maturityDate}' cannot occur before the birth date '{dateOfBirth}'",
+                nameof(maturityDate));
         }
 
-        if (maturityDate.Value.Month < dateOfBirth.Month ||
-            (maturityDate.Value.Month == dateOfBirth.Month &&
-             maturityDate.Value.Day < dateOfBirth.Day))
+        var years = 0;
+        var currentYear = dateOfBirth.Year;
+
+        var isBornOnALeapDay = dateOfBirth.Day == 29;
+
+        var birthMonth = dateOfBirth.Month;
+        var birthDay = dateOfBirth.Day;
+
+        var currentDate = dateOfBirth;
+
+        while (currentDate < maturity)
         {
-            return maturityDate.Value.Year - dateOfBirth.Year - 1;
+            currentYear++;
+            if (isBornOnALeapDay && DateTime.IsLeapYear(currentYear))
+            {
+                currentDate = new DateOnly(currentYear, birthMonth, 29);
+            }
+            else
+            {
+                currentDate = new DateOnly(currentYear, birthMonth, birthDay);
+            }
+
+            if (currentDate <= maturity)
+            {
+                years++;
+            }
         }
 
-        return maturityDate.Value.Year - dateOfBirth.Year;
+        return years;
     }
 
     /// <summary>
-    ///     Adds a specified number of weeks to the given date.
+    ///     Adds the specified number of weeks to the given <paramref name="date" />.
     /// </summary>
     /// <param name="date">The date to add weeks to.</param>
-    /// <param name="numberOfWeeks">The number of weeks to add. Can be positive or negative.</param>
-    /// <returns>The resulting date after the specified number of weeks have been added.</returns>
-    /// <remarks>
-    ///     This method can be used to easily add or subtract a certain number of weeks from a given date.
-    /// </remarks>
+    /// <param name="numberOfWeeks">The number of weeks to add to the date. This value can be negative.</param>
+    /// <returns>A new <see cref="DateOnly" /> instance representing the resulting date.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateOnly AddWeeks(this DateOnly date, int numberOfWeeks)
     {
         return date.AddDays(numberOfWeeks * 7);
     }
 
     /// <summary>
-    ///     Determines the number of days in the month of the given date.
+    ///     Gets the number of days in the month of the specified <see cref="DateOnly" />.
     /// </summary>
-    /// <param name="date">The date to determine the number of days in the month for.</param>
-    /// <returns>The number of days in the month of the given date.</returns>
-    /// <remarks>
-    ///     This method can be used to easily determine the number of days in the month of a given date.
-    /// </remarks>
+    /// <param name="date">The <see cref="DateOnly" /> to get the number of days in the month for.</param>
+    /// <returns>The number of days in the month of the specified <see cref="DateOnly" />.</returns>
     public static int DaysInMonth(this DateOnly date)
     {
         return DateTime.DaysInMonth(date.Year, date.Month);
     }
 
     /// <summary>
-    ///     Gets the first date of the month of the given date, optionally filtered by day of week.
+    ///     Returns the first date of the month for the given <paramref name="date" />, with the option to specify a specific
+    ///     <paramref name="dayOfWeek" />.
+    ///     If no <paramref name="dayOfWeek" /> is specified, the first date of the month is returned.
     /// </summary>
     /// <param name="date">The date to get the first date of the month for.</param>
     /// <param name="dayOfWeek">
-    ///     The day of week to filter the first date of the month by. If not provided, the first date of
-    ///     the month will be returned without filtering by day of week.
+    ///     Optional parameter to specify a specific day of the week for the first date of the month. If
+    ///     not specified, the first date of the month is returned.
     /// </param>
-    /// <returns>The first date of the month of the given date, optionally filtered by the specified day of week.</returns>
-    /// <remarks>
-    ///     This method can be used to easily get the first date of the month of a given date, and optionally filter the result
-    ///     by day of week.
-    /// </remarks>
+    /// <returns>
+    ///     The first date of the month for the given <paramref name="date" />, with the option to specify a specific
+    ///     <paramref name="dayOfWeek" />.
+    /// </returns>
     public static DateOnly GetFirstDateOfMonth(this DateOnly date, DayOfWeek? dayOfWeek = null)
     {
         var firstDateOfMonth = new DateOnly(date.Year, date.Month, 1);
@@ -98,23 +121,21 @@ public static class DateOnlyExtensions
     }
 
     /// <summary>
-    ///     Gets the first date of the week of the given date, based on the culture-specific first day of the week.
+    ///     Returns the first date of the week in which the specified <paramref name="date" /> falls, according to the culture
+    ///     specified by the optional <paramref name="cultureInfo" /> parameter. If no culture is provided, the current culture
+    ///     is used.
     /// </summary>
-    /// <param name="date">The date to get the first date of the week for.</param>
+    /// <param name="date">The date for which to get the first date of the week.</param>
     /// <param name="cultureInfo">
-    ///     The culture to use to determine the first day of the week. If not provided, the current
-    ///     culture will be used.
+    ///     The culture information that determines the first day of the week. If this parameter is <c>null</c>, the current
+    ///     culture is used.
     /// </param>
-    /// <returns>The first date of the week of the given date, based on the culture-specific first day of the week.</returns>
-    /// <remarks>
-    ///     This method can be used to easily get the first date of the week of a given date, based on the culture-specific
-    ///     first day of the week.
-    /// </remarks>
+    /// <returns>The first date of the week in which <paramref name="date" /> falls.</returns>
     public static DateOnly GetFirstDateOfWeek(this DateOnly date, CultureInfo? cultureInfo = null)
     {
-        cultureInfo ??= CultureInfo.CurrentCulture;
+        var ci = cultureInfo ?? CultureInfo.CurrentCulture;
 
-        var firstDayOfWeek = cultureInfo.DateTimeFormat.FirstDayOfWeek;
+        var firstDayOfWeek = ci.DateTimeFormat.FirstDayOfWeek;
         while (date.DayOfWeek != firstDayOfWeek)
         {
             date = date.AddDays(-1);
@@ -124,18 +145,19 @@ public static class DateOnlyExtensions
     }
 
     /// <summary>
-    ///     Gets the last date of the month of the given date, optionally filtered by day of week.
+    ///     Gets the last date of the month for the given <paramref name="date" />.
     /// </summary>
-    /// <param name="date">The date to get the last date of the month for.</param>
+    /// <param name="date">The <see cref="DateOnly" /> value to get the last date of the month for.</param>
     /// <param name="dayOfWeek">
-    ///     The day of week to filter the last date of the month by. If not provided, the last date of the
-    ///     month will be returned without filtering by day of week.
+    ///     The <see cref="DayOfWeek" /> value to get the last date of the month with.
+    ///     If not specified, the last date of the month will be returned.
     /// </param>
-    /// <returns>The last date of the month of the given date, optionally filtered by the specified day of week.</returns>
-    /// <remarks>
-    ///     This method can be used to easily get the last date of the month of a given date, and optionally filter the result
-    ///     by day of week.
-    /// </remarks>
+    /// <returns>
+    ///     A <see cref="DateOnly" /> value representing the last date of the month for the given <paramref name="date" />.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     The <paramref name="date" /> cannot be null.
+    /// </exception>
     public static DateOnly GetLastDateOfMonth(this DateOnly date, DayOfWeek? dayOfWeek = null)
     {
         var lastDateOfMonth = new DateOnly(date.Year, date.Month, DaysInMonth(date));
@@ -154,41 +176,32 @@ public static class DateOnlyExtensions
     }
 
     /// <summary>
-    ///     Gets the last date of the week of the given date, based on the culture-specific first day of the week.
+    ///     Returns the last day of the week for the specified <paramref name="date" />.
     /// </summary>
-    /// <param name="date">The date to get the last date of the week for.</param>
+    /// <param name="date">The date to get the last day of the week for.</param>
     /// <param name="cultureInfo">
-    ///     The culture to use to determine the first day of the week. If not provided, the current
-    ///     culture will be used.
+    ///     The culture information to use to determine the first day of the week. If <c>null</c>, the current culture is used.
     /// </param>
-    /// <returns>The last date of the week of the given date, based on the culture-specific first day of the week.</returns>
-    /// <remarks>
-    ///     This method can be used to easily get the last date of the week of a given date, based on the culture-specific
-    ///     first day of the week.
-    /// </remarks>
+    /// <returns>The last day of the week for the specified <paramref name="date" />.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown if the <paramref name="date" /> is <c>null</c>.
+    /// </exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateOnly GetLastDateOfWeek(this DateOnly date, CultureInfo? cultureInfo = null)
     {
         return date.GetFirstDateOfWeek(cultureInfo).AddDays(6);
     }
 
     /// <summary>
-    ///     Calculates the number of days between two dates.
+    ///     Returns the number of days between two dates.
     /// </summary>
-    /// <param name="fromDate">The start date.</param>
-    /// <param name="toDate">The end date.</param>
+    /// <param name="fromDate">The starting date.</param>
+    /// <param name="toDate">The ending date.</param>
     /// <returns>The number of days between the two dates.</returns>
-    /// <remarks>
-    ///     This method converts both <paramref name="fromDate" /> and <paramref name="toDate" /> to DateTime objects using the
-    ///     minimum time value (midnight).
-    ///     The resulting time span is then converted to an integer number of days.
-    /// </remarks>
-    /// <exception cref="ArgumentNullException">
-    ///     If either <paramref name="fromDate" /> or <paramref name="toDate" /> is <c>null</c>, an
-    ///     <c>ArgumentNullException</c> is thrown.
+    /// <exception cref="ArgumentException">
+    ///     Thrown if <paramref name="toDate" /> occurs before <paramref name="fromDate" />.
     /// </exception>
-    /// <exception cref="OverflowException">
-    ///     If the number of days in the time span is too large to fit in an <c>int</c>, an <c>OverflowException</c> is thrown.
-    /// </exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int GetNumberOfDays(this DateOnly fromDate, DateOnly toDate)
     {
         var timeSpan = toDate.ToDateTime(TimeOnly.MinValue).Subtract(fromDate.ToDateTime(TimeOnly.MinValue));
@@ -196,105 +209,92 @@ public static class DateOnlyExtensions
     }
 
     /// <summary>
-    ///     Determines whether the source date is after the other date.
+    ///     Determines whether the <see cref="DateOnly" /> instance is after the specified <paramref name="other" /> date.
     /// </summary>
-    /// <param name="source">The source date.</param>
-    /// <param name="other">The other date.</param>
-    /// <returns><c>true</c> if the source date is after the other date; otherwise, <c>false</c>.</returns>
-    /// <remarks>
-    ///     This method compares the source date to the other date using the <see cref="DateOnly.CompareTo(DateOnly)" /> method
-    ///     and returns <c>true</c> if the result is greater than 0.
-    /// </remarks>
+    /// <param name="source">The <see cref="DateOnly" /> instance to compare.</param>
+    /// <param name="other">The other <see cref="DateOnly" /> to compare with the <paramref name="source" />.</param>
+    /// <returns>True if the <paramref name="source" /> is after the <paramref name="other" /> date; otherwise, false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsAfter(this DateOnly source, DateOnly other)
     {
         return source.CompareTo(other) > 0;
     }
 
     /// <summary>
-    ///     Determines whether the source date is before the other date.
+    ///     Determines whether the source <see cref="DateOnly" /> is before the specified <see cref="DateOnly" />.
     /// </summary>
-    /// <param name="source">The source date.</param>
-    /// <param name="other">The other date.</param>
-    /// <returns><c>true</c> if the source date is before the other date; otherwise, <c>false</c>.</returns>
-    /// <remarks>
-    ///     This method compares the source date to the other date using the <see cref="DateOnly.CompareTo(DateOnly)" /> method
-    ///     and returns <c>true</c> if the result is less than 0.
-    /// </remarks>
+    /// <param name="source">The source <see cref="DateOnly" /> to compare.</param>
+    /// <param name="other">The <see cref="DateOnly" /> to compare with the source.</param>
+    /// <returns>
+    ///     <c>true</c> if the source <see cref="DateOnly" /> is before the specified <see cref="DateOnly" />; otherwise,
+    ///     <c>false</c>.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsBefore(this DateOnly source, DateOnly other)
     {
         return source.CompareTo(other) < 0;
     }
 
     /// <summary>
-    ///     Determines whether the specified date is today's date.
+    ///     Determines whether the given <see cref="DateOnly" /> represents the current date.
     /// </summary>
-    /// <param name="date">The date to check.</param>
-    /// <returns><c>true</c> if the specified date is today's date; otherwise, <c>false</c>.</returns>
-    /// <remarks>
-    ///     This method compares the specified date to today's date using the <see cref="DateOnly.Equals(DateOnly)" /> method.
-    ///     Today's date is obtained by calling the <see cref="DateTime.Today" /> property and converting it to a
-    ///     <see cref="DateOnly" /> object using the <see cref="ToDateOnly" /> extension method.
-    /// </remarks>
+    /// <param name="date">The <see cref="DateOnly" /> to compare with the current date.</param>
+    /// <returns>
+    ///     <c>true</c> if the given <see cref="DateOnly" /> represents the current date; otherwise, <c>false</c>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="date" /> is <c>null</c>.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsToday(this DateOnly date)
     {
-        return date == DateTime.Today.ToDateOnly();
+        var today = DateTime.Today;
+        return today.Year == date.Year && today.Month == date.Month && today.Day == date.Day;
     }
 
     /// <summary>
-    ///     Determines whether the specified date is a leap day.
+    ///     Determines whether the given <see cref="DateOnly" /> represents a leap day (February 29).
     /// </summary>
-    /// <param name="date">The date to check.</param>
-    /// <returns><c>true</c> if the specified date is a leap day (February 29th); otherwise, <c>false</c>.</returns>
-    /// <remarks>
-    ///     This method uses a pattern-matching expression to check if the month and day of the specified date match February
-    ///     29th.
-    /// </remarks>
+    /// <param name="date">The <see cref="DateOnly" /> to check.</param>
+    /// <returns>
+    ///     <c>true</c> if the given <see cref="DateOnly" /> represents a leap day; otherwise, <c>false</c>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="date" /> is <c>null</c>.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsLeapDay(this DateOnly date)
     {
         return date is { Month: 2, Day: 29 };
     }
 
     /// <summary>
-    ///     Returns the date of the next day after the specified date.
+    ///     Returns the next day after the given <see cref="DateOnly" />.
     /// </summary>
-    /// <param name="date">The current date.</param>
-    /// <returns>The date of the next day.</returns>
-    /// <remarks>
-    ///     This method uses the <see cref="DateOnly.AddDays" /> method to add one day to the specified date and return the
-    ///     resulting date.
-    /// </remarks>
+    /// <param name="date">The starting <see cref="DateOnly" />.</param>
+    /// <returns>A new <see cref="DateOnly" /> object representing the next day after the given <see cref="DateOnly" />.</returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="date" /> is <c>null</c>.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateOnly NextDay(this DateOnly date)
     {
         return date.AddDays(1);
     }
 
     /// <summary>
-    ///     Returns the date of the previous day before the specified date.
+    ///     Returns the previous day before the given <see cref="DateOnly" />.
     /// </summary>
-    /// <param name="date">The current date.</param>
-    /// <returns>The date of the previous day.</returns>
-    /// <remarks>
-    ///     This method uses the <see cref="DateOnly.AddDays" /> method to subtract one day from the specified date and return
-    ///     the resulting date.
-    /// </remarks>
+    /// <param name="date">The starting <see cref="DateOnly" />.</param>
+    /// <returns>A new <see cref="DateOnly" /> object representing the previous day before the given <see cref="DateOnly" />.</returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="date" /> is <c>null</c>.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateOnly PreviousDay(this DateOnly date)
     {
         return date.AddDays(-1);
     }
 
     /// <summary>
-    ///     Returns a list of <see cref="DateOnly" /> objects representing the dates between the given range, inclusive.
+    ///     Returns a sequence of <see cref="DateOnly" /> objects representing the dates in the given range.
     /// </summary>
-    /// <param name="fromDate">The start of the date range. Must not be <c>null</c>.</param>
-    /// <param name="toDate">The end of the date range. Must not be <c>null</c>.</param>
-    /// <returns>
-    ///     An <see cref="IEnumerable{T}" /> of <see cref="DateOnly" /> objects representing the dates between the given
-    ///     range, inclusive.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///     Thrown if either <paramref name="fromDate" /> or <paramref name="toDate" /> is
-    ///     <c>null</c>.
-    /// </exception>
+    /// <param name="fromDate">The start of the date range.</param>
+    /// <param name="toDate">The end of the date range.</param>
+    /// <returns>A sequence of <see cref="DateOnly" /> objects representing the dates in the given range.</returns>
+    /// <exception cref="ArgumentNullException">If <paramref name="fromDate" /> or <paramref name="toDate" /> is <c>null</c>.</exception>
     public static IEnumerable<DateOnly> GetDatesInRange(this DateOnly fromDate, DateOnly toDate)
     {
         if (fromDate == toDate)
@@ -323,16 +323,20 @@ public static class DateOnlyExtensions
     }
 
     /// <summary>
-    ///     Determines whether the given <see cref="DateOnly" /> object falls within a given date range.
+    ///     Determines whether the given <see cref="DateOnly" /> is between the given start and end dates.
     /// </summary>
-    /// <param name="dt">The <see cref="DateOnly" /> object to check. Must not be <c>null</c>.</param>
-    /// <param name="rangeBeg">The start of the date range. Must not be <c>null</c>.</param>
-    /// <param name="rangeEnd">The end of the date range. Must not be <c>null</c>.</param>
-    /// <param name="isInclusive">Indicates whether the range includes the start and end dates. Default is <c>true</c>.</param>
-    /// <returns><c>true</c> if the given <see cref="DateOnly" /> object falls within the given range; <c>false</c> otherwise.</returns>
+    /// <param name="dt">The <see cref="DateOnly" /> to check.</param>
+    /// <param name="rangeBeg">The start of the date range.</param>
+    /// <param name="rangeEnd">The end of the date range.</param>
+    /// <param name="isInclusive">
+    ///     A value indicating whether the range includes the start and end dates.
+    ///     If <c>true</c>, the range is inclusive; if <c>false</c>, the range is exclusive.
+    /// </param>
+    /// <returns>
+    ///     <c>true</c> if the given <see cref="DateOnly" /> is between the given start and end dates; otherwise, <c>false</c>.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
-    ///     Thrown if either <paramref name="dt" />, <paramref name="rangeBeg" />, or
-    ///     <paramref name="rangeEnd" /> is <c>null</c>.
+    ///     If <paramref name="dt" />, <paramref name="rangeBeg" />, or <paramref name="rangeEnd" /> is <c>null</c>.
     /// </exception>
     public static bool IsBetween(this DateOnly dt, DateOnly rangeBeg, DateOnly rangeEnd, bool isInclusive = true)
     {

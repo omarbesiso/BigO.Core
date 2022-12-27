@@ -1,9 +1,10 @@
-﻿using JetBrains.Annotations;
+﻿using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 
 namespace BigO.Core.Extensions;
 
 /// <summary>
-///     Contains useful utility/extensions methods for working with <see cref="Guid" /> objects.
+///     Provides a set of useful extension methods for working with <see cref="Guid" /> objects.
 /// </summary>
 [PublicAPI]
 public static class GuidExtensions
@@ -18,6 +19,7 @@ public static class GuidExtensions
     /// <remarks>
     ///     A <see cref="Guid" /> is considered empty if it has a value of <c>Guid.Empty</c>.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsEmpty(this Guid value)
     {
         return value == Guid.Empty;
@@ -33,6 +35,7 @@ public static class GuidExtensions
     /// <remarks>
     ///     A <see cref="Guid" /> is considered not empty if it has a value other than <c>Guid.Empty</c>.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNotEmpty(this Guid value)
     {
         return value != Guid.Empty;

@@ -1,144 +1,238 @@
-﻿using JetBrains.Annotations;
+﻿using System.Globalization;
+using JetBrains.Annotations;
 
 namespace BigO.Core.Types;
 
 /// <summary>
-///     Represents a date time value within a specific timezone.
+///     Represents a DateTime value with a specified Timezone.
 /// </summary>
 [PublicAPI]
 public struct DateTimeWithTimeZone : IComparable<DateTimeWithTimeZone>, IEquatable<DateTimeWithTimeZone>
 {
+    private readonly DateTime _dateTime;
+    private readonly TimeZoneInfo _timeZone;
+
+    private DateTime? _universalTime;
+    private DateTime? _localTime;
+
     /// <summary>
-    ///     Initializes a new instance of the <see cref="DateTimeWithTimeZone" /> class.
+    ///     Initializes a new instance of the <see cref="DateTimeWithTimeZone" /> struct.
     /// </summary>
-    /// <param name="value">The date time.</param>
-    /// <param name="timeZone">The time zone.</param>
-    public DateTimeWithTimeZone(DateTime value, TimeZoneInfo timeZone)
+    /// <param name="dateTime">The date and time value.</param>
+    /// <param name="timeZone">The time zone of the date and time value.</param>
+    public DateTimeWithTimeZone(DateTime dateTime, TimeZoneInfo timeZone)
     {
-        Value = value;
-        TimeZone = timeZone;
+        _dateTime = dateTime;
+        _timeZone = timeZone;
     }
 
     /// <summary>
-    ///     Gets the date time.
+    ///     Gets the date and time value in universal time.
     /// </summary>
-    public DateTime Value { get; set; }
-
-    /// <summary>
-    ///     Gets the time zone.
-    /// </summary>
-    public TimeZoneInfo TimeZone { get; set; }
-
-    /// <summary>
-    ///     Gets the <see cref="DateTimeOffset" /> representing this instance.
-    /// </summary>
-    public DateTimeOffset DateTimeOffset => new(Value, TimeZone.GetUtcOffset(Value));
-
-    /// <summary>
-    ///     Converts the current instance to a <see cref="Value" /> to a UTC equivalent datetime instance.
-    /// </summary>
-    /// <returns>A datetime instance in UTC.</returns>
-    public DateTime ToUtcDateTime()
+    public DateTime UniversalTime
     {
-        return TimeZoneInfo.ConvertTimeToUtc(Value, TimeZone);
+        get
+        {
+            _universalTime ??= TimeZoneInfo.ConvertTimeToUtc(_dateTime, _timeZone);
+            return _universalTime.Value;
+        }
     }
 
     /// <summary>
-    ///     Compares the current instance with another object of the same type and returns an integer that indicates whether
-    ///     the current instance precedes, follows, or occurs in the same position in the sort order as the other object.
+    ///     Gets the date and time value in the local time zone.
     /// </summary>
-    /// <param name="other">An object to compare with this instance.</param>
+    public DateTime LocalTime
+    {
+        get
+        {
+            _localTime ??= TimeZoneInfo.ConvertTime(UniversalTime, TimeZoneInfo.Local, TimeZoneInfo.Local);
+            return _localTime.Value;
+        }
+    }
+
+    /// <summary>
+    ///     Converts the date and time value to the specified time zone.
+    /// </summary>
+    /// <param name="destinationTimeZone">The destination time zone.</param>
     /// <returns>
-    ///     A value that indicates the relative order of the objects being compared. The return value has these meanings:
-    ///     <list type="table">
-    ///         <listheader>
-    ///             <term> Value</term><description> Meaning</description>
-    ///         </listheader>
-    ///         <item>
-    ///             <term> Less than zero</term>
-    ///             <description> This instance precedes <paramref name="other" /> in the sort order.</description>
-    ///         </item>
-    ///         <item>
-    ///             <term> Zero</term>
-    ///             <description> This instance occurs in the same position in the sort order as <paramref name="other" />.</description>
-    ///         </item>
-    ///         <item>
-    ///             <term> Greater than zero</term>
-    ///             <description> This instance follows <paramref name="other" /> in the sort order.</description>
-    ///         </item>
-    ///     </list>
+    ///     A new <see cref="DateTimeWithTimeZone" /> value with the same date and time as this value, but in the
+    ///     specified time zone.
+    /// </returns>
+    public DateTimeWithTimeZone WithTimeZone(TimeZoneInfo destinationTimeZone)
+    {
+        return new DateTimeWithTimeZone(TimeZoneInfo.ConvertTime(UniversalTime, destinationTimeZone),
+            destinationTimeZone);
+    }
+
+    /// <summary>
+    ///     Formats the date and time value as a string using the specified format string.
+    /// </summary>
+    /// <param name="format">
+    ///     The format string. See the documentation for the <see cref="DateTime" /> struct for more
+    ///     information.
+    /// </param>
+    /// <returns>A string representation of the date and time value.</returns>
+    public string ToString(string format)
+    {
+        return _dateTime.ToString(format) + " " + _timeZone.Id;
+    }
+
+    /// <summary>
+    ///     Parses a string representation of a <see cref="DateTimeWithTimeZone" /> value.
+    /// </summary>
+    /// <param name="input">The input string.</param>
+    /// <param name="format">
+    ///     The format of the input string. See the documentation for the <see cref="DateTime" /> struct for
+    ///     more information.
+    /// </param>
+    /// <param name="timeZone">The time zone of the resulting <see cref="DateTimeWithTimeZone" /> value.</param>
+    /// <returns>A new <see cref="DateTimeWithTimeZone" /> value.</returns>
+    public static DateTimeWithTimeZone Parse(string input, string format, TimeZoneInfo timeZone)
+    {
+        var dateTime = DateTime.ParseExact(input, format, CultureInfo.InvariantCulture);
+        return new DateTimeWithTimeZone(dateTime, timeZone);
+    }
+
+    /// <summary>
+    ///     Converts the date and time value to a Unix timestamp.
+    /// </summary>
+    /// <returns>The Unix timestamp.</returns>
+    public long ToUnixTimestamp()
+    {
+        return (long)(UniversalTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+    }
+
+    /// <summary>
+    ///     Converts a Unix timestamp to a <see cref="DateTimeWithTimeZone" /> value.
+    /// </summary>
+    /// <param name="timestamp">The Unix timestamp.</param>
+    /// <param name="timeZone">The time zone of the resulting <see cref="DateTimeWithTimeZone" /> value.</param>
+    /// <returns>A new <see cref="DateTimeWithTimeZone" /> value.</returns>
+    public static DateTimeWithTimeZone FromUnixTimestamp(long timestamp, TimeZoneInfo timeZone)
+    {
+        var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(timestamp);
+        return new DateTimeWithTimeZone(dateTime, timeZone);
+    }
+
+    /// <summary>
+    ///     Compares this <see cref="DateTimeWithTimeZone" /> value to another value.
+    /// </summary>
+    /// <param name="other">The other value to compare to.</param>
+    /// <returns>
+    ///     A value less than 0 if this value is earlier than the other value, 0 if the values are equal, or a value
+    ///     greater than 0 if this value is later than the other value.
     /// </returns>
     public int CompareTo(DateTimeWithTimeZone other)
     {
-        // Convert the date and time value to UTC
-        var dateTimeUtc = ToUtcDateTime();
-        var otherDateTimeUtc = other.ToUtcDateTime();
-
-        // Compare the date and time values in UTC
-        return dateTimeUtc.CompareTo(otherDateTimeUtc);
+        return UniversalTime.CompareTo(other.UniversalTime);
     }
 
     /// <summary>
-    ///     Indicates whether the current object is equal to another object of the same type.
+    ///     Determines whether this <see cref="DateTimeWithTimeZone" /> value is equal to another value.
     /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///     <see langword="false" />.
-    /// </returns>
+    /// <param name="other">The other value to compare to.</param>
+    /// <returns>True if the values are equal, false otherwise.</returns>
     public bool Equals(DateTimeWithTimeZone other)
     {
-        return Value.Equals(other.Value) && TimeZone.Equals(other.TimeZone);
+        return UniversalTime == other.UniversalTime;
     }
 
     /// <summary>
-    ///     Determines whether the specified <see cref="System.Object" /> is equal to this instance.
+    ///     Determines whether this <see cref="DateTimeWithTimeZone" /> value is equal to another object.
     /// </summary>
-    /// <param name="obj">The object to compare with the current instance.</param>
-    /// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
+    /// <param name="obj">The other object to compare to.</param>
+    /// <returns>True if the values are equal, false otherwise.</returns>
     public override bool Equals(object? obj)
     {
-        return obj is DateTimeWithTimeZone other && Equals(other);
+        if (obj is DateTimeWithTimeZone zone)
+        {
+            return Equals(zone);
+        }
+
+        return false;
     }
 
     /// <summary>
-    ///     Returns a hash code for this instance.
+    ///     Returns the hash code for this <see cref="DateTimeWithTimeZone" /> value.
     /// </summary>
-    /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
+    /// <returns>The hash code.</returns>
     public override int GetHashCode()
     {
-        return HashCode.Combine(Value, TimeZone);
+        return UniversalTime.GetHashCode();
     }
 
     /// <summary>
-    ///     Implements the == operator.
+    ///     Returns a string representation of this <see cref="DateTimeWithTimeZone" /> value.
     /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="right">The right.</param>
-    /// <returns>The result of the operator.</returns>
+    /// <returns>A string representation of the date and time value.</returns>
+    public override string ToString()
+    {
+        return ToString("yyyy-MM-dd HH:mm:ss");
+    }
+
+    /// <summary>
+    ///     Determines whether two <see cref="DateTimeWithTimeZone" /> values are equal.
+    /// </summary>
+    /// <param name="left">The first value to compare.</param>
+    /// <param name="right">The second value to compare.</param>
+    /// <returns>True if the values are equal, false otherwise.</returns>
     public static bool operator ==(DateTimeWithTimeZone left, DateTimeWithTimeZone right)
     {
         return left.Equals(right);
     }
 
     /// <summary>
-    ///     Implements the != operator.
+    ///     Determines whether two <see cref="DateTimeWithTimeZone" /> values are not equal.
     /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="right">The right.</param>
-    /// <returns>The result of the operator.</returns>
+    /// <param name="left">The first value to compare.</param>
+    /// <param name="right">The second value to compare.</param>
+    /// <returns>True if the values are not equal, false otherwise.</returns>
     public static bool operator !=(DateTimeWithTimeZone left, DateTimeWithTimeZone right)
     {
         return !left.Equals(right);
     }
 
-    public DateTimeWithTimeZone AddMinutes(int minutes)
+    /// <summary>
+    ///     Determines whether one <see cref="DateTimeWithTimeZone" /> value is earlier than another value.
+    /// </summary>
+    /// <param name="left">The first value to compare.</param>
+    /// <param name="right">The second value to compare.</param>
+    /// <returns>True if the first value is earlier than the second value, false otherwise.</returns>
+    public static bool operator <(DateTimeWithTimeZone left, DateTimeWithTimeZone right)
     {
-        return new DateTimeWithTimeZone(Value.AddMinutes(minutes), TimeZone);
+        return left.CompareTo(right) < 0;
     }
 
-    public DateTimeWithTimeZone AddHours(int hours)
+    /// <summary>
+    ///     Determines whether one <see cref="DateTimeWithTimeZone" /> value is later than another value.
+    /// </summary>
+    /// <param name="left">The first value to compare.</param>
+    /// <param name="right">The second value to compare.</param>
+    /// <returns>True if the first value is later than the second value, false otherwise.</returns>
+    public static bool operator >(DateTimeWithTimeZone left, DateTimeWithTimeZone right)
     {
-        return new DateTimeWithTimeZone(Value.AddHours(hours), TimeZone);
+        return left.CompareTo(right) > 0;
+    }
+
+    /// <summary>
+    ///     Determines whether one <see cref="DateTimeWithTimeZone" /> value is earlier than or equal to another value.
+    /// </summary>
+    /// <param name="left">The first value to compare.</param>
+    /// <param name="right">The second value to compare.</param>
+    /// <returns>True if the first value is earlier than or equal to the second value, false otherwise.</returns>
+    public static bool operator <=(DateTimeWithTimeZone left, DateTimeWithTimeZone right)
+    {
+        return left.CompareTo(right) <= 0;
+    }
+
+    /// <summary>
+    ///     Determines whether one <see cref="DateTimeWithTimeZone" /> value is later than or equal to another value.
+    /// </summary>
+    /// <param name="left">The first value to compare.</param>
+    /// <param name="right">The second value to compare.</param>
+    /// <returns>True if the first value is later than or equal to the second value, false otherwise.</returns>
+    public static bool operator >=(DateTimeWithTimeZone left, DateTimeWithTimeZone right)
+    {
+        return left.CompareTo(right) >= 0;
     }
 }

@@ -5,96 +5,111 @@ using JetBrains.Annotations;
 namespace BigO.Core.Extensions;
 
 /// <summary>
-///     Contains useful utility methods when working with <see cref="IEnumerable" /> objects.
+///     Provides a set of useful extension methods for working with <see cref="IEnumerable" /> objects.
 /// </summary>
 [PublicAPI]
 public static class EnumerableExtensions
 {
     /// <summary>
-    ///     Determines whether the given collection is empty.
+    ///     Determines whether the specified collection is empty.
     /// </summary>
-    /// <param name="collection">The collection to check.</param>
-    /// <returns>True if the collection is empty, false otherwise.</returns>
-    /// <exception cref="ArgumentNullException">The <paramref name="collection" /> parameter is <c>null</c>.</exception>
+    /// <param name="collection">The collection to check for emptiness.</param>
+    /// <returns>True if the collection is empty; otherwise, false.</returns>
     /// <remarks>
-    ///     This method determines whether the given collection is empty by using the <see cref="IEnumerable.GetEnumerator" />
-    ///     method to get an enumerator for the collection, and then calling the <see cref="IEnumerator.MoveNext" /> method on
-    ///     the enumerator.
-    ///     If the <see cref="IEnumerator.MoveNext" /> method returns false, the collection is considered empty.
+    ///     This method checks if the enumerator of the collection can move to the next element. If it cannot, then the
+    ///     collection is considered empty.
     /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="collection" /> is <c>null</c>.</exception>
     public static bool IsEmpty([NoEnumeration] this IEnumerable collection)
     {
-        ArgumentNullException.ThrowIfNull(collection);
+        if (collection == null)
+        {
+            throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
+        }
 
         var enumerator = collection.GetEnumerator();
         return !enumerator.MoveNext();
     }
 
     /// <summary>
-    ///     Determines if the specified collection is not empty.
+    ///     Determines whether the specified collection is not empty.
     /// </summary>
-    /// <param name="collection">The collection to check.</param>
-    /// <returns>True if the collection is not empty, false otherwise.</returns>
+    /// <param name="collection">The collection to check for emptiness.</param>
+    /// <returns><c>true</c> if the collection is not empty; otherwise, <c>false</c>.</returns>
     /// <remarks>
-    ///     This method returns the opposite of the <see cref="IsEmpty(IEnumerable)" /> method.
+    ///     This method checks if the enumerator of the collection can move to the next element. If it can, then the collection
+    ///     is considered not empty.
     /// </remarks>
-    /// <exception cref="ArgumentNullException">
-    ///     If the <paramref name="collection" /> parameter is <c>null</c>, a <see cref="ArgumentNullException" /> is thrown.
-    /// </exception>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="collection" /> is <c>null</c>.</exception>
     public static bool IsNotEmpty([NoEnumeration] this IEnumerable collection)
     {
-        return !IsEmpty(collection);
+        if (collection == null)
+        {
+            throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
+        }
+
+        var enumerator = collection.GetEnumerator();
+        return enumerator.MoveNext();
     }
 
     /// <summary>
-    ///     Determines whether the given collection is null or empty.
+    ///     Determines whether the specified collection is null or has no items.
     /// </summary>
-    /// <param name="collection">The collection to check for null or empty.</param>
-    /// <returns>True if the collection is null or empty; otherwise, false.</returns>
+    /// <param name="collection">The collection to check for null or no items.</param>
+    /// <returns>True if the collection is null or has no items; otherwise, false.</returns>
     /// <remarks>
-    ///     This method first checks whether the collection is <c>null</c>. If it is, it returns true.
-    ///     If the collection is not null, it invokes the <see cref="IsEmpty" /> method on the collection to determine
-    ///     whether it is empty. If the collection is empty, the method returns true; otherwise, it returns false.
+    ///     If the collection is null, this method returns true. If the collection is not null, this method checks if the
+    ///     enumerator of the collection can move to the next element. If it cannot, then the collection is considered to have
+    ///     no items.
     /// </remarks>
-    /// <exception cref="ArgumentNullException">Thrown if the collection is null.</exception>
     public static bool IsNullOrEmpty([NotNullWhen(false)] [NoEnumeration] this IEnumerable? collection)
     {
-        return collection == null || collection.IsEmpty();
+        if (collection == null)
+        {
+            return true;
+        }
+
+        var enumerator = collection.GetEnumerator();
+        return !enumerator.MoveNext();
     }
 
-
     /// <summary>
-    ///     Determines whether the given collection is not null and not empty.
+    ///     Determines whether the specified collection is not null and has items.
     /// </summary>
-    /// <param name="collection">The collection to check for not null and not empty.</param>
-    /// <returns>True if the collection is not null and not empty; otherwise, false.</returns>
+    /// <param name="collection">The collection to check for not null and having items.</param>
+    /// <returns>True if the collection is not null and has items; otherwise, false.</returns>
     /// <remarks>
-    ///     This method invokes the <see cref="IsNullOrEmpty" /> method on the given collection to determine
-    ///     whether it is null or empty. If the collection is not null and not empty, the method returns true;
-    ///     otherwise, it returns false.
+    ///     If the collection is null, this method returns false. If the collection is not null, this method checks if the
+    ///     enumerator of the collection can move to the next element. If it can, then the collection is considered to have
+    ///     items.
     /// </remarks>
-    /// <exception cref="ArgumentNullException">Thrown if the collection is null.</exception>
     public static bool IsNotNullOrEmpty([NotNullWhen(true)] [NoEnumeration] this IEnumerable? collection)
     {
-        return !IsNullOrEmpty(collection);
+        if (collection == null)
+        {
+            return false;
+        }
+
+        var enumerator = collection.GetEnumerator();
+        return enumerator.MoveNext();
     }
 
     /// <summary>
-    ///     Splits the given list into chunks of the specified size.
+    ///     Divides the specified list into chunks of the specified size.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
-    /// <param name="list">The list to split into chunks.</param>
-    /// <param name="chunkSize">The size of each chunk.</param>
-    /// <returns>An enumerable of chunks, where each chunk is an enumerable of elements of type <typeparamref name="T" />.</returns>
+    /// <param name="list">The list to divide into chunks.</param>
+    /// <param name="chunkSize">The size of the chunks.</param>
+    /// <returns>
+    ///     A list of <see cref="IEnumerable" /> objects, where each inner enumerable represents a chunk of the original
+    ///     list.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="list" /> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="chunkSize" /> is less than or equal to 0.</exception>
     /// <remarks>
-    ///     The method first checks whether the <paramref name="list" /> is <c>null</c>. If it is, an
-    ///     <see cref="ArgumentNullException" /> is thrown.
-    ///     The method then checks whether the <paramref name="chunkSize" /> is less than or equal to 0. If it is, an
-    ///     <see cref="ArgumentException" /> is thrown.
-    ///     The method then converts the list to a list and iterates over it, yielding chunks of the specified size as it goes.
+    ///     This method divides the list into chunks by iterating through the list and taking a specified number of elements at
+    ///     a time. The final chunk may have fewer elements if the list's size is not evenly divisible by the chunk size.
     /// </remarks>
-    /// <exception cref="ArgumentNullException">Thrown if the list is null.</exception>
-    /// <exception cref="ArgumentException">Thrown if the chunk size is less than or equal to 0.</exception>
     public static IEnumerable<IEnumerable<T>> Chunk<T>(IEnumerable<T> list, int chunkSize)
     {
         if (list == null)

@@ -11,7 +11,7 @@ internal static class ThrowHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ThrowArgumentNullException(string argumentName, string? exceptionMessage)
     {
-        var errorMessage = !string.IsNullOrWhiteSpace(exceptionMessage)
+        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
             ? $"The value of '{argumentName}' cannot be null."
             : exceptionMessage;
 
@@ -23,7 +23,7 @@ internal static class ThrowHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ThrowArgumentException(string argumentName, string? exceptionMessage)
     {
-        var errorMessage = !string.IsNullOrWhiteSpace(exceptionMessage)
+        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
             ? $"The value of '{argumentName}' is invalid."
             : exceptionMessage;
 

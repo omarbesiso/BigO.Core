@@ -5,21 +5,7 @@ namespace BigO.Core.Tests;
 public class ActionExtensionsTests
 {
     [Fact]
-    public async void RunAsynchronously_ShouldInvokeAction()
-    {
-        // Arrange
-        var actionInvoked = false;
-        Action action = () => actionInvoked = true;
-
-        // Act
-        await action.RunAsynchronously();
-
-        // Assert
-        Assert.True(actionInvoked);
-    }
-
-    [Fact]
-    public async void RunAsynchronously_ShouldThrowArgumentNullException_IfActionIsNull()
+    public async Task RunAsynchronously_ThrowsArgumentNullException_WhenActionIsNull()
     {
         // Arrange
         Action action = null!;
@@ -28,32 +14,47 @@ public class ActionExtensionsTests
         await Assert.ThrowsAsync<ArgumentNullException>(() => action.RunAsynchronously());
     }
 
-    [Fact]
-    public static void ExecuteAndTime_ReturnsExpectedTimeSpan()
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public async Task RunAsynchronously_RunsActionAsynchronously_WhenActionIsNotNull(int value)
     {
         // Arrange
-        var action = () =>
-        {
-            // Sleep for 1 second to simulate execution time
-            Thread.Sleep(1000);
-        };
+        var result = 0;
+        Action action = () => result = value;
 
         // Act
-        var elapsed = action.ExecuteAndTime();
+        await action.RunAsynchronously();
 
         // Assert
-        Assert.True(elapsed >= TimeSpan.FromSeconds(1) && elapsed <= TimeSpan.FromSeconds(1.1),
-            $"Expected elapsed time to be between 1 and 1.1 seconds, but got {elapsed.TotalSeconds} seconds");
+        Assert.Equal(value, result);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public void ExecuteAndTime_ActionExecuted_ReturnsCorrectTimeSpan(int delay)
+    {
+        // Arrange
+        var action = new Action(() => Thread.Sleep(delay * 1000));
+
+        // Act
+        var result = action.ExecuteAndTime();
+
+        // Assert
+        Assert.Equal(delay, result.Seconds);
     }
 
     [Fact]
-    public static void ExecuteAndTime_ThrowsException_ForNullAction()
+    public void ExecuteAndTime_ActionIsNull_ThrowsArgumentNullException()
     {
         // Arrange
         Action action = null!;
 
-        // Act and assert
-        Assert.Throws<ArgumentNullException>(() => action.ExecuteAndTime());
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(() => action.ExecuteAndTime());
+        Assert.Equal(nameof(action), exception.ParamName);
+        Assert.Equal(string.Format("The {0} cannot be null. (Parameter '{0}')", nameof(action)), exception.Message);
     }
 }
-

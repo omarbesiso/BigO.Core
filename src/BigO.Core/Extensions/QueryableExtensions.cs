@@ -1,11 +1,9 @@
 ﻿using JetBrains.Annotations;
 
-// ReSharper disable InvalidXmlDocComment
-
 namespace BigO.Core.Extensions;
 
 /// <summary>
-///     Contains useful utility/extensions methods for working with <see cref="IQueryable" /> objects.
+///     Provides a set of useful extension methods for working with <see cref="Queryable" /> objects.
 /// </summary>
 [PublicAPI]
 public static class QueryableExtensions
@@ -33,7 +31,10 @@ public static class QueryableExtensions
     /// </remarks>
     public static IQueryable<T> Page<T>(this IQueryable<T> source, int pageNumber, int pageSize)
     {
-        ArgumentNullException.ThrowIfNull(source);
+        if (source == null)
+        {
+            throw new ArgumentNullException(nameof(source), $"The {nameof(source)} list to be paged cannot be null.");
+        }
 
         var skipCount = (pageNumber - 1) * pageSize;
         source = source.Skip(skipCount).Take(pageSize);

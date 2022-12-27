@@ -4,98 +4,78 @@ namespace BigO.Core.Tests;
 
 public class ComparableExtensionsTests
 {
-    [Theory]
-    [InlineData(1, 0, 2, true)]
-    [InlineData(1, 1, 2, true)]
-    [InlineData(1, 2, 3, false)]
-    public void IsBetween_ReturnsExpectedResult_ForIntValues(int value, int lowerBoundary, int upperBoundary,
-        bool expectedResult)
+    public static IEnumerable<object[]> IsBetweenTestData()
     {
-        // Act
-        var result = value.IsBetween(lowerBoundary, upperBoundary);
-
-        // Assert
-        Assert.Equal(expectedResult, result);
+        yield return new object[] { 1, 0, 2, true, true };
+        yield return new object[] { 2, 0, 2, true, true };
+        yield return new object[] { 3, 0, 2, true, false };
+        yield return new object[] { 1, 0, 2, false, true };
+        yield return new object[] { 2, 0, 2, false, false };
+        yield return new object[] { 3, 0, 2, false, false };
     }
 
     [Theory]
-    [InlineData("a", "a", "z", true)]
-    [InlineData("b", "a", "z", true)]
-    [InlineData("z", "a", "z", true)]
-    [InlineData("a", "d", "z", false)]
-    public void IsBetween_ReturnsExpectedResult_ForStringValues(string value, string lowerBoundary,
-        string upperBoundary, bool expectedResult)
+    [MemberData(nameof(IsBetweenTestData))]
+    public void IsBetween_ValueIsBetweenBounds_ReturnsTrue<T>(T? value, T lowerBoundary, T upperBoundary,
+        bool isBoundaryInclusive, bool expected)
+        where T : IComparable<T>
     {
         // Act
-        var result = value.IsBetween(lowerBoundary, upperBoundary);
+        var result = value.IsBetween(lowerBoundary, upperBoundary, isBoundaryInclusive);
 
         // Assert
-        Assert.Equal(expectedResult, result);
+        Assert.Equal(expected, result);
+    }
+
+    public static IEnumerable<object[]> LimitTestData()
+    {
+        yield return new object[] { 1, 2, 1 };
+        yield return new object[] { 3, 2, 2 };
+        yield return new object[] { "a", "b", "a" };
+        yield return new object[] { "c", "b", "b" };
     }
 
     [Theory]
-    [InlineData(1.0, 0.0, 2.0, true)]
-    [InlineData(1.5, 1.0, 2.0, true)]
-    [InlineData(1.0, 2.0, 3.0, false)]
-    public void IsBetween_ReturnsExpectedResult_ForDoubleValues(double value, double lowerBoundary,
-        double upperBoundary, bool expectedResult)
+    [MemberData(nameof(LimitTestData))]
+    public void Limit_ValueIsGreaterThanMaximum_ReturnsMaximum<T>(T value, T maximum, T expected)
+        where T : IComparable<T>
     {
-        // Act
-        var result = value.IsBetween(lowerBoundary, upperBoundary);
-
-        // Assert
-        Assert.Equal(expectedResult, result);
-    }
-
-    [Fact]
-    public void Limit_ValueLessThanMaximum_ReturnsValue()
-    {
-        // Arrange
-        var value = 10;
-        var maximum = 20;
-
         // Act
         var result = value.Limit(maximum);
 
         // Assert
-        Assert.Equal(value, result);
+        Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void Limit_ValueGreaterThanMaximum_ReturnsMaximum()
+    public static IEnumerable<object[]> LimitTestData2()
     {
-        // Arrange
-        var value = 30;
-        var maximum = 20;
+        yield return new object[] { 1, 0, 2, 1 };
+        yield return new object[] { 3, 0, 2, 2 };
+        yield return new object[] { -1, 0, 2, 0 };
+        yield return new object[] { "a", "b", "c", "b" };
+        yield return new object[] { "d", "b", "c", "c" };
+        yield return new object[] { "a", "b", "a", "b" };
+    }
 
+    [Theory]
+    [MemberData(nameof(LimitTestData2))]
+    public void Limit2_ValueIsBetweenMinimumAndMaximum_ReturnsValue<T>(T value, T minimum, T maximum, T expected)
+        where T : IComparable
+    {
         // Act
-        var result = value.Limit(maximum);
+        var result = value.Limit(minimum, maximum);
 
         // Assert
-        Assert.Equal(maximum, result);
+        Assert.Equal(expected, result);
     }
 
     [Fact]
-    public void Limit_ValueEqualToMaximum_ReturnsMaximum()
+    public void Limit2_ValueIsLessThanMinimum_ReturnsMinimum()
     {
         // Arrange
-        var value = 20;
-        var maximum = 20;
-
-        // Act
-        var result = value.Limit(maximum);
-
-        // Assert
-        Assert.Equal(maximum, result);
-    }
-
-    [Fact]
-    public void Limit_ValueLessThanMinimum_ReturnsMinimum()
-    {
-        // Arrange
-        var value = 10;
-        var minimum = 20;
-        var maximum = 30;
+        var value = -1;
+        var minimum = 0;
+        var maximum = 2;
 
         // Act
         var result = value.Limit(minimum, maximum);
@@ -105,32 +85,17 @@ public class ComparableExtensionsTests
     }
 
     [Fact]
-    public void Limit2_ValueGreaterThanMaximum_ReturnsMaximum()
+    public void Limit2_ValueIsGreaterThanMaximum_ReturnsMaximum()
     {
         // Arrange
-        var value = 40;
-        var minimum = 20;
-        var maximum = 30;
+        var value = 3;
+        var minimum = 0;
+        var maximum = 2;
 
         // Act
         var result = value.Limit(minimum, maximum);
 
         // Assert
         Assert.Equal(maximum, result);
-    }
-
-    [Fact]
-    public void Limit_ValueBetweenMinimumAndMaximum_ReturnsValue()
-    {
-        // Arrange
-        var value = 25;
-        var minimum = 20;
-        var maximum = 30;
-
-        // Act
-        var result = value.Limit(minimum, maximum);
-
-        // Assert
-        Assert.Equal(value, result);
     }
 }

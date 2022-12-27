@@ -3,100 +3,110 @@
 namespace BigO.Core.Types;
 
 /// <summary>
-///     Represents a timezone specified date time range.
+///     Represents a range between two <see cref="DateTimeWithTimeZone" /> instances.
 /// </summary>
 [PublicAPI]
-public struct DateTimeWithTimeZoneRange : IEquatable<DateTimeWithTimeZoneRange>
+public class DateTimeWithTimeZoneRange : IEquatable<DateTimeWithTimeZoneRange>
 {
     /// <summary>
-    ///     Gets or sets the start of the range.
+    ///     Initializes a new instance of the <see cref="DateTimeWithTimeZoneRange" /> class.
     /// </summary>
-    public DateTimeWithTimeZone Start { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the end of the range.
-    /// </summary>
-    public DateTimeWithTimeZone End { get; set; }
-
+    /// <param name="start">The start of the range.</param>
+    /// <param name="end">The end of the range.</param>
     public DateTimeWithTimeZoneRange(DateTimeWithTimeZone start, DateTimeWithTimeZone end)
     {
+        if (start > end)
+        {
+            throw new ArgumentException("The start of the range must be earlier than the end of the range.");
+        }
+
         Start = start;
         End = end;
     }
 
     /// <summary>
+    ///     Gets the start of the range.
+    /// </summary>
+    public DateTimeWithTimeZone Start { get; }
+
+    /// <summary>
+    ///     Gets the end of the range.
+    /// </summary>
+    public DateTimeWithTimeZone End { get; }
+
+    /// <summary>
+    ///     Determines whether this range is equal to another range.
+    /// </summary>
+    /// <param name="other">The other range to compare to.</param>
+    /// <returns>True if the ranges are equal, false otherwise.</returns>
+    public bool Equals(DateTimeWithTimeZoneRange? other)
+    {
+        return other != null && Start == other.Start && End == other.End;
+    }
+
+    /// <summary>
     ///     Determines whether this instance contains the object.
     /// </summary>
-    /// <param name="dateTimeWithTimeZone">The date time with time zone.</param>
-    /// <returns><c>true</c> if the range contains the <paramref name="dateTimeWithTimeZone" />; otherwise, <c>false</c>.</returns>
-    public bool Contains(DateTimeWithTimeZone dateTimeWithTimeZone)
+    /// <param name="value">The value.</param>
+    /// <returns><c>true</c> if the value falls within the range; otherwise, <c>false</c>.</returns>
+    public bool Contains(DateTimeWithTimeZone value)
     {
-        var utcDateTime = dateTimeWithTimeZone.ToUtcDateTime();
-        return utcDateTime >= Start.ToUtcDateTime() && utcDateTime <= End.ToUtcDateTime();
+        return Start <= value && value <= End;
     }
 
     /// <summary>
-    ///     Checks if another <see cref="DateTimeWithTimeZoneRange" /> instance overlaps with this instance.
+    ///     Determines whether this range overlaps with another range.
     /// </summary>
-    /// <param name="dateTimeRange">The date time with timezone range.</param>
-    /// <returns><c>true</c> if the provided date time range overlaps this instance, <c>false</c> otherwise.</returns>
-    public bool Overlaps(DateTimeWithTimeZoneRange dateTimeRange)
+    /// <param name="other">The other range to check.</param>
+    /// <returns>True if the ranges overlap, false otherwise.</returns>
+    public bool Overlaps(DateTimeWithTimeZoneRange other)
     {
-        return Start.ToUtcDateTime() <= dateTimeRange.End.ToUtcDateTime() &&
-               dateTimeRange.Start.ToUtcDateTime() <= End.ToUtcDateTime();
+        return Contains(other.Start) || Contains(other.End) || other.Contains(Start) || other.Contains(End);
     }
 
     /// <summary>
-    ///     Indicates whether the current object is equal to another object of the same type.
+    ///     Gets the union of this range and another range.
     /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///     <see langword="false" />.
-    /// </returns>
-    public bool Equals(DateTimeWithTimeZoneRange other)
+    /// <param name="other">The other range to include in the union.</param>
+    /// <returns>A new range that includes both this range and the other range.</returns>
+    public DateTimeWithTimeZoneRange Union(DateTimeWithTimeZoneRange other)
     {
-        return Start.Equals(other.Start) && End.Equals(other.End);
+        return new DateTimeWithTimeZoneRange(Start < other.Start ? Start : other.Start,
+            End > other.End ? End : other.End);
     }
 
     /// <summary>
-    ///     Determines whether the specified <see cref="System.Object" /> is equal to this instance.
+    ///     Gets the intersection of this range and another range.
     /// </summary>
-    /// <param name="obj">The object to compare with the current instance.</param>
-    /// <returns><c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
+    /// <param name="other">The other range to intersect with.</param>
+    /// <returns>A new range that includes only the dates and times that are present in both this range and the other range.</returns>
+    public DateTimeWithTimeZoneRange Intersection(DateTimeWithTimeZoneRange other)
+    {
+        return new DateTimeWithTimeZoneRange(Start > other.Start ? Start : other.Start,
+            End < other.End ? End : other.End);
+    }
+
+    /// <summary>
+    ///     Determines whether this range is equal to another object.
+    /// </summary>
+    /// <param name="obj">The other object to compare to.</param>
+    /// <returns>True if the object is a range equal to this range, false otherwise.</returns>
     public override bool Equals(object? obj)
     {
-        return obj is DateTimeWithTimeZoneRange other && Equals(other);
+        if (obj is DateTimeWithTimeZoneRange range)
+        {
+            return Equals(range);
+        }
+
+        return false;
     }
 
     /// <summary>
-    ///     Returns a hash code for this instance.
+    ///     Returns the hash code for this range.
     /// </summary>
-    /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
+    /// <returns>The hash code.</returns>
     public override int GetHashCode()
     {
         return HashCode.Combine(Start, End);
-    }
-
-    /// <summary>
-    ///     Implements the == operator.
-    /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="right">The right.</param>
-    /// <returns>The result of the operator.</returns>
-    public static bool operator ==(DateTimeWithTimeZoneRange left, DateTimeWithTimeZoneRange right)
-    {
-        return left.Equals(right);
-    }
-
-    /// <summary>
-    ///     Implements the != operator.
-    /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="right">The right.</param>
-    /// <returns>The result of the operator.</returns>
-    public static bool operator !=(DateTimeWithTimeZoneRange left, DateTimeWithTimeZoneRange right)
-    {
-        return !left.Equals(right);
     }
 }

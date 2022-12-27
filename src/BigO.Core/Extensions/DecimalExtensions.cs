@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 namespace BigO.Core.Extensions;
 
 /// <summary>
-///     Contains useful utility/extensions methods for working with <see cref="decimal" /> objects.
+///     Provides a set of useful extension methods for working with <see cref="decimal" /> objects.
 /// </summary>
 [PublicAPI]
 public static class DecimalExtensions

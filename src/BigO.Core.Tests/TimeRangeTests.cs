@@ -173,23 +173,4 @@ public class TimeRangeTests
         // Assert
         Assert.False(result);
     }
-
-    [Fact]
-    public void TimeRange_Overlaps_ReturnsTrue_WhenCalledWithOverlappingTimeRange()
-    {
-        // Arrange
-        var startTime1 = new TimeOnly(8, 0);
-        var endTime1 = new TimeOnly(17, 0);
-        var timeRange1 = new TimeRange(startTime1, endTime1);
-
-        var startTime2 = new TimeOnly(9, 0);
-        var endTime2 = new TimeOnly(16, 0);
-        var timeRange2 = new TimeRange(startTime2, endTime2);
-
-        // Act
-        var result = timeRange1.Overlaps(timeRange2);
-
-        // Assert
-        Assert.True(result);
-    }
 }

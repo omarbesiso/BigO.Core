@@ -22,7 +22,7 @@ public class BooleanExtensionsTests
     public void ToBit_ReturnsExpectedResult(bool source, byte expectedResult)
     {
         // Act
-        var result = source.ToBit();
+        var result = source.ToByte();
 
         // Assert
         Assert.Equal(expectedResult, result);

@@ -6,681 +6,679 @@ namespace BigO.Core.Tests;
 public class DateOnlyExtensionsTests
 {
     [Fact]
-    public void Age_MaturityDateIsBeforeBirthDate_ThrowsArgumentException()
+    public void IsToday_Today_ReturnsTrue()
     {
         // Arrange
-        var dateOfBirth = new DateOnly(2000, 1, 1);
-        var maturityDate = new DateOnly(1999, 12, 31);
+        var today = DateTime.Today;
+        var dateOnly = new DateOnly(today.Year, today.Month, today.Day);
 
         // Act
-        void Act()
-        {
-            dateOfBirth.Age(maturityDate);
-        }
+        var result = dateOnly.IsToday();
 
         // Assert
-        Assert.Throws<ArgumentException>(Act);
+        Assert.True(result);
     }
 
     [Fact]
-    public void Age_MaturityDateIsOnBirthday_ReturnsAge()
+    public void IsToday_Yesterday_ReturnsFalse()
     {
         // Arrange
-        var dateOfBirth = new DateOnly(2000, 1, 1);
-        var maturityDate = new DateOnly(2020, 1, 1);
+        var yesterday = DateTime.Today.AddDays(-1);
+        var dateOnly = new DateOnly(yesterday.Year, yesterday.Month, yesterday.Day);
 
         // Act
-        var age = dateOfBirth.Age(maturityDate);
+        var result = dateOnly.IsToday();
 
         // Assert
-        Assert.Equal(20, age);
+        Assert.False(result);
     }
 
     [Fact]
-    public void Age_MaturityDateIsAfterBirthday_ReturnsAge()
+    public void IsToday_Tomorrow_ReturnsFalse()
     {
         // Arrange
-        var dateOfBirth = new DateOnly(2000, 1, 1);
-        var maturityDate = new DateOnly(2020, 1, 2);
+        var tomorrow = DateTime.Today.AddDays(1);
+        var dateOnly = new DateOnly(tomorrow.Year, tomorrow.Month, tomorrow.Day);
 
         // Act
-        var age = dateOfBirth.Age(maturityDate);
+        var result = dateOnly.IsToday();
 
         // Assert
-        Assert.Equal(20, age);
+        Assert.False(result);
     }
 
     [Fact]
-    public void Age_MaturityDateIsBeforeBirthday_ReturnsAgeMinusOne()
+    public void IsToday_DifferentYear_ReturnsFalse()
     {
         // Arrange
-        var dateOfBirth = new DateOnly(2000, 1, 1);
-        var maturityDate = new DateOnly(2019, 12, 31);
+        var date = new DateTime(DateTime.Today.Year + 1, DateTime.Today.Month, DateTime.Today.Day);
+        var dateOnly = new DateOnly(date.Year, date.Month, date.Day);
 
         // Act
-        var age = dateOfBirth.Age(maturityDate);
+        var result = dateOnly.IsToday();
 
         // Assert
-        Assert.Equal(19, age);
+        Assert.False(result);
     }
 
     [Fact]
-    public void Age_MaturityDateIsNotProvided_UsesCurrentDate()
-    {
-        // Arrange
-        var dateOfBirth = new DateOnly(2000, 1, 1);
-
-        // Act
-        var age = dateOfBirth.Age();
-
-        // Assert
-        Assert.Equal(DateTime.Today.Year - dateOfBirth.Year, age);
-    }
-
-    [Fact]
-    public void AddWeeks_PositiveNumberOfWeeks_ReturnsExpectedDate()
+    public void GetDatesInRange_FromDateEqualToToDate_ReturnsSingleDate()
     {
         // Arrange
         var date = new DateOnly(2020, 1, 1);
-        var numberOfWeeks = 2;
+        var fromDate = new DateOnly(date.Year, date.Month, date.Day);
+        var toDate = new DateOnly(date.Year, date.Month, date.Day);
+        var expected = new[] { fromDate };
 
         // Act
-        var result = date.AddWeeks(numberOfWeeks);
+        var result = fromDate.GetDatesInRange(toDate);
 
         // Assert
-        Assert.Equal(new DateOnly(2020, 1, 15), result);
+        Assert.Equal(expected, result);
     }
 
     [Fact]
-    public void AddWeeks_NegativeNumberOfWeeks_ReturnsExpectedDate()
+    public void GetDatesInRange_FromDateBeforeToDate_ReturnsDatesInRange()
     {
         // Arrange
-        var date = new DateOnly(2020, 1, 15);
-        var numberOfWeeks = -2;
+        var fromDate = new DateOnly(2020, 1, 1);
+        var toDate = new DateOnly(2020, 1, 3);
+        var expected = new[] { fromDate, fromDate.AddDays(1), fromDate.AddDays(2) };
 
+        // Act
+        var result = fromDate.GetDatesInRange(toDate);
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void GetDatesInRange_FromDateAfterToDate_ReturnsDatesInRange()
+    {
+        // Arrange
+        var fromDate = new DateOnly(2020, 1, 3);
+        var toDate = new DateOnly(2020, 1, 1);
+        var expected = new[] { fromDate, fromDate.AddDays(-1), fromDate.AddDays(-2) };
+
+        // Act
+        var result = fromDate.GetDatesInRange(toDate);
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void IsLeapDay_LeapDay_ReturnsTrue()
+    {
+        // Arrange
+        var date = new DateOnly(2020, 2, 29);
+
+        // Act
+        var result = date.IsLeapDay();
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void IsLeapDay_NotLeapDay_ReturnsFalse()
+    {
+        // Arrange
+        var date = new DateOnly(2020, 2, 28);
+
+        // Act
+        var result = date.IsLeapDay();
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Theory]
+    [InlineData("2022-12-29", "2023-01-01")]
+    [InlineData("2022-12-25", "2022-12-25")]
+    [InlineData("2022-12-31", "2023-01-01")]
+    public void GetLastDateOfWeek_ReturnsCorrectDate_ForGivenDate(string inputDateString, string expectedDateString)
+    {
+        // Arrange
+        var inputDate = DateOnly.Parse(inputDateString);
+        var expectedDate = DateOnly.Parse(expectedDateString);
+
+        // Act
+        var result = inputDate.GetLastDateOfWeek();
+
+        // Assert
+        Assert.Equal(expectedDate, result);
+    }
+
+    [Theory]
+    [InlineData("2020-12-31", "en-US", "2021-01-02")]
+    [InlineData("2022-06-01", "en-US", "2022-06-04")]
+    [InlineData("2020-01-01", "fr-FR", "2020-01-05")]
+    public void GetLastDateOfWeek_ReturnsCorrectResult_ForDifferentCultures(string input, string culture,
+        string expected)
+    {
+        // Arrange
+        var date = DateOnly.Parse(input);
+        var cultureInfo = CultureInfo.GetCultureInfo(culture);
+
+        // Act
+        var result = date.GetLastDateOfWeek(cultureInfo);
+
+        // Assert
+        Assert.Equal(expected, result.ToString("yyyy-MM-dd"));
+    }
+
+    public static IEnumerable<object[]> AddWeeksTestData()
+    {
+        yield return new object[] { new DateOnly(2020, 1, 1), 0, new DateOnly(2020, 1, 1) };
+        yield return new object[] { new DateOnly(2020, 1, 1), 1, new DateOnly(2020, 1, 8) };
+        yield return new object[] { new DateOnly(2020, 1, 1), 2, new DateOnly(2020, 1, 15) };
+        yield return new object[] { new DateOnly(2020, 1, 1), 3, new DateOnly(2020, 1, 22) };
+        yield return new object[] { new DateOnly(2020, 1, 1), -1, new DateOnly(2019, 12, 25) };
+        yield return new object[] { new DateOnly(2020, 1, 1), -2, new DateOnly(2019, 12, 18) };
+        yield return new object[] { new DateOnly(2020, 1, 1), -3, new DateOnly(2019, 12, 11) };
+    }
+
+    [Theory]
+    [MemberData(nameof(AddWeeksTestData))]
+    public void AddWeeks_ReturnsExpectedDate(DateOnly date, int numberOfWeeks, DateOnly expectedDate)
+    {
         // Act
         var result = date.AddWeeks(numberOfWeeks);
 
         // Assert
-        Assert.Equal(new DateOnly(2020, 1, 1), result);
+        Assert.Equal(expectedDate, result);
     }
 
     [Fact]
-    public void AddWeeks_ZeroWeeks_ReturnsSameDate()
+    public void PreviousDay()
+    {
+        var date = new DateOnly(2021, 1, 1);
+        var previousDay = date.PreviousDay();
+        Assert.Equal(new DateOnly(2020, 12, 31), previousDay);
+    }
+
+    [Fact]
+    public void PreviousDay_Today_ReturnsYesterday()
+    {
+        // Arrange
+        var today = DateTime.Today;
+        var dateOnly = new DateOnly(today.Year, today.Month, today.Day);
+        var expected = dateOnly.AddDays(-1);
+
+        // Act
+        var result = dateOnly.PreviousDay();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void PreviousDay_FirstDayOfMonth_ReturnsLastDayOfPreviousMonth()
+    {
+        // Arrange
+        var date = new DateTime(2020, 3, 1);
+        var dateOnly = new DateOnly(date.Year, date.Month, date.Day);
+        var expected = new DateOnly(2020, 2, 29); // leap year
+
+        // Act
+        var result = dateOnly.PreviousDay();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void PreviousDay_FirstDayOfYear_ReturnsLastDayOfPreviousYear()
+    {
+        // Arrange
+        var date = new DateTime(2021, 1, 1);
+        var dateOnly = new DateOnly(date.Year, date.Month, date.Day);
+        var expected = new DateOnly(2020, 12, 31);
+
+        // Act
+        var result = dateOnly.PreviousDay();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void PreviousDay_NonFirstDayOfMonth_ReturnsPreviousDay()
+    {
+        // Arrange
+        var date = new DateTime(2020, 2, 29); // leap year
+        var dateOnly = new DateOnly(date.Year, date.Month, date.Day);
+        var expected = new DateOnly(2020, 2, 28);
+
+        // Act
+        var result = dateOnly.PreviousDay();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void PreviousDay_NonFirstDayOfYear_ReturnsPreviousDay()
+    {
+        // Arrange
+        var date = new DateTime(2020, 1, 2);
+        var dateOnly = new DateOnly(date.Year, date.Month, date.Day);
+        var expected = new DateOnly(2020, 1, 1);
+
+        // Act
+        var result = dateOnly.PreviousDay();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(2020, 1, 31)]
+    [InlineData(2020, 2, 29)]
+    [InlineData(2019, 2, 28)]
+    [InlineData(2021, 4, 30)]
+    public void GetLastDateOfMonth_ReturnsLastDateOfMonth(int year, int month, int expectedDay)
+    {
+        // Arrange
+        var date = new DateOnly(year, month, 1);
+
+        // Act
+        var lastDateOfMonth = date.GetLastDateOfMonth();
+
+        // Assert
+        Assert.Equal(expectedDay, lastDateOfMonth.Day);
+    }
+
+    [Theory]
+    [InlineData(2020, 1, DayOfWeek.Sunday, 26)]
+    [InlineData(2020, 2, DayOfWeek.Monday, 24)]
+    [InlineData(2019, 2, DayOfWeek.Tuesday, 26)]
+    [InlineData(2021, 4, DayOfWeek.Wednesday, 28)]
+    public void GetLastDateOfMonth_WithDayOfWeek_ReturnsLastDateOfMonthOnSpecifiedDayOfWeek(int year, int month,
+        DayOfWeek dayOfWeek, int expectedDay)
+    {
+        // Arrange
+        var date = new DateOnly(year, month, 1);
+
+        // Act
+        var lastDateOfMonth = date.GetLastDateOfMonth(dayOfWeek);
+
+        // Assert
+        Assert.Equal(expectedDay, lastDateOfMonth.Day);
+        Assert.Equal(dayOfWeek, lastDateOfMonth.DayOfWeek);
+    }
+
+    [Theory]
+    [InlineData(2020, 1, 4, 2020, 1, 2, true)]
+    [InlineData(2020, 1, 2, 2020, 1, 1, true)]
+    [InlineData(2020, 1, 1, 2020, 1, 1, false)]
+    public void IsAfter_ReturnsExpectedResult(int sourceYear, int sourceMonth, int sourceDay, int otherYear,
+        int otherMonth, int otherDay, bool expectedResult)
+    {
+        // Arrange
+        var source = new DateOnly(sourceYear, sourceMonth, sourceDay);
+        var other = new DateOnly(otherYear, otherMonth, otherDay);
+
+        // Act
+        var result = source.IsAfter(other);
+
+        // Assert
+        Assert.Equal(expectedResult, result);
+    }
+
+    [Fact]
+    public void NextDay_Today_ReturnsTomorrow()
+    {
+        // Arrange
+        var today = DateTime.Today;
+        var dateOnly = new DateOnly(today.Year, today.Month, today.Day);
+        var expected = dateOnly.AddDays(1);
+
+        // Act
+        var result = dateOnly.NextDay();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void NextDay_LastDayOfMonth_ReturnsFirstDayOfNextMonth()
+    {
+        // Arrange
+        var date = new DateTime(2020, 2, 29); // leap year
+        var dateOnly = new DateOnly(date.Year, date.Month, date.Day);
+        var expected = new DateOnly(2020, 3, 1);
+
+        // Act
+        var result = dateOnly.NextDay();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void NextDay_LastDayOfYear_ReturnsFirstDayOfNextYear()
+    {
+        // Arrange
+        var date = new DateTime(2020, 12, 31);
+        var dateOnly = new DateOnly(date.Year, date.Month, date.Day);
+        var expected = new DateOnly(2021, 1, 1);
+
+        // Act
+        var result = dateOnly.NextDay();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void NextDay_NonLastDayOfMonth_ReturnsNextDay()
+    {
+        // Arrange
+        var date = new DateTime(2020, 2, 28);
+        var dateOnly = new DateOnly(date.Year, date.Month, date.Day);
+        var expected = new DateOnly(2020, 2, 29);
+
+        // Act
+        var result = dateOnly.NextDay();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void NextDay_NonLastDayOfYear_ReturnsNextDay()
+    {
+        // Arrange
+        var date = new DateTime(2020, 12, 30);
+        var dateOnly = new DateOnly(date.Year, date.Month, date.Day);
+        var expected = new DateOnly(2020, 12, 31);
+
+        // Act
+        var result = dateOnly.NextDay();
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(1, 2)]
+    [InlineData(1, 1)]
+    [InlineData(2, 1)]
+    public void IsBefore_GivenTwoDates_ReturnsCorrectResult(int day1, int day2)
+    {
+        // Arrange
+        var date1 = new DateOnly(2022, 1, day1);
+        var date2 = new DateOnly(2022, 1, day2);
+
+        // Act
+        var result = date1.IsBefore(date2);
+
+        // Assert
+        Assert.Equal(day1 < day2, result);
+    }
+
+    [Fact]
+    public void IsBetween_FromDateEqualToToDate_ReturnsTrue()
     {
         // Arrange
         var date = new DateOnly(2020, 1, 1);
-        var numberOfWeeks = 0;
+        var fromDate = new DateOnly(date.Year, date.Month, date.Day);
+        var toDate = new DateOnly(date.Year, date.Month, date.Day);
+        var expected = true;
 
         // Act
-        var result = date.AddWeeks(numberOfWeeks);
+        var result = date.IsBetween(fromDate, toDate);
 
         // Assert
-        Assert.Equal(date, result);
+        Assert.Equal(expected, result);
     }
 
     [Fact]
-    public void GetCountOfDaysInMonth_MonthWith30Days_Returns30()
+    public void IsBetween_FromDateBeforeToDate_ReturnsTrue()
     {
         // Arrange
-        var date = new DateOnly(2020, 4, 15);
+        var date = new DateOnly(2020, 1, 2);
+        var fromDate = new DateOnly(2020, 1, 1);
+        var toDate = new DateOnly(2020, 1, 3);
+        var expected = true;
 
         // Act
-        var result = date.DaysInMonth();
+        var result = date.IsBetween(fromDate, toDate);
 
         // Assert
-        Assert.Equal(30, result);
+        Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void GetCountOfDaysInMonth_MonthWith31Days_Returns31()
+    [Theory]
+    [InlineData(2020, 1, 1, 2020, 1, 1, true, true)]
+    [InlineData(2020, 1, 1, 2020, 1, 1, false, false)]
+    [InlineData(2020, 1, 2, 2020, 1, 1, true, true)]
+    [InlineData(2020, 1, 3, 2020, 1, 2, true, true)]
+    [InlineData(2020, 1, 3, 2020, 1, 2, false, false)]
+    public void IsBetween_DateIsInRange_ReturnsExpectedResult(
+        int dtYear, int dtMonth, int dtDay,
+        int rangeBegYear, int rangeBegMonth, int rangeBegDay,
+        bool isInclusive, bool expected)
     {
         // Arrange
-        var date = new DateOnly(2020, 1, 15);
+        var dt = new DateOnly(dtYear, dtMonth, dtDay);
+        var rangeBeg = new DateOnly(rangeBegYear, rangeBegMonth, rangeBegDay);
+        var rangeEnd = new DateOnly(rangeBegYear, rangeBegMonth, rangeBegDay + 1);
 
         // Act
-        var result = date.DaysInMonth();
+        var result = dt.IsBetween(rangeBeg, rangeEnd, isInclusive);
 
         // Assert
-        Assert.Equal(31, result);
+        Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void GetCountOfDaysInMonth_FebruaryInLeapYear_Returns29()
+    [Theory]
+    [InlineData(2020, 1, 1, 2020, 1, 2, true, false)]
+    [InlineData(2020, 1, 1, 2020, 1, 2, false, false)]
+    public void IsBetween_DateIsNotInRange_ReturnsExpectedResult(
+        int dtYear, int dtMonth, int dtDay,
+        int rangeBegYear, int rangeBegMonth, int rangeBegDay,
+        bool isInclusive, bool expected)
     {
         // Arrange
-        var date = new DateOnly(2020, 2, 15);
+        var dt = new DateOnly(dtYear, dtMonth, dtDay);
+        var rangeBeg = new DateOnly(rangeBegYear, rangeBegMonth, rangeBegDay);
+        var rangeEnd = new DateOnly(rangeBegYear, rangeBegMonth, rangeBegDay + 1);
 
         // Act
-        var result = date.DaysInMonth();
+        var result = dt.IsBetween(rangeBeg, rangeEnd, isInclusive);
 
         // Assert
-        Assert.Equal(29, result);
+        Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void GetCountOfDaysInMonth_FebruaryInNonLeapYear_Returns28()
+    [Theory]
+    [InlineData(2020, 1, 1, DayOfWeek.Wednesday, 1)]
+    [InlineData(2020, 1, 1, DayOfWeek.Thursday, 2)]
+    [InlineData(2020, 1, 1, DayOfWeek.Friday, 3)]
+    [InlineData(2020, 1, 1, DayOfWeek.Saturday, 4)]
+    [InlineData(2020, 1, 1, DayOfWeek.Sunday, 5)]
+    [InlineData(2020, 1, 1, DayOfWeek.Monday, 6)]
+    [InlineData(2020, 1, 1, DayOfWeek.Tuesday, 7)]
+    public void GetFirstDateOfMonth_GivenDateAndDayOfWeek_ReturnsCorrectDate(int year, int month, int day,
+        DayOfWeek dayOfWeek, int expected)
     {
         // Arrange
-        var date = new DateOnly(2021, 2, 15);
+        var date = new DateOnly(year, month, day);
 
         // Act
-        var result = date.DaysInMonth();
+        var result = date.GetFirstDateOfMonth(dayOfWeek);
 
         // Assert
-        Assert.Equal(28, result);
+        Assert.Equal(dayOfWeek, result.DayOfWeek);
+        Assert.Equal(year, result.Year);
+        Assert.Equal(month, result.Month);
+        Assert.Equal(expected, result.Day);
     }
 
-    [Fact]
-    public void GetFirstDateOfMonth_DayOfWeekNotSpecified_ReturnsFirstDateOfMonth()
+    [Theory]
+    [InlineData(2020, 1, 1)]
+    [InlineData(2021, 2, 1)]
+    [InlineData(2022, 3, 1)]
+    [InlineData(2023, 4, 1)]
+    [InlineData(2024, 5, 1)]
+    [InlineData(2025, 6, 1)]
+    [InlineData(2026, 7, 1)]
+    [InlineData(2027, 8, 1)]
+    [InlineData(2028, 9, 1)]
+    [InlineData(2029, 10, 1)]
+    [InlineData(2030, 11, 1)]
+    [InlineData(2031, 12, 1)]
+    public void GetFirstDateOfMonth_GivenDate_ReturnsCorrectDate(int year, int month, int day)
     {
         // Arrange
-        var date = new DateOnly(2020, 4, 15);
+        var date = new DateOnly(year, month, day);
 
         // Act
         var result = date.GetFirstDateOfMonth();
 
         // Assert
-        Assert.Equal(new DateOnly(2020, 4, 1), result);
+        Assert.Equal(year, result.Year);
+        Assert.Equal(month, result.Month);
+        Assert.Equal(1, result.Day);
     }
 
-    [Fact]
-    public void GetFirstDateOfMonth_DayOfWeekSpecified_ReturnsFirstDateOfMonthOnThatDay()
+    [Theory]
+    [InlineData(2020, 1, 1, 2019, 12, 30)]
+    public void GetFirstDateOfWeek_WithDefaultCulture_ReturnsExpectedResult(int year, int month, int day,
+        int expectedYear,
+        int expectedMonth, int expectedDay)
     {
         // Arrange
-        var date = new DateOnly(2020, 4, 15);
-
-        // Act
-        var result = date.GetFirstDateOfMonth(DayOfWeek.Tuesday);
-
-        // Assert
-        Assert.Equal(new DateOnly(2020, 4, 7), result);
-    }
-
-    [Fact]
-    public void GetFirstDateOfWeek_CultureInfoNotSpecified_UsesCurrentCulture()
-    {
-        // Arrange
-        var date = new DateOnly(2020, 4, 15);
-        CultureInfo.CurrentCulture = new CultureInfo("en-US");
+        var date = new DateOnly(year, month, day);
 
         // Act
         var result = date.GetFirstDateOfWeek();
 
         // Assert
-        Assert.Equal(DayOfWeek.Sunday, result.DayOfWeek);
+        Assert.Equal(new DateOnly(expectedYear, expectedMonth, expectedDay), result);
     }
 
-    [Fact]
-    public void GetFirstDateOfWeek_CultureInfoSpecified_UsesSpecifiedCulture()
+    [Theory]
+    [InlineData(2020, 1, 1, DayOfWeek.Wednesday, 2020, 1, 1)]
+    [InlineData(2020, 1, 1, DayOfWeek.Sunday, 2019, 12, 29)]
+    [InlineData(2020, 1, 1, DayOfWeek.Monday, 2019, 12, 30)]
+    [InlineData(2020, 1, 1, DayOfWeek.Tuesday, 2019, 12, 31)]
+    public void GetFirstDateOfWeek_WithCustomCulture_ReturnsExpectedResult(int year, int month, int day,
+        DayOfWeek firstDayOfWeek, int expectedYear, int expectedMonth, int expectedDay)
     {
         // Arrange
-        var date = new DateOnly(2020, 4, 15);
-        var cultureInfo = new CultureInfo("fr-FR");
+        var date = new DateOnly(year, month, day);
+        var cultureInfo = new CultureInfo("en-US") { DateTimeFormat = { FirstDayOfWeek = firstDayOfWeek } };
 
         // Act
         var result = date.GetFirstDateOfWeek(cultureInfo);
 
         // Assert
-        Assert.Equal(DayOfWeek.Monday, result.DayOfWeek);
+        Assert.Equal(new DateOnly(expectedYear, expectedMonth, expectedDay), result);
     }
 
-    [Fact]
-    public void GetFirstDateOfWeek_DateIsOnFirstDayOfWeek_ReturnsSameDate()
+    public static IEnumerable<object[]> AgeTestData()
     {
-        // Arrange
-        var date = new DateOnly(2020, 4, 12);
-        var cultureInfo = new CultureInfo("en-US");
+        yield return new object[] { new DateOnly(2000, 1, 1), new DateOnly(2020, 1, 1), 20 };
+        yield return new object[] { new DateOnly(2000, 1, 1), new DateOnly(2022, 6, 1), 22 };
+        yield return new object[] { new DateOnly(2000, 1, 1), new DateOnly(2020, 1, 2), 20 };
+        yield return new object[] { new DateOnly(2000, 1, 1), new DateOnly(2020, 12, 31), 20 };
+        yield return new object[] { new DateOnly(2000, 1, 1), new DateOnly(2020, 12, 30), 20 };
+        yield return new object[] { new DateOnly(2000, 1, 1), new DateOnly(2020, 12, 29), 20 };
+    }
 
+    [Theory]
+    [MemberData(nameof(AgeTestData))]
+    public void Age_MaturityDateIsAfterBirthDate_ReturnsAge(DateOnly dateOfBirth, DateOnly maturityDate,
+        int expectedAge)
+    {
         // Act
-        var result = date.GetFirstDateOfWeek(cultureInfo);
+        var age = dateOfBirth.Age(maturityDate);
 
         // Assert
-        Assert.Equal(date, result);
+        Assert.Equal(expectedAge, age);
     }
 
     [Fact]
-    public void GetFirstDateOfWeek_DateIsAfterFirstDayOfWeek_ReturnsFirstDayOfWeek()
+    public void Age_MaturityDateIsBeforeBirthDate_ThrowsArgumentException()
     {
         // Arrange
-        var date = new DateOnly(2020, 4, 15);
-        var cultureInfo = new CultureInfo("en-US");
+        var dateOfBirth = new DateOnly(2000, 1, 1);
+        var maturityDate = new DateOnly(1999, 1, 1);
 
-        // Act
-        var result = date.GetFirstDateOfWeek(cultureInfo);
-
-        // Assert
-        Assert.Equal(new DateOnly(2020, 4, 12), result);
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => dateOfBirth.Age(maturityDate));
+        Assert.Equal(nameof(maturityDate), exception.ParamName);
+        Assert.Equal(
+            $"The maturity date '1/01/1999' cannot occur before the birth date '1/01/2000' (Parameter '{nameof(maturityDate)}')",
+            exception.Message);
     }
 
     [Fact]
-    public void GetLastDateOfMonth_DayOfWeekNotSpecified_ReturnsLastDateOfMonth()
+    public void Age_MaturityDateIsNull_UsesCurrentDate()
     {
         // Arrange
-        var date = new DateOnly(2020, 4, 15);
+        var dateOfBirth = new DateOnly(2000, 1, 1);
+        var expectedAge = DateTime.Now.Year - dateOfBirth.Year;
 
         // Act
-        var result = date.GetLastDateOfMonth();
+        var age = dateOfBirth.Age();
 
         // Assert
-        Assert.Equal(new DateOnly(2020, 4, 30), result);
+        Assert.Equal(expectedAge, age);
     }
 
-    [Fact]
-    public void GetLastDateOfMonth_DayOfWeekSpecified_ReturnsLastDateOfMonthOnThatDay()
+    public static IEnumerable<object[]> DaysInMonthTestData()
+    {
+        yield return new object[] { new DateOnly(2020, 1, 1), 31 };
+        yield return new object[] { new DateOnly(2020, 2, 1), 29 };
+        yield return new object[] { new DateOnly(2019, 2, 1), 28 };
+        yield return new object[] { new DateOnly(2020, 3, 1), 31 };
+        yield return new object[] { new DateOnly(2020, 4, 1), 30 };
+        yield return new object[] { new DateOnly(2020, 5, 1), 31 };
+        yield return new object[] { new DateOnly(2020, 6, 1), 30 };
+        yield return new object[] { new DateOnly(2020, 7, 1), 31 };
+        yield return new object[] { new DateOnly(2020, 8, 1), 31 };
+        yield return new object[] { new DateOnly(2020, 9, 1), 30 };
+        yield return new object[] { new DateOnly(2020, 10, 1), 31 };
+        yield return new object[] { new DateOnly(2020, 11, 1), 30 };
+        yield return new object[] { new DateOnly(2020, 12, 1), 31 };
+    }
+
+    [Theory]
+    [MemberData(nameof(DaysInMonthTestData))]
+    public void DaysInMonth_DateIsInMonth_ReturnsDaysInMonth(DateOnly date, int expectedDaysInMonth)
+    {
+        // Act
+        var daysInMonth = date.DaysInMonth();
+
+        // Assert
+        Assert.Equal(expectedDaysInMonth, daysInMonth);
+    }
+
+    [Theory]
+    [InlineData(2022, 1, 1, 2022, 1, 1, 0)]
+    [InlineData(2022, 1, 1, 2022, 1, 2, 1)]
+    [InlineData(2022, 1, 1, 2022, 1, 3, 2)]
+    [InlineData(2022, 1, 1, 2022, 2, 1, 31)]
+    [InlineData(2022, 1, 1, 2023, 1, 1, 365)]
+    [InlineData(2022, 2, 28, 2022, 3, 1, 1)]
+    public void GetNumberOfDays_ReturnsCorrectNumberOfDays(
+        int fromYear, int fromMonth, int fromDay,
+        int toYear, int toMonth, int toDay,
+        int expectedNumberOfDays)
     {
         // Arrange
-        var date = new DateOnly(2020, 4, 15);
+        var fromDate = new DateOnly(fromYear, fromMonth, fromDay);
+        var toDate = new DateOnly(toYear, toMonth, toDay);
 
         // Act
-        var result = date.GetLastDateOfMonth(DayOfWeek.Tuesday);
+        var numberOfDays = fromDate.GetNumberOfDays(toDate);
 
         // Assert
-        Assert.Equal(new DateOnly(2020, 4, 28), result);
-    }
-
-    [Fact]
-    public void GetLastDateOfMonth_DayOfWeekSpecifiedButNotInMonth_ReturnsLastDateOfPreviousMonthOnThatDay()
-    {
-        // Arrange
-        var date = new DateOnly(2020, 4, 15);
-
-        // Act
-        var result = date.GetLastDateOfMonth(DayOfWeek.Sunday);
-
-        // Assert
-        Assert.Equal(new DateOnly(2020, 4, 26), result);
-    }
-
-    [Fact]
-    public void GetNumberOfDays_FromDateBeforeToDate_ReturnsPositiveNumber()
-    {
-        // Arrange
-        var fromDate = new DateOnly(2020, 1, 1);
-        var toDate = new DateOnly(2020, 1, 2);
-
-        // Act
-        var result = fromDate.GetNumberOfDays(toDate);
-
-        // Assert
-        Assert.Equal(1, result);
-    }
-
-    [Fact]
-    public void GetNumberOfDays_FromDateAfterToDate_ReturnsNegativeNumber()
-    {
-        // Arrange
-        var fromDate = new DateOnly(2020, 1, 2);
-        var toDate = new DateOnly(2020, 1, 1);
-
-        // Act
-        var result = fromDate.GetNumberOfDays(toDate);
-
-        // Assert
-        Assert.Equal(-1, result);
-    }
-
-    [Fact]
-    public void GetNumberOfDays_FromDateEqualToToDate_ReturnsZero()
-    {
-        // Arrange
-        var fromDate = new DateOnly(2020, 1, 1);
-        var toDate = new DateOnly(2020, 1, 1);
-
-        // Act
-        var result = fromDate.GetNumberOfDays(toDate);
-
-        // Assert
-        Assert.Equal(0, result);
-    }
-
-    [Fact]
-    public void GetNumberOfDays_FromDateOneYearBeforeToDate_Returns365()
-    {
-        // Arrange
-        var fromDate = new DateOnly(2019, 1, 1);
-        var toDate = new DateOnly(2020, 1, 1);
-
-        // Act
-        var result = fromDate.GetNumberOfDays(toDate);
-
-        // Assert
-        Assert.Equal(365, result);
-    }
-
-    [Fact]
-    public void IsAfter_SameYear_ReturnsCorrectResult()
-    {
-        var date1 = new DateOnly(2020, 2, 1);
-        var date2 = new DateOnly(2020, 1, 1);
-
-        Assert.True(date1.IsAfter(date2));
-        Assert.False(date2.IsAfter(date1));
-    }
-
-    [Fact]
-    public void IsAfter_DifferentYear_ReturnsCorrectResult()
-    {
-        var date1 = new DateOnly(2020, 1, 1);
-        var date2 = new DateOnly(2019, 12, 31);
-
-        Assert.True(date1.IsAfter(date2));
-        Assert.False(date2.IsAfter(date1));
-    }
-
-    [Fact]
-    public void IsAfter_SameMonthDifferentYear_ReturnsCorrectResult()
-    {
-        var date1 = new DateOnly(2020, 1, 1);
-        var date2 = new DateOnly(2019, 1, 1);
-
-        Assert.True(date1.IsAfter(date2));
-        Assert.False(date2.IsAfter(date1));
-    }
-
-    [Fact]
-    public void IsAfter_SameDayDifferentMonth_ReturnsCorrectResult()
-    {
-        var date1 = new DateOnly(2020, 2, 1);
-        var date2 = new DateOnly(2020, 1, 1);
-
-        Assert.True(date1.IsAfter(date2));
-        Assert.False(date2.IsAfter(date1));
-    }
-
-    [Fact]
-    public void IsAfter_SameDaySameMonthDifferentYear_ReturnsCorrectResult()
-    {
-        var date1 = new DateOnly(2020, 1, 1);
-        var date2 = new DateOnly(2019, 1, 1);
-
-        Assert.True(date1.IsAfter(date2));
-        Assert.False(date2.IsAfter(date1));
-    }
-
-    [Fact]
-    public void IsAfter_SameDaySameMonthSameYear_ReturnsFalse()
-    {
-        var date1 = new DateOnly(2020, 1, 1);
-        var date2 = new DateOnly(2020, 1, 1);
-
-        Assert.False(date1.IsAfter(date2));
-        Assert.False(date2.IsAfter(date1));
-    }
-
-    [Fact]
-    public void IsBefore_SameYear_ReturnsCorrectResult()
-    {
-        var date1 = new DateOnly(2020, 1, 1);
-        var date2 = new DateOnly(2020, 2, 1);
-
-        Assert.True(date1.IsBefore(date2));
-        Assert.False(date2.IsBefore(date1));
-    }
-
-    [Fact]
-    public void IsBefore_DifferentYear_ReturnsCorrectResult()
-    {
-        var date1 = new DateOnly(2019, 12, 31);
-        var date2 = new DateOnly(2020, 1, 1);
-
-        Assert.True(date1.IsBefore(date2));
-        Assert.False(date2.IsBefore(date1));
-    }
-
-    [Fact]
-    public void IsBefore_SameMonthDifferentYear_ReturnsCorrectResult()
-    {
-        var date1 = new DateOnly(2019, 1, 1);
-        var date2 = new DateOnly(2020, 1, 1);
-
-        Assert.True(date1.IsBefore(date2));
-        Assert.False(date2.IsBefore(date1));
-    }
-
-    [Fact]
-    public void IsBefore_SameDayDifferentMonth_ReturnsCorrectResult()
-    {
-        var date1 = new DateOnly(2020, 1, 1);
-        var date2 = new DateOnly(2020, 2, 1);
-
-        Assert.True(date1.IsBefore(date2));
-        Assert.False(date2.IsBefore(date1));
-    }
-
-    [Fact]
-    public void IsBefore_SameDaySameMonthDifferentYear_ReturnsCorrectResult()
-    {
-        var date1 = new DateOnly(2019, 1, 1);
-        var date2 = new DateOnly(2020, 1, 1);
-
-        Assert.True(date1.IsBefore(date2));
-        Assert.False(date2.IsBefore(date1));
-    }
-
-    [Fact]
-    public void IsBefore_SameDaySameMonthSameYear_ReturnsFalse()
-    {
-        var date1 = new DateOnly(2020, 1, 1);
-        var date2 = new DateOnly(2020, 1, 1);
-
-        Assert.False(date1.IsBefore(date2));
-        Assert.False(date2.IsBefore(date1));
-    }
-
-    [Fact]
-    public void IsBetween_StartAndEndDatesAreTheSame_ReturnsTrue()
-    {
-        var date = new DateOnly(2020, 1, 1);
-        var rangeBeg = new DateOnly(2020, 1, 1);
-        var rangeEnd = new DateOnly(2020, 1, 1);
-
-        Assert.True(date.IsBetween(rangeBeg, rangeEnd));
-        Assert.False(date.IsBetween(rangeBeg, rangeEnd, false));
-    }
-
-    [Fact]
-    public void IsBetween_DateIsBeforeStartDate_ReturnsFalse()
-    {
-        var date = new DateOnly(2019, 12, 31);
-        var rangeBeg = new DateOnly(2020, 1, 1);
-        var rangeEnd = new DateOnly(2020, 1, 2);
-
-        Assert.False(date.IsBetween(rangeBeg, rangeEnd));
-        Assert.False(date.IsBetween(rangeBeg, rangeEnd, false));
-    }
-
-    [Fact]
-    public void IsBetween_DateIsAfterEndDate_ReturnsFalse()
-    {
-        var date = new DateOnly(2020, 1, 3);
-        var rangeBeg = new DateOnly(2020, 1, 1);
-        var rangeEnd = new DateOnly(2020, 1, 2);
-
-        Assert.False(date.IsBetween(rangeBeg, rangeEnd));
-        Assert.False(date.IsBetween(rangeBeg, rangeEnd, false));
-    }
-
-    [Fact]
-    public void IsBetween_DateIsInclusive_ReturnsTrue()
-    {
-        var date = new DateOnly(2020, 1, 2);
-        var rangeBeg = new DateOnly(2020, 1, 1);
-        var rangeEnd = new DateOnly(2020, 1, 2);
-
-        Assert.True(date.IsBetween(rangeBeg, rangeEnd));
-    }
-
-    [Fact]
-    public void IsBetween_DateIsExclusive_ReturnsFalse()
-    {
-        var date = new DateOnly(2020, 1, 2);
-        var rangeBeg = new DateOnly(2020, 1, 1);
-        var rangeEnd = new DateOnly(2020, 1, 2);
-
-        Assert.False(date.IsBetween(rangeBeg, rangeEnd, false));
-    }
-
-    [Fact]
-    public void IsBetween_DateIsBetweenStartAndEndDates_ReturnsTrue()
-    {
-        var date = new DateOnly(2020, 1, 1);
-        var rangeBeg = new DateOnly(2019, 12, 31);
-        var rangeEnd = new DateOnly(2020, 1, 2);
-
-        Assert.True(date.IsBetween(rangeBeg, rangeEnd));
-        Assert.True(date.IsBetween(rangeBeg, rangeEnd, false));
-    }
-
-    [Fact]
-    public void IsToday_DateIsToday_ReturnsTrue()
-    {
-        var today = DateTime.Today.ToDateOnly();
-        Assert.True(today.IsToday());
-    }
-
-    [Fact]
-    public void IsToday_DateIsYesterday_ReturnsFalse()
-    {
-        var yesterday = DateTime.Today.AddDays(-1).ToDateOnly();
-        Assert.False(yesterday.IsToday());
-    }
-
-    [Fact]
-    public void IsToday_DateIsTomorrow_ReturnsFalse()
-    {
-        var tomorrow = DateTime.Today.AddDays(1).ToDateOnly();
-        Assert.False(tomorrow.IsToday());
-    }
-
-    [Fact]
-    public void IsToday_DateIsNotToday_ReturnsFalse()
-    {
-        var notToday = new DateOnly(2020, 1, 1);
-        Assert.False(notToday.IsToday());
-    }
-
-    [Fact]
-    public void IsLeapDay_DateIsLeapDay_ReturnsTrue()
-    {
-        var leapDay = new DateOnly(2020, 2, 29);
-        Assert.True(leapDay.IsLeapDay());
-    }
-
-    [Fact]
-    public void IsLeapDay_DateIsNotLeapDay_ReturnsFalse()
-    {
-        var notLeapDay = new DateOnly(2020, 2, 28);
-        Assert.False(notLeapDay.IsLeapDay());
-    }
-
-    [Fact]
-    public void IsLeapDay_DateIsNotInFebruary_ReturnsFalse()
-    {
-        var notInFebruary = new DateOnly(2020, 1, 29);
-        Assert.False(notInFebruary.IsLeapDay());
-    }
-
-    [Fact]
-    public void NextDay_DateIsNotEndOfMonth_ReturnsCorrectDate()
-    {
-        var date = new DateOnly(2020, 1, 1);
-        var expected = new DateOnly(2020, 1, 2);
-        Assert.Equal(expected, date.NextDay());
-    }
-
-    [Fact]
-    public void NextDay_DateIsEndOfMonth_ReturnsCorrectDate()
-    {
-        var date = new DateOnly(2020, 1, 31);
-        var expected = new DateOnly(2020, 2, 1);
-        Assert.Equal(expected, date.NextDay());
-    }
-
-    [Fact]
-    public void NextDay_DateIsEndOfYear_ReturnsCorrectDate()
-    {
-        var date = new DateOnly(2020, 12, 31);
-        var expected = new DateOnly(2021, 1, 1);
-        Assert.Equal(expected, date.NextDay());
-    }
-
-    [Fact]
-    public void PreviousDay_DateIsNotStartOfMonth_ReturnsCorrectDate()
-    {
-        var date = new DateOnly(2020, 1, 2);
-        var expected = new DateOnly(2020, 1, 1);
-        Assert.Equal(expected, date.PreviousDay());
-    }
-
-    [Fact]
-    public void PreviousDay_DateIsStartOfMonth_ReturnsCorrectDate()
-    {
-        var date = new DateOnly(2020, 2, 1);
-        var expected = new DateOnly(2020, 1, 31);
-        Assert.Equal(expected, date.PreviousDay());
-    }
-
-    [Fact]
-    public void PreviousDay_DateIsStartOfYear_ReturnsCorrectDate()
-    {
-        var date = new DateOnly(2021, 1, 1);
-        var expected = new DateOnly(2020, 12, 31);
-        Assert.Equal(expected, date.PreviousDay());
-    }
-
-    [Fact]
-    public void GetDatesInRange_FromDateEqualsToDate_ReturnsCorrectDates()
-    {
-        var fromDate = new DateOnly(2020, 1, 1);
-        var toDate = new DateOnly(2020, 1, 1);
-        var expected = new[] { new DateOnly(2020, 1, 1) };
-
-        Assert.Equal(expected, fromDate.GetDatesInRange(toDate));
-    }
-
-    [Fact]
-    public void GetDatesInRange_FromDateBeforeToDate_ReturnsCorrectDates()
-    {
-        var fromDate = new DateOnly(2020, 1, 1);
-        var toDate = new DateOnly(2020, 1, 3);
-        var expected = new[]
-        {
-            new DateOnly(2020, 1, 1),
-            new DateOnly(2020, 1, 2),
-            new DateOnly(2020, 1, 3)
-        };
-
-        Assert.Equal(expected, fromDate.GetDatesInRange(toDate));
-    }
-
-    [Fact]
-    public void GetDatesInRange_FromDateAfterToDate_ReturnsCorrectDates()
-    {
-        var fromDate = new DateOnly(2020, 1, 3);
-        var toDate = new DateOnly(2020, 1, 1);
-        var expected = new[]
-        {
-            new DateOnly(2020, 1, 3),
-            new DateOnly(2020, 1, 2),
-            new DateOnly(2020, 1, 1)
-        };
-
-        Assert.Equal(expected, fromDate.GetDatesInRange(toDate));
-    }
-
-    [Fact]
-    public void GetDatesInRange_FromDateAndToDateSpanMultipleMonths_ReturnsCorrectDates()
-    {
-        var fromDate = new DateOnly(2020, 1, 31);
-        var toDate = new DateOnly(2020, 2, 2);
-        var expected = new[]
-        {
-            new DateOnly(2020, 1, 31),
-            new DateOnly(2020, 2, 1),
-            new DateOnly(2020, 2, 2)
-        };
-
-        Assert.Equal(expected, fromDate.GetDatesInRange(toDate));
+        Assert.Equal(expectedNumberOfDays, numberOfDays);
     }
 }

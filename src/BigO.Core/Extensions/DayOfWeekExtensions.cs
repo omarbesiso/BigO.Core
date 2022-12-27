@@ -3,7 +3,7 @@
 namespace BigO.Core.Extensions;
 
 /// <summary>
-///     Contains useful utility/extensions methods for working with <see cref="DayOfWeek" /> objects.
+///     Provides a set of useful extension methods for working with <see cref="DayOfWeek" /> enums.
 /// </summary>
 [PublicAPI]
 public static class DayOfWeekExtensions
@@ -53,7 +53,7 @@ public static class DayOfWeekExtensions
                     output = DayOfWeek.Sunday;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(nameof(dayOfWeek));
             }
         }
 
