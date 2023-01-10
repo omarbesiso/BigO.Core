@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
 namespace BigO.Core.Extensions;
@@ -62,6 +63,7 @@ public static class EnumerableExtensions
     ///     enumerator of the collection can move to the next element. If it cannot, then the collection is considered to have
     ///     no items.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNullOrEmpty([NotNullWhen(false)] [NoEnumeration] this IEnumerable? collection)
     {
         if (collection == null)

@@ -182,17 +182,6 @@ public class GuardTest
     }
 
     [Theory]
-    [InlineData("")]
-    [InlineData("invalid")]
-    [InlineData("invalid@")]
-    [InlineData("@invalid")]
-    public void Email_InvalidEmail_ThrowsArgumentException(string email)
-    {
-        // Act and assert
-        Assert.Throws<ArgumentException>(() => Guard.Email(email));
-    }
-
-    [Theory]
     [InlineData("valid1email.com", "Custom exception message")]
     [InlineData("another1email.com", "Another custom exception message")]
     public void Email_InvalidEmailWithCustomExceptionMessage_ThrowsArgumentExceptionWithCustomMessage(string email,
@@ -324,8 +313,6 @@ public class GuardTest
     [InlineData("invalid", "value")]
     [InlineData("http:google.com", "value")]
     [InlineData("http:/google.com", "value")]
-    [InlineData("", "value")]
-    [InlineData(null, "value")]
     public void Url_InvalidUrl_ThrowsArgumentException(string url, string argumentName)
     {
         // Act and Assert

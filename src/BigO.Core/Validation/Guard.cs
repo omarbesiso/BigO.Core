@@ -98,6 +98,37 @@ public static class Guard
     }
 
     /// <summary>
+    ///     Verifies that the provided <see cref="IEnumerable{T}" /> is not <c>null</c> or empty.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements in the <see cref="IEnumerable{T}" />.</typeparam>
+    /// <param name="value">The <see cref="IEnumerable{T}" /> to check.</param>
+    /// <param name="argumentName">
+    ///     The name of the argument being checked. This will be used in the exception message if the check fails.
+    ///     This parameter is optional. If not provided, the name of the <see cref="IEnumerable{T}" /> parameter will be used.
+    /// </param>
+    /// <param name="exceptionMessage">
+    ///     The message to include in the exception if the check fails. This parameter is optional.
+    ///     If not provided, a default message will be used.
+    /// </param>
+    /// <returns>The provided <see cref="IEnumerable{T}" /> if it is not <c>null</c> or empty.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the provided <see cref="IEnumerable{T}" /> is <c>null</c> or empty.</exception>
+    [ContractAnnotation("value: null => halt")]
+    public static IEnumerable<T> NotNullOrEmpty<T>([System.Diagnostics.CodeAnalysis.NotNull] IEnumerable<T>? value,
+        [CallerArgumentExpression(nameof(value))] string argumentName = "", string? exceptionMessage = null)
+    {
+        if (value.IsNullOrEmpty())
+        {
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{argumentName}' cannot be null."
+                : exceptionMessage;
+
+            throw new ArgumentNullException(argumentName, errorMessage);
+        }
+
+        return value;
+    }
+
+    /// <summary>
     ///     Throws an <see cref="ArgumentNullException" /> if the specified value is <c>null</c>, an empty string, or consists
     ///     only of white space characters.
     /// </summary>
@@ -136,7 +167,7 @@ public static class Guard
         if (string.IsNullOrWhiteSpace(value))
         {
             var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-                ? $"The value of {argumentName} cannot be empty or consist only of whitespace characters."
+                ? $"The value of {argumentName} cannot be empty or consist only of white-space characters."
                 : exceptionMessage;
 
             throw new ArgumentException(errorMessage, argumentName);
@@ -159,19 +190,26 @@ public static class Guard
     ///     An optional exception message to use when the string exceeds the maximum length. If this
     ///     parameter is <c>null</c>, a default exception message will be used.
     /// </param>
-    /// <returns>
-    ///     The input string if it does not exceed the maximum length specified; otherwise, an
-    ///     <see cref="ArgumentException" /> is thrown.
-    /// </returns>
+    /// <returns>The original string if its length is valid.</returns>
     /// <exception cref="ArgumentException">Thrown if the length of the string exceeds the maximum length specified.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">
-    ///     Thrown if the <paramref name="maxLength" /> parameter is less than or
-    ///     equal to 0.
-    /// </exception>
+    /// <exception cref="ArgumentException">Thrown if the maximum length specified is less than or equal to 0.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if the string is null.</exception>
+    /// <remarks>
+    ///     This method is useful for ensuring that string arguments passed to a method are not too long.
+    ///     If the string is null, an <see cref="ArgumentNullException" /> is thrown.
+    ///     If the maximum length specified is less than or equal to 0, an <see cref="ArgumentException" /> is thrown.
+    ///     If the length of the string exceeds the maximum length specified, an <see cref="ArgumentException" /> is thrown.
+    ///     The exception message used can either be a default message or a custom message provided through the
+    ///     <paramref name="exceptionMessage" /> parameter.
+    /// </remarks>
     public static string MaxLength(string value, int maxLength,
-        [CallerArgumentExpression(nameof(value))]
-        string argumentName = "", string? exceptionMessage = null)
+        [CallerArgumentExpression(nameof(value))] string argumentName = "", string? exceptionMessage = null)
     {
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value), "A null string value cannot be checked for maximum length.");
+        }
+
         if (maxLength <= 0)
         {
             throw new ArgumentException("The maximum length specified cannot be less than or equal to 0.",
@@ -205,18 +243,32 @@ public static class Guard
     ///     If this parameter is <c>null</c>, a default exception message will be used.
     /// </param>
     /// <returns>
-    ///     The input string if it meets the minimum length specified; otherwise, an <see cref="ArgumentException" /> is
-    ///     thrown.
+    ///     The original string if its length is valid, or the original string if the string is null
+    ///     otherwise, an <see cref="ArgumentException" /> is thrown.
     /// </returns>
     /// <exception cref="ArgumentException">Thrown if the length of the string is less than the minimum length specified.</exception>
     /// <exception cref="ArgumentOutOfRangeException">
     ///     Thrown if the <paramref name="minLength" /> parameter is less than or
     ///     equal to 0.
     /// </exception>
+    /// <remarks>
+    ///     This method is useful for ensuring that string arguments passed to a method are not shorter than a certain length.
+    ///     If the string is null, the method returns the original string without throwing an exception.
+    ///     If the minimum length specified is less than or equal to 0, an <see cref="ArgumentException" /> is thrown.
+    ///     If the length of the string is less than the minimum length specified, an <see cref="ArgumentException" /> is
+    ///     thrown.
+    ///     The exception message used can either be a default message or a custom message provided through the
+    ///     <paramref name="exceptionMessage" /> parameter.
+    /// </remarks>
     public static string MinLength(string value, int minLength,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "", string? exceptionMessage = null)
     {
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value), "A null string value cannot be checked for minimum length.");
+        }
+
         if (minLength <= 0)
         {
             throw new ArgumentException("The minimum length specified cannot be less than or equal to 0.",
@@ -249,15 +301,39 @@ public static class Guard
     ///     An optional message to include in the exception. If this is not specified, a default
     ///     message will be used.
     /// </param>
-    /// <returns>The string value that was passed as the <paramref name="value" /> parameter.</returns>
+    /// <returns>The original string if its length is valid, or the original string if the string is null.</returns>
     /// <exception cref="ArgumentException">
-    ///     If the length of the <paramref name="value" /> parameter is not within the
-    ///     specified range of <paramref name="minLength" /> and <paramref name="maxLength" />.
+    ///     Thrown if the length of the string is less than the minimum length specified or
+    ///     greater than the maximum length specified.
     /// </exception>
+    /// <exception cref="ArgumentException">Thrown if the minimum length specified is less than or equal to 0.</exception>
+    /// <exception cref="ArgumentException">Thrown if the maximum length specified is less than or equal to 0.</exception>
+    /// <exception cref="ArgumentException">
+    ///     Thrown if the minimum length specified is greater than the maximum length
+    ///     specified.
+    /// </exception>
+    /// <exception cref="ArgumentNullException">Thrown if the string is null.</exception>
+    /// <remarks>
+    ///     This method is useful for ensuring that string arguments passed to a method are within a certain range of lengths.
+    ///     If the string is null, , an <see cref="ArgumentException" /> is thrown.
+    ///     If the minimum length specified is less than or equal to 0, an <see cref="ArgumentException" /> is thrown.
+    ///     If the maximum length specified is less than or equal to 0, an <see cref="ArgumentException" /> is thrown.
+    ///     If the minimum length specified is greater than the maximum length specified, an <see cref="ArgumentException" />
+    ///     is thrown.
+    ///     If the length of the string is less than the minimum length specified or greater than the maximum length specified,
+    ///     an <see cref="ArgumentException" /> is thrown.
+    ///     The exception message used can either be a default message or a custom message provided through the
+    ///     <paramref name="exceptionMessage" /> parameter.
+    /// </remarks>
     public static string StrengthLength(string value, int minLength, int maxLength,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "", string? exceptionMessage = null)
     {
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value), "A null string value cannot be checked for string length.");
+        }
+
         if (maxLength <= 0)
         {
             throw new ArgumentException("The maximum length specified cannot be less than or equal to 0.",
@@ -294,18 +370,31 @@ public static class Guard
     /// <param name="value">The string to check.</param>
     /// <param name="argumentName">
     ///     The name of the argument being checked. This is used for the exception message when the
-    ///     string is not a valid email address. This parameter is optional and can be provided automatically by the compiler
-    ///     when calling the method.
+    ///     string is not a valid email address. This parameter is optional and can be provided automatically
+    ///     by the compiler when calling the method.
     /// </param>
     /// <param name="exceptionMessage">
     ///     An optional exception message to use when the string is not a valid email address. If
     ///     this parameter is <c>null</c>, a default exception message will be used.
     /// </param>
-    /// <returns>The input string if it is a valid email address; otherwise, an <see cref="ArgumentException" /> is thrown.</returns>
+    /// <returns>The original string if it is a valid email address; otherwise, an <see cref="ArgumentException" /> is thrown.</returns>
     /// <exception cref="ArgumentException">Thrown if the string is not a valid email address.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if the string is null or whitespace.</exception>
+    /// <remarks>
+    ///     This method is useful for ensuring that string arguments passed to a method are valid email addresses.
+    ///     If the string is null or whitespace, an <see cref="ArgumentNullException" /> is thrown.
+    ///     If the string is not a valid email address, an <see cref="ArgumentException" /> is thrown.
+    ///     The exception message used can either be a default message or a custom message provided through the
+    ///     <paramref name="exceptionMessage" /> parameter.
+    /// </remarks>
     public static string Email(string value, [CallerArgumentExpression(nameof(value))] string argumentName = "",
         string? exceptionMessage = null)
     {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentNullException(nameof(value), "The email value to check cannot be null or whitespace.");
+        }
+
         if (!value.IsValidEmail())
         {
             var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
@@ -434,28 +523,21 @@ public static class Guard
     }
 
     /// <summary>
-    ///     Ensures that the value of a string matches a specified regular expression pattern.
+    ///     Ensures that the provided string value matches the specified regular expression pattern.
     /// </summary>
-    /// <param name="value">The string value to match against the pattern.</param>
-    /// <param name="pattern">The regular expression pattern to match against <paramref name="value" />.</param>
-    /// <param name="regexOptions">
-    ///     Options to use when creating the <see cref="Regex" /> object to match the pattern. This
-    ///     parameter is optional and has a default value of <see cref="RegexOptions.None" />.
-    /// </param>
-    /// <param name="argumentName">
-    ///     The name of the argument being checked. This will be used in the exception message if an
-    ///     exception is thrown. This parameter is optional and is provided by the caller's argument expression.
-    /// </param>
+    /// <param name="value">The string value to check.</param>
+    /// <param name="pattern">The regular expression pattern to match against.</param>
+    /// <param name="regexOptions">The regular expression options to use.</param>
+    /// <param name="argumentName">The name of the argument being checked. This is used when generating the exception message.</param>
     /// <param name="exceptionMessage">
-    ///     A custom message to include in the exception if one is thrown. This parameter is
-    ///     optional.
+    ///     The custom exception message to use if the string value does not match the pattern. If
+    ///     <c>null</c>, a default message is used.
     /// </param>
-    /// <returns>The original value of <paramref name="value" /> if it matches the specified <paramref name="pattern" />.</returns>
+    /// <returns>The original string value if it matches the pattern.</returns>
     /// <exception cref="ArgumentException">
-    ///     Thrown if <paramref name="pattern" /> is <c>null</c> or whitespace, or if
-    ///     <paramref name="value" /> does not match the specified pattern.
+    ///     Thrown if <paramref name="value" /> is null or whitespace,
+    ///     <paramref name="pattern" /> is null or whitespace, or <paramref name="value" /> does not match the pattern.
     /// </exception>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="value" /> is <c>null</c>.</exception>
     /// <remarks>
     ///     This method is useful for ensuring that a string value passed as an argument to a method matches a certain pattern.
     ///     If <paramref name="value" /> does not match the specified <paramref name="pattern" />, an
@@ -465,9 +547,15 @@ public static class Guard
     /// </remarks>
     public static string Regex(string value, string pattern, RegexOptions regexOptions = RegexOptions.None,
         [CallerArgumentExpression(nameof(value))]
-        string argumentName = "",
-        string? exceptionMessage = null)
+        string argumentName = "", string? exceptionMessage = null)
     {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentException(
+                $"The {nameof(value)} to be checked against the pattern cannot be null or whitespace.",
+                nameof(value));
+        }
+
         if (string.IsNullOrWhiteSpace(pattern))
         {
             throw new ArgumentException($"The {nameof(pattern)} cannot be null or whitespace.", nameof(pattern));
@@ -501,7 +589,7 @@ public static class Guard
     /// </param>
     /// <returns>The original value of <paramref name="value" /> if it is a valid website URL.</returns>
     /// <exception cref="ArgumentException">Thrown if <paramref name="value" /> is not a valid website URL.</exception>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="value" /> is <c>null</c>.</exception>
+    /// <exception cref="System.ArgumentNullException">Thrown if the <paramref name="value" /> is <c>null</c> or whitespace.</exception>
     /// <remarks>
     ///     This method is useful for ensuring that a string value passed as an argument to a method is a properly formatted
     ///     URL for a website.
@@ -512,6 +600,11 @@ public static class Guard
     public static string Url(string value, [CallerArgumentExpression(nameof(value))] string argumentName = "",
         string? exceptionMessage = null)
     {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentNullException(nameof(value), "The URL value to check cannot be null or whitespace.");
+        }
+
         if (!value.IsValidWebsiteUrl())
         {
             var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)

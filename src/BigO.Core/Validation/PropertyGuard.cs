@@ -45,7 +45,11 @@ public static class PropertyGuard
     {
         if (value == null)
         {
-            throw new ArgumentNullException(propertyName, exceptionMessage);
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{propertyName}' cannot be null."
+                : exceptionMessage;
+
+            throw new ArgumentNullException(propertyName, errorMessage);
         }
 
         return value;
@@ -166,25 +170,26 @@ public static class PropertyGuard
     ///     A custom message to include in the exception if one is thrown. This parameter is
     ///     optional.
     /// </param>
-    /// <returns>
-    ///     The original value of <paramref name="value" /> if its length is less than or equal to
-    ///     <paramref name="maxLength" />.
-    /// </returns>
-    /// <exception cref="ArgumentException">
-    ///     Thrown if <paramref name="maxLength" /> is less than or equal to 0, or if the
-    ///     length of <paramref name="value" /> is greater than <paramref name="maxLength" />.
-    /// </exception>
+    /// <returns>The original string if its length is valid.</returns>
+    /// <exception cref="ArgumentException">Thrown if the length of the string exceeds the maximum length specified.</exception>
+    /// <exception cref="ArgumentException">Thrown if the maximum length specified is less than or equal to 0.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if the string is null.</exception>
     /// <remarks>
-    ///     This method is useful for ensuring that a string value passed as an argument to a method is not too long.
-    ///     If <paramref name="maxLength" /> is less than or equal to 0, an <see cref="ArgumentException" /> is thrown.
-    ///     If the length of <paramref name="value" /> is greater than <paramref name="maxLength" />, an
-    ///     <see cref="ArgumentException" /> is thrown.
-    ///     The exception message will include the name of the property and a description of the error, unless a custom
-    ///     exception message is provided.
+    ///     This method is useful for ensuring that string properties passed to a method are not too long.
+    ///     If the string property is null, an <see cref="ArgumentNullException" /> is thrown.
+    ///     If the maximum length specified is less than or equal to 0, an <see cref="ArgumentException" /> is thrown.
+    ///     If the length of the string exceeds the maximum length specified, an <see cref="ArgumentException" /> is thrown.
+    ///     The exception message used can either be a default message or a custom message provided through the
+    ///     <paramref name="exceptionMessage" /> parameter.
     /// </remarks>
     public static string MaxLength(string value, int maxLength,
         [CallerMemberName] string propertyName = "", string? exceptionMessage = null)
     {
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value), "A null string value cannot be checked for maximum length.");
+        }
+
         if (maxLength <= 0)
         {
             throw new ArgumentException("The maximum length specified cannot be less than or equal to 0.",
@@ -217,24 +222,31 @@ public static class PropertyGuard
     ///     optional.
     /// </param>
     /// <returns>
-    ///     The original value of <paramref name="value" /> if its length is greater than or equal to
-    ///     <paramref name="minLength" />.
+    ///     The original string if its length is valid, or the original string if the string is null
+    ///     otherwise, an <see cref="ArgumentException" /> is thrown.
     /// </returns>
-    /// <exception cref="ArgumentException">
-    ///     Thrown if <paramref name="minLength" /> is less than or equal to 0, or if the
-    ///     length of <paramref name="value" /> is less than <paramref name="minLength" />.
+    /// <exception cref="ArgumentException">Thrown if the length of the string is less than the minimum length specified.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Thrown if the <paramref name="minLength" /> parameter is less than or
+    ///     equal to 0.
     /// </exception>
     /// <remarks>
-    ///     This method is useful for ensuring that a string value passed as an argument to a method is long enough.
-    ///     If <paramref name="minLength" /> is less than or equal to 0, an <see cref="ArgumentException" /> is thrown.
-    ///     If the length of <paramref name="value" /> is less than <paramref name="minLength" />, an
-    ///     <see cref="ArgumentException" /> is thrown.
-    ///     The exception message will include the name of the property and a description of the error, unless a custom
-    ///     exception message is provided.
+    ///     This method is useful for ensuring that string properties passed to a method are not shorter than a certain length.
+    ///     If the string is null, the method returns the original string without throwing an exception.
+    ///     If the minimum length specified is less than or equal to 0, an <see cref="ArgumentException" /> is thrown.
+    ///     If the length of the string is less than the minimum length specified, an <see cref="ArgumentException" /> is
+    ///     thrown.
+    ///     The exception message used can either be a default message or a custom message provided through the
+    ///     <paramref name="exceptionMessage" /> parameter.
     /// </remarks>
     public static string MinLength(string value, int minLength,
         [CallerMemberName] string propertyName = "", string? exceptionMessage = null)
     {
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value), "A null string value cannot be checked for minimum length.");
+        }
+
         if (minLength <= 0)
         {
             throw new ArgumentException("The minimum length specified cannot be less than or equal to 0.",
@@ -267,28 +279,38 @@ public static class PropertyGuard
     ///     A custom message to include in the exception if one is thrown. This parameter is
     ///     optional.
     /// </param>
-    /// <returns>The original value of <paramref name="value" /> if its length is within the specified range.</returns>
+    /// <returns>The original string if its length is valid, or the original string if the string is null.</returns>
     /// <exception cref="ArgumentException">
-    ///     Thrown if <paramref name="minLength" /> is less than or equal to 0,
-    ///     <paramref name="maxLength" /> is less than or equal to 0, or if the length of <paramref name="value" /> is outside
-    ///     the range specified by <paramref name="minLength" /> and <paramref name="maxLength" />.
+    ///     Thrown if the length of the string is less than the minimum length specified or
+    ///     greater than the maximum length specified.
     /// </exception>
+    /// <exception cref="ArgumentException">Thrown if the minimum length specified is less than or equal to 0.</exception>
+    /// <exception cref="ArgumentException">Thrown if the maximum length specified is less than or equal to 0.</exception>
+    /// <exception cref="ArgumentException">
+    ///     Thrown if the minimum length specified is greater than the maximum length
+    ///     specified.
+    /// </exception>
+    /// <exception cref="ArgumentNullException">Thrown if the string is null.</exception>
     /// <remarks>
-    ///     This method is useful for ensuring that a string value passed as an argument to a method is of a suitable length.
-    ///     If <paramref name="minLength" /> is less than or equal to 0, or if <paramref name="maxLength" /> is less than or
-    ///     equal to 0, an <see cref="ArgumentException" /> is thrown.
-    ///     If <paramref name="maxLength" /> is less than <paramref name="minLength" />, an <see cref="ArgumentException" /> is
-    ///     thrown.
-    ///     If the length of <paramref name="value" /> is outside the range specified by <paramref name="minLength" /> and
-    ///     <paramref name="maxLength" /> , an <see cref="ArgumentException" /> is thrown with a message indicating the range
-    ///     that is allowed.
-    ///     If the <paramref name="exceptionMessage" /> parameter is provided, it will be used as the message for the
-    ///     exception.
-    ///     Otherwise, a default message will be used indicating the range that is allowed for the length of the string.
+    ///     This method is useful for ensuring that string arguments passed to a method are within a certain range of lengths.
+    ///     If the string is null, , an <see cref="ArgumentException" /> is thrown.
+    ///     If the minimum length specified is less than or equal to 0, an <see cref="ArgumentException" /> is thrown.
+    ///     If the maximum length specified is less than or equal to 0, an <see cref="ArgumentException" /> is thrown.
+    ///     If the minimum length specified is greater than the maximum length specified, an <see cref="ArgumentException" />
+    ///     is thrown.
+    ///     If the length of the string is less than the minimum length specified or greater than the maximum length specified,
+    ///     an <see cref="ArgumentException" /> is thrown.
+    ///     The exception message used can either be a default message or a custom message provided through the
+    ///     <paramref name="exceptionMessage" /> parameter.
     /// </remarks>
     public static string StrengthLength(string value, int minLength, int maxLength,
         [CallerMemberName] string propertyName = "", string? exceptionMessage = null)
     {
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value), "A null string value cannot be checked for string length.");
+        }
+
         if (maxLength <= 0)
         {
             throw new ArgumentException("The maximum length specified cannot be less than or equal to 0.",
@@ -331,13 +353,24 @@ public static class PropertyGuard
     ///     The error message to include in the <see cref="ArgumentException" /> if the validation fails. If this
     ///     is <c>null</c> or whitespace, a default error message will be used.
     /// </param>
-    /// <returns>The specified value if it is a valid email address.</returns>
-    /// <exception cref="ArgumentException">
-    ///     Thrown if the specified value is not a valid email address.
-    /// </exception>
+    /// <returns>The original string if it is a valid email address; otherwise, an <see cref="ArgumentException" /> is thrown.</returns>
+    /// <exception cref="ArgumentException">Thrown if the string is not a valid email address.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if the string is null or whitespace.</exception>
+    /// <remarks>
+    ///     This method is useful for ensuring that string arguments passed to a method are valid email addresses.
+    ///     If the string is null or whitespace, an <see cref="ArgumentNullException" /> is thrown.
+    ///     If the string is not a valid email address, an <see cref="ArgumentException" /> is thrown.
+    ///     The exception message used can either be a default message or a custom message provided through the
+    ///     <paramref name="exceptionMessage" /> parameter.
+    /// </remarks>
     public static string Email(string value, [CallerMemberName] string propertyName = "",
         string? exceptionMessage = null)
     {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentNullException(nameof(value), "The email value to check cannot be null or whitespace.");
+        }
+
         if (!value.IsValidEmail())
         {
             var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
@@ -466,18 +499,28 @@ public static class PropertyGuard
     ///     The error message to include in the exception if validation fails. If this is
     ///     <c>null</c>, a default error message will be used.
     /// </param>
-    /// <returns>The validated value.</returns>
+    /// <returns>The original string value if it matches the pattern.</returns>
     /// <exception cref="ArgumentException">
-    ///     Thrown if the value does not match the pattern or if the pattern is null or
-    ///     whitespace.
+    ///     Thrown if <paramref name="value" /> is null or whitespace,
+    ///     <paramref name="pattern" /> is null or whitespace, or <paramref name="value" /> does not match the pattern.
     /// </exception>
     /// <remarks>
-    ///     This method uses the <see cref="Regex" /> class to match the pattern. If the value does not match the pattern, an
+    ///     This method is useful for ensuring that a string value passed as an argument to a method matches a certain pattern.
+    ///     If <paramref name="value" /> does not match the specified <paramref name="pattern" />, an
     ///     <see cref="ArgumentException" /> is thrown.
+    ///     The exception message will include the name of the argument, the specified pattern, and a description of the error,
+    ///     unless a custom exception message is provided.
     /// </remarks>
     public static string Regex(string value, string pattern, RegexOptions regexOptions = RegexOptions.None,
         [CallerMemberName] string propertyName = "", string? exceptionMessage = null)
     {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentException(
+                $"The {nameof(value)} to be checked against the pattern cannot be null or whitespace.",
+                nameof(value));
+        }
+
         if (string.IsNullOrWhiteSpace(pattern))
         {
             throw new ArgumentException($"The {nameof(pattern)} cannot be null or whitespace.", nameof(pattern));
@@ -519,6 +562,11 @@ public static class PropertyGuard
     public static string Url(string value, [CallerMemberName] string propertyName = "",
         string? exceptionMessage = null)
     {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentNullException(nameof(value), "The URL value to check cannot be null or whitespace.");
+        }
+
         if (!value.IsValidWebsiteUrl())
         {
             var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
@@ -559,30 +607,34 @@ public static class PropertyGuard
     }
 
     /// <summary>
-    ///     Validates the specified value using the provided <paramref name="predicate" />.
+    ///     Ensures that the value of a generic type <typeparamref name="T" /> satisfies a specified predicate.
     /// </summary>
     /// <typeparam name="T">The type of the value to validate.</typeparam>
-    /// <param name="value">The value to validate.</param>
-    /// <param name="predicate">The predicate to use for validation.</param>
+    /// <param name="value">The value to validate using the specified <paramref name="predicate" />.</param>
+    /// <param name="predicate">
+    ///     A function to test the value for a condition. The function should return <c>true</c> if the
+    ///     value satisfies the condition, and <c>false</c> otherwise.
+    /// </param>
     /// <param name="propertyName">
-    ///     The name of the property being validated. This will be set automatically by the calling
-    ///     member.
+    ///     The name of the property being validated. This will be used in the exception message if the
+    ///     validation fails. This parameter is optional and can be specified as <c>null</c>.
     /// </param>
     /// <param name="exceptionMessage">
-    ///     Optional custom exception message to use if the value does not pass validation. If not
-    ///     specified, a default message will be used.
+    ///     A custom message to include in the exception if one is thrown. This parameter is
+    ///     optional.
     /// </param>
-    /// <exception cref="ArgumentException">Thrown if the value does not pass validation.</exception>
-    /// <returns>The original value if it passes validation.</returns>
+    /// <returns>The original value of <paramref name="value" /> if it satisfies the specified <paramref name="predicate" />.</returns>
+    /// <exception cref="ArgumentException">
+    ///     Thrown if <paramref name="value" /> does not satisfy the specified
+    ///     <paramref name="predicate" />.
+    /// </exception>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="predicate" /> is <c>null</c>.</exception>
     /// <remarks>
-    ///     This method is intended to be used as a way to validate values using a custom predicate.
-    ///     It can be useful in situations where a more specific validation is needed that is not covered by the other methods
-    ///     in this class.
-    ///     The <paramref name="predicate" /> parameter should be a function that takes a single parameter of type
-    ///     <typeparamref name="T" /> and returns a boolean indicating whether the value is valid.
-    ///     If the value is not valid, an <see cref="ArgumentException" /> will be thrown.
-    ///     If a custom exception message is provided, it will be used as the message for the exception. Otherwise, a default
-    ///     message will be used.
+    ///     This method is useful for ensuring that a value passed as an argument to a method satisfies a certain condition.
+    ///     If <paramref name="value" /> does not satisfy the specified <paramref name="predicate" />, an
+    ///     <see cref="ArgumentException" /> is thrown.
+    ///     The exception message will include the name of the argument and a description of the error, unless a custom
+    ///     exception message is provided.
     /// </remarks>
     public static T Requires<T>(T value, Predicate<T> predicate,
         [CallerMemberName] string propertyName = "", string? exceptionMessage = null)
