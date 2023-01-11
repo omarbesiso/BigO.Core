@@ -94,7 +94,7 @@ public static class EnumExtensions
     ///     Instead of using the string representation of the Enum value, which may be changed in the future, the user-friendly
     ///     name can be used instead.
     /// </remarks>
-    public static string? DisplayName(this Enum? value)
+    public static string? GetEnumDisplay(this Enum? value)
     {
         if (value == null)
         {
