@@ -34,7 +34,6 @@ public static class DictionaryExtensions
             throw new ArgumentNullException(nameof(dictionary), $"The {nameof(dictionary)} cannot be null.");
         }
 
-
         if (dictionary.ContainsKey(key))
         {
             return false;

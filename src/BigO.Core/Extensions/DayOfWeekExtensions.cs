@@ -9,54 +9,30 @@ namespace BigO.Core.Extensions;
 public static class DayOfWeekExtensions
 {
     /// <summary>
-    ///     Increments a given <see cref="DayOfWeek" /> by a specified number of days.
+    ///     Returns the DayOfWeek value resulting from adding a specified number of days to the current DayOfWeek.
     /// </summary>
-    /// <param name="dayOfWeek">The <see cref="DayOfWeek" /> to increment.</param>
-    /// <param name="numberOfDays">The number of days to increment the <see cref="DayOfWeek" /> by. Default is 1.</param>
-    /// <returns>The incremented <see cref="DayOfWeek" />.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">
-    ///     The <paramref name="dayOfWeek" /> parameter is not a valid
-    ///     <see cref="DayOfWeek" /> value.
-    /// </exception>
+    /// <param name="dayOfWeek">The DayOfWeek value to increment.</param>
+    /// <param name="numberOfDays">The number of days to add. The default value is 1.</param>
+    /// <returns>
+    ///     A DayOfWeek value that is <paramref name="numberOfDays" /> days after the <paramref name="dayOfWeek" />
+    ///     parameter.
+    /// </returns>
     /// <remarks>
-    ///     This method increments the given <see cref="DayOfWeek" /> by the specified number of days. If the resulting
-    ///     <see cref="DayOfWeek" /> is greater than Saturday, it wraps around to Sunday.
-    ///     If the <paramref name="numberOfDays" /> is negative, the <see cref="DayOfWeek" /> is decremented instead.
+    ///     This method supports incrementing the <paramref name="dayOfWeek" /> parameter by any number of days.
     /// </remarks>
+    /// <example>
+    ///     The following code demonstrates how to use the Increment method to get the DayOfWeek value for two days after
+    ///     Monday.
+    ///     <code><![CDATA[
+    /// DayOfWeek monday = DayOfWeek.Monday;
+    /// DayOfWeek wednesday = monday.Increment(2);
+    /// Console.WriteLine(wednesday); // Output: Wednesday
+    /// ]]></code>
+    /// </example>
     public static DayOfWeek Increment(this DayOfWeek dayOfWeek, int numberOfDays = 1)
     {
-        var output = dayOfWeek;
-
-        for (var i = 0; i < numberOfDays; i++)
-        {
-            switch (output)
-            {
-                case DayOfWeek.Sunday:
-                    output = DayOfWeek.Monday;
-                    break;
-                case DayOfWeek.Monday:
-                    output = DayOfWeek.Tuesday;
-                    break;
-                case DayOfWeek.Tuesday:
-                    output = DayOfWeek.Wednesday;
-                    break;
-                case DayOfWeek.Wednesday:
-                    output = DayOfWeek.Thursday;
-                    break;
-                case DayOfWeek.Thursday:
-                    output = DayOfWeek.Friday;
-                    break;
-                case DayOfWeek.Friday:
-                    output = DayOfWeek.Saturday;
-                    break;
-                case DayOfWeek.Saturday:
-                    output = DayOfWeek.Sunday;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(dayOfWeek));
-            }
-        }
-
-        return output;
+        var offset = (int)dayOfWeek + numberOfDays;
+        var result = (DayOfWeek)((offset % 7 + 7) % 7);
+        return result;
     }
 }

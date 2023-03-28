@@ -111,7 +111,9 @@ public readonly struct DateRange : IEquatable<DateRange>
     /// <returns><c>true</c> if the date ranges overlap; otherwise, <c>false</c>.</returns>
     public bool Overlaps(DateRange other)
     {
-        return StartDate <= other.EndDate && other.StartDate <= EndDate;
+        // Check if the start date of the current range is before or equal to the end date of the other range,
+        // and the end date of the current range is after or equal to the start date of the other range.
+        return StartDate <= other.EndDate && EndDate >= other.StartDate;
     }
 
     /// <summary>

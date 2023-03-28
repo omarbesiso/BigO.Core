@@ -114,7 +114,8 @@ public static class Guard
     /// <exception cref="ArgumentNullException">Thrown if the provided <see cref="IEnumerable{T}" /> is <c>null</c> or empty.</exception>
     [ContractAnnotation("value: null => halt")]
     public static IEnumerable<T> NotNullOrEmpty<T>([System.Diagnostics.CodeAnalysis.NotNull] IEnumerable<T>? value,
-        [CallerArgumentExpression(nameof(value))] string argumentName = "", string? exceptionMessage = null)
+        [CallerArgumentExpression(nameof(value))]
+        string argumentName = "", string? exceptionMessage = null)
     {
         if (value.IsNullOrEmpty())
         {
@@ -203,7 +204,8 @@ public static class Guard
     ///     <paramref name="exceptionMessage" /> parameter.
     /// </remarks>
     public static string MaxLength(string value, int maxLength,
-        [CallerArgumentExpression(nameof(value))] string argumentName = "", string? exceptionMessage = null)
+        [CallerArgumentExpression(nameof(value))]
+        string argumentName = "", string? exceptionMessage = null)
     {
         if (value == null)
         {

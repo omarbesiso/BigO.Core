@@ -10,21 +10,21 @@ namespace BigO.Core.Extensions;
 public static class ByteExtensions
 {
     /// <summary>
-    ///     Converts the specified byte array to a <see cref="MemoryStream" />.
+    ///     Converts a byte array to a MemoryStream.
     /// </summary>
-    /// <param name="buffer">The byte array to convert. Cannot be <c>null</c>.</param>
-    /// <returns>A <see cref="MemoryStream" /> that represents the byte array.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="buffer" /> is <c>null</c>.</exception>
     /// <remarks>
-    ///     This method converts the specified byte array to a <see cref="MemoryStream" /> using the
-    ///     <see cref="MemoryStream" /> constructor.
-    ///     The <see cref="MemoryStream" /> class represents a stream of in-memory data, and provides methods and properties
-    ///     for reading and writing to the stream.
-    ///     The <see cref="MemoryStream" /> constructor takes a byte array as an input parameter and creates a stream that is
-    ///     backed by the byte array.
-    ///     The <c>Position</c> property of the <see cref="MemoryStream" /> is set to 0, which means that the stream is
-    ///     positioned at the beginning of the data.
+    ///     This method is an extension method for byte array types. It creates a new MemoryStream using the provided byte
+    ///     array and sets the initial position to 0.
     /// </remarks>
+    /// <example>
+    ///     <code><![CDATA[
+    ///         byte[] data = new byte[] { 0x01, 0x02, 0x03 };
+    ///         MemoryStream stream = data.ToMemoryStream();
+    /// ]]></code>
+    /// </example>
+    /// <param name="buffer">The byte array to convert to a MemoryStream.</param>
+    /// <returns>A MemoryStream containing the data from the byte array.</returns>
+    /// <exception cref="System.ArgumentNullException">Thrown when buffer is null.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static MemoryStream ToMemoryStream(this byte[] buffer)
     {

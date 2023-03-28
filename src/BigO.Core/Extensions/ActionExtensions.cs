@@ -11,21 +11,43 @@ namespace BigO.Core.Extensions;
 public static class ActionExtensions
 {
     /// <summary>
-    ///     Runs the specified action asynchronously.
+    ///     Executes the specified <see cref="Action" /> asynchronously using a <see cref="Task" />.
     /// </summary>
-    /// <param name="action">The action to run asynchronously. Cannot be <c>null</c>.</param>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="action" /> is <c>null</c>.</exception>
+    /// <param name="action">The <see cref="Action" /> to be executed asynchronously.</param>
     /// <remarks>
-    ///     This method takes an <see cref="Action" /> delegate as an input parameter and runs it asynchronously using the
-    ///     <see cref="Task.Run(System.Action)" /> method.
-    ///     The <see cref="Task.Run(System.Action)" /> method is a convenient way to start a new task and run it
-    ///     asynchronously. It returns a
-    ///     <see cref="Task" /> object that represents the asynchronous operation, which can be used to track the progress of
-    ///     the operation and wait for it to complete if necessary.
-    ///     By using the <c>await</c> keyword, the <c>RunAsynchronously</c> method ensures that the calling code can run
-    ///     asynchronously without being blocked. This can be useful for improving the performance and responsiveness of a
-    ///     program by allowing it to perform other tasks while waiting for the action to complete.
+    ///     This extension method is designed to run a given <see cref="Action" /> asynchronously using aggressive inlining,
+    ///     which means that the method is optimized for performance.
+    ///     Keep in mind that this method is most suitable for use cases where you need to run small or simple actions
+    ///     asynchronously. For more complex scenarios, consider using <see cref="Task.Run(Action)" /> directly, or create
+    ///     a dedicated <see cref="Task" />-based method.
     /// </remarks>
+    /// <example>
+    ///     Here's an example of how to use this extension method:
+    ///     <code>
+    /// <![CDATA[
+    /// using System;
+    /// using System.Threading.Tasks;
+    /// 
+    /// public class Program
+    /// {
+    ///     public static async Task Main()
+    ///     {
+    ///         Action printHelloWorld = () => Console.WriteLine("Hello, World!");
+    ///         await printHelloWorld.RunAsynchronously();
+    ///     }
+    /// }
+    /// ]]>
+    /// </code>
+    /// </example>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="action" /> parameter is <c>null</c>.</exception>
+    /// <exception cref="TaskSchedulerException">
+    ///     Thrown when the <see cref="Task" /> is not able to be queued to the default
+    ///     scheduler. This typically occurs when a <see cref="TaskScheduler" /> is unable to queue a <see cref="Task" />.
+    /// </exception>
+    /// <exception cref="ObjectDisposedException">
+    ///     Thrown when the <see cref="Task" /> has been disposed or the
+    ///     <see cref="TaskScheduler" /> is unavailable.
+    /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task RunAsynchronously(this Action action)
     {
@@ -38,19 +60,42 @@ public static class ActionExtensions
     }
 
     /// <summary>
-    ///     Executes the specified action and returns the elapsed time.
+    ///     Executes the specified <see cref="Action" /> and measures the elapsed time it takes to complete.
     /// </summary>
-    /// <param name="action">The action to execute. Cannot be <c>null</c>.</param>
-    /// <returns>The elapsed time in <see cref="TimeSpan" /> format.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="action" /> is <c>null</c>.</exception>
+    /// <param name="action">The <see cref="Action" /> to be executed.</param>
+    /// <returns>A <see cref="TimeSpan" /> representing the elapsed time for the execution of the <paramref name="action" />.</returns>
     /// <remarks>
-    ///     This method takes an <see cref="Action" /> delegate as an input parameter and executes it using the
-    ///     <see cref="Action.Invoke" /> method.
-    ///     It uses the <see cref="Stopwatch" /> class to measure the elapsed time between the start and end of the action. The
-    ///     start time is recorded using the <see cref="Stopwatch.GetTimestamp" /> method, and the elapsed time is calculated
-    ///     using the <see cref="Stopwatch.GetElapsedTime(long)" /> method, which takes the start time as an input parameter.
-    ///     The elapsed time is returned as a <see cref="TimeSpan" /> object, which represents a time interval.
+    ///     This extension method is designed to execute a given <see cref="Action" /> and measure its execution time using
+    ///     aggressive inlining,
+    ///     which means that the method is optimized for performance.
+    ///     Keep in mind that this method is most suitable for use cases where you need to measure the time it takes to execute
+    ///     small or simple actions.
+    ///     For more complex scenarios, consider using the <see cref="Stopwatch" /> class directly.
     /// </remarks>
+    /// <example>
+    ///     Here's an example of how to use this extension method:
+    ///     <code>
+    /// <![CDATA[
+    /// using System;
+    /// using System.Diagnostics;
+    /// 
+    /// public class Program
+    /// {
+    ///     public static void Main()
+    ///     {
+    ///         Action printHelloWorld = () => Console.WriteLine("Hello, World!");
+    ///         TimeSpan elapsedTime = printHelloWorld.ExecuteAndTime();
+    ///         Console.WriteLine($"Elapsed time: {elapsedTime.TotalMilliseconds} ms");
+    ///     }
+    /// }
+    /// ]]>
+    /// </code>
+    /// </example>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="action" /> parameter is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">
+    ///     Thrown when the <see cref="Stopwatch" /> methods are called in an incorrect
+    ///     order, such as calling <see cref="Stopwatch.GetElapsedTime(long)" /> before <see cref="Stopwatch.GetTimestamp" />.
+    /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TimeSpan ExecuteAndTime(this Action action)
     {

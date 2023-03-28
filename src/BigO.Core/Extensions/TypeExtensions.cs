@@ -173,7 +173,10 @@ public static class TypeExtensions
     /// </remarks>
     public static string GetNameOrAlias(this Type type)
     {
-        ArgumentNullException.ThrowIfNull(type);
+        if (type == null)
+        {
+            throw new ArgumentNullException(nameof(type));
+        }
 
         if (!TypeAlias.TryGetValue(type, out var result))
         {

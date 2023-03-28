@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Diagnostics;
+using JetBrains.Annotations;
 
 namespace BigO.Core;
 
@@ -9,24 +10,27 @@ namespace BigO.Core;
 public static class GuidFactory
 {
     /// <summary>
-    ///     <para>
-    ///         Generates sequential <see cref="Guid" /> values optimized for use in Microsoft SQL server clustered
-    ///         keys or indexes, yielding better performance than random values.
-    ///     </para>
-    ///     <para>
-    ///         Although this generator achieves the same goals as SQL Server's NEWSEQUENTIALID, the algorithm used
-    ///         to generate the GUIDs is different.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://docs.microsoft.com/sql/t-sql/functions/newsequentialid-transact-sql" />.
-    ///     </para>
+    ///     Generates a new sequential <see cref="Guid" /> based on the current timestamp and a counter.
     /// </summary>
+    /// <returns>A new sequential <see cref="Guid" /> value.</returns>
+    /// <remarks>
+    ///     This method generates a new <see cref="Guid" /> value that is based on the current timestamp and a counter.
+    ///     The first 6 bytes of the generated <see cref="Guid" /> are random, while the remaining 10 bytes are
+    ///     derived from the current timestamp and a counter that is incremented on each call to this method. This
+    ///     ensures that the generated <see cref="Guid" /> values are unique and sequential, which can be useful for
+    ///     certain types of database indexing scenarios.
+    /// </remarks>
     /// <example>
-    ///     <code>Guid sequentialGuid = GuidFactory.NewSequentialGuid();</code>
+    ///     The following code demonstrates how to use the <see cref="NewSequentialGuid" /> method to generate a new sequential
+    ///     <see cref="Guid" /> value.
+    ///     <code><![CDATA[
+    /// var newGuid = NewSequentialGuid();
+    /// Console.WriteLine(newGuid);
+    /// ]]></code>
     /// </example>
     public static Guid NewSequentialGuid()
     {
-        var counter = DateTime.UtcNow.Ticks;
+        var counter = Stopwatch.GetTimestamp();
         var guidBytes = Guid.NewGuid().ToByteArray();
         var counterBytes = BitConverter.GetBytes(Interlocked.Increment(ref counter));
 

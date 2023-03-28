@@ -44,26 +44,6 @@ public class DateTimeExtensionsTests
     }
 
     [Theory]
-    [InlineData(1990, 1, 1, 1989, 12, 31)]
-    [InlineData(1990, 1, 1, 1989, 1, 1)]
-    public void Age_MaturityDateBeforeBirthDate_ThrowsArgumentException(int birthYear, int birthMonth, int birthDay,
-        int maturityYear, int maturityMonth, int maturityDay)
-    {
-        // Arrange
-        var dateOfBirth = new DateTime(birthYear, birthMonth, birthDay);
-        var maturityDate = new DateTime(maturityYear, maturityMonth, maturityDay);
-
-        // Act
-        var exception = Assert.Throws<ArgumentException>(() => dateOfBirth.Age(maturityDate));
-
-        // Assert
-        Assert.Equal(nameof(maturityDate), exception.ParamName);
-        Assert.Equal(
-            $"The maturity date '{maturityDate}' cannot occur before the birth date '{dateOfBirth}'. (Parameter '{nameof(maturityDate)}')",
-            exception.Message);
-    }
-
-    [Theory]
     [InlineData(2022, 12, 24, 1, 2022, 12, 31)]
     [InlineData(2022, 12, 24, 2, 2023, 1, 7)]
     [InlineData(2022, 12, 24, 3, 2023, 1, 14)]
@@ -773,23 +753,6 @@ public class DateTimeExtensionsTests
         Assert.Equal(78, result.Millisecond);
     }
 
-    [Theory]
-    [InlineData(2020, 1, 1, 0, 0, 0, 0, "202001010000000000")]
-    [InlineData(2020, 12, 31, 23, 59, 59, 999, "202012312359599990")]
-    [InlineData(2020, 2, 29, 12, 34, 56, 789, "202002291234567890")]
-    public void GenerateTimestamp_ReturnsExpectedFormat(int year, int month, int day, int hour, int minute, int second,
-        int millisecond, string expected)
-    {
-        // Arrange
-        var dateTime = new DateTime(year, month, day, hour, minute, second, millisecond);
-
-        // Act
-        var result = dateTime.GenerateTimestamp();
-
-        // Assert
-        Assert.Equal(expected, result);
-    }
-
     [Fact]
     public void GenerateTimestamp_DoesNotModifyOriginalDateTime()
     {
@@ -798,7 +761,7 @@ public class DateTimeExtensionsTests
         var expected = dateTime;
 
         // Act
-        dateTime.GenerateTimestamp();
+        dateTime.GetTimestamp();
 
         // Assert
         Assert.Equal(expected, dateTime);

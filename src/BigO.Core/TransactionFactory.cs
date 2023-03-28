@@ -10,23 +10,50 @@ namespace BigO.Core;
 public static class TransactionFactory
 {
     /// <summary>
-    ///     Creates a <see cref="TransactionScope" /> object with the supplied options.
+    ///     Creates a new <see cref="TransactionScope" /> instance with the specified isolation level, timeout, and
+    ///     asynchronous flow options.
     /// </summary>
     /// <param name="isolationLevel">
-    ///     Specifies the isolation level of a transaction. Default is
+    ///     The isolation level for the transaction. Default is
     ///     <see cref="IsolationLevel.ReadCommitted" />.
     /// </param>
     /// <param name="transactionScopeOption">
-    ///     Provides additional options for creating a transaction scope. Default is
+    ///     The transaction scope option. Default is
     ///     <see cref="TransactionScopeOption.Required" />.
     /// </param>
-    /// <param name="timeOut">
-    ///     {Optional} A <see cref="TimeSpan" /> value that specifies the time out period for the
-    ///     transaction.
+    /// <param name="transactionScopeAsyncFlowOption">
+    ///     The transaction scope asynchronous flow option. Default is
+    ///     <see cref="TransactionScopeAsyncFlowOption.Enabled" />.
     /// </param>
-    /// <returns>A new <see cref="TransactionScope" /> object with the specified options.</returns>
+    /// <param name="timeOut">
+    ///     The timeout for the transaction. Default is <see cref="TransactionManager.MaximumTimeout" /> if
+    ///     null.
+    /// </param>
+    /// <returns>A new <see cref="TransactionScope" /> instance with the specified options.</returns>
+    /// <remarks>
+    ///     This extension method creates a new <see cref="TransactionScope" /> instance with the specified options. The method
+    ///     returns a new <see cref="TransactionScope" /> instance
+    ///     with the specified <paramref name="isolationLevel" />, <paramref name="transactionScopeOption" />,
+    ///     <paramref name="transactionScopeAsyncFlowOption" />, and <paramref name="timeOut" /> options.
+    /// </remarks>
+    /// <exception cref="System.ArgumentOutOfRangeException">
+    ///     Thrown when <paramref name="isolationLevel" /> is not a valid
+    ///     <see cref="IsolationLevel" /> value.
+    /// </exception>
+    /// <example>
+    ///     The following code demonstrates how to use the <see cref="CreateTransaction" /> method to create a new
+    ///     <see cref="TransactionScope" /> instance.
+    ///     <code><![CDATA[
+    /// using(var transaction = CreateTransaction())
+    /// {
+    ///     // Perform transactional work here
+    ///     transaction.Complete();
+    /// }
+    /// ]]></code>
+    /// </example>
     public static TransactionScope CreateTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
         TransactionScopeOption transactionScopeOption = TransactionScopeOption.Required,
+        TransactionScopeAsyncFlowOption transactionScopeAsyncFlowOption = TransactionScopeAsyncFlowOption.Enabled,
         TimeSpan? timeOut = null)
     {
         var transactionOptions = new TransactionOptions { IsolationLevel = isolationLevel };
@@ -35,6 +62,6 @@ public static class TransactionFactory
             transactionOptions.Timeout = TransactionManager.MaximumTimeout;
         }
 
-        return new TransactionScope(transactionScopeOption, transactionOptions);
+        return new TransactionScope(transactionScopeOption, transactionOptions, transactionScopeAsyncFlowOption);
     }
 }

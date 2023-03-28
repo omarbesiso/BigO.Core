@@ -10,57 +10,116 @@ namespace BigO.Core.Extensions;
 public static class ArrayExtensions
 {
     /// <summary>
-    ///     Shuffles the elements of the specified array in random order.
+    ///     Shuffles the elements of the specified array using the Fisher-Yates algorithm.
     /// </summary>
     /// <typeparam name="T">The type of the elements in the array.</typeparam>
-    /// <param name="array">The array to shuffle. Cannot be <c>null</c>.</param>
-    /// <returns>The shuffled array.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="array" /> is <c>null</c>.</exception>
+    /// <param name="array">The array to be shuffled.</param>
+    /// <param name="preserveOriginal">
+    ///     A boolean value indicating whether the original array should be preserved. If set to
+    ///     <c>true</c>, a shuffled copy of the array will be returned. If set to <c>false</c>, the array will be shuffled
+    ///     in-place. Default is <c>false</c>.
+    /// </param>
+    /// <returns>
+    ///     A shuffled array, either as a new instance or the original array modified in-place, depending on the value of
+    ///     the <paramref name="preserveOriginal" /> parameter.
+    /// </returns>
     /// <remarks>
-    ///     This method shuffles the elements of the specified array in random order using the <see cref="Random.Shared" />
-    ///     instance.
-    ///     It iterates over the elements of the array and for each element, it swaps it with a random element from the rest of
-    ///     the array using deconstructing assignment.
-    ///     The <see cref="Random.Shared" /> instance is a thread-safe, shared instance of the <see cref="Random" /> class that
-    ///     can be used to generate random numbers.
+    ///     This extension method uses the Fisher-Yates shuffle algorithm, which provides an unbiased permutation of the input
+    ///     array.
+    ///     Note that this method is not thread-safe. If you need to shuffle an array concurrently, you should use appropriate
+    ///     synchronization mechanisms.
     /// </remarks>
-    public static T[] Shuffle<T>(this T[] array)
+    /// <example>
+    ///     Here's an example of how to use this extension method:
+    ///     <code>
+    /// <![CDATA[
+    /// using System;
+    /// 
+    /// public class Program
+    /// {
+    ///     public static void Main()
+    ///     {
+    ///         int[] numbers = { 1, 2, 3, 4, 5 };
+    ///         int[] shuffledNumbers = numbers.Shuffle(true);
+    /// 
+    ///         Console.WriteLine("Original array:");
+    ///         foreach (int number in numbers)
+    ///         {
+    ///             Console.Write(number + " ");
+    ///         }
+    /// 
+    ///         Console.WriteLine("\nShuffled array:");
+    ///         foreach (int number in shuffledNumbers)
+    ///         {
+    ///             Console.Write(number + " ");
+    ///         }
+    ///     }
+    /// }
+    /// ]]>
+    /// </code>
+    /// </example>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="array" /> parameter is <c>null</c>.</exception>
+    /// <exception cref="OutOfMemoryException">
+    ///     Thrown when there is not enough memory available to create a copy of the
+    ///     original array when <paramref name="preserveOriginal" /> is set to <c>true</c>.
+    /// </exception>
+    public static T[] Shuffle<T>(this T[] array, bool preserveOriginal = false)
     {
         if (array == null)
         {
             throw new ArgumentNullException(nameof(array), $"The {nameof(array)} cannot be null.");
         }
 
-        for (var i = 0; i < array.Length; i++)
+        var shuffledArray = preserveOriginal ? (T[])array.Clone() : array;
+
+        for (var i = 0; i < shuffledArray.Length - 1; i++)
         {
-            var j = Random.Shared.Next(i, array.Length);
-            (array[i], array[j]) = (array[j], array[i]);
+            var j = Random.Shared.Next(i, shuffledArray.Length);
+            (shuffledArray[i], shuffledArray[j]) = (shuffledArray[j], shuffledArray[i]);
         }
 
-        return array;
+        return shuffledArray;
     }
 
+
     /// <summary>
-    ///     Clears the elements of the specified array.
+    ///     Sets a range of elements in the specified array to the default value of each element type.
     /// </summary>
-    /// <param name="array">The array to clear. Cannot be <c>null</c>.</param>
-    /// <param name="index">The starting index of the range of elements to clear.</param>
-    /// <param name="length">The number of elements to clear.</param>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="array" /> is <c>null</c>.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">
-    ///     Thrown if <paramref name="index" /> is less than the lower bound of the
-    ///     array or if <paramref name="length" /> is less than zero.
-    /// </exception>
+    /// <param name="array">The array to be cleared.</param>
+    /// <param name="index">The starting index of the range to clear.</param>
+    /// <param name="length">The number of elements in the range to clear.</param>
     /// <remarks>
-    ///     This method clears the elements of the specified array using the <see cref="Array.Clear(System.Array)" /> method.
-    ///     The <paramref name="index" /> parameter specifies the starting index of the range of elements to clear, and the
-    ///     <paramref name="length" /> parameter specifies the number of elements to clear.
-    ///     If the <paramref name="index" /> parameter is less than the lower bound of the array or if the
-    ///     <paramref name="length" /> parameter is less than zero, it throws an <see cref="ArgumentOutOfRangeException" />.
-    ///     The <see cref="Array.Clear(System.Array)" /> method sets the elements of the specified array to their default
-    ///     values. For reference types, this means setting the elements to <c>null</c>. For value types, this means setting
-    ///     the elements to the default value for the type, such as 0 for integers or false for booleans.
+    ///     This extension method is a wrapper for the <see cref="Array.Clear(Array, int, int)" /> method, which sets the
+    ///     elements in the specified range to their default values.
+    ///     The method uses aggressive inlining, which means that it is optimized for performance.
     /// </remarks>
+    /// <example>
+    ///     Here's an example of how to use this extension method:
+    ///     <code>
+    /// <![CDATA[
+    /// using System;
+    /// 
+    /// public class Program
+    /// {
+    ///     public static void Main()
+    ///     {
+    ///         int[] numbers = { 1, 2, 3, 4, 5 };
+    ///         numbers.Clear(1, 3);
+    /// 
+    ///         foreach (int number in numbers)
+    ///         {
+    ///             Console.Write(number + " ");
+    ///         }
+    ///     }
+    /// }
+    /// ]]>
+    /// </code>
+    /// </example>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="array" /> parameter is <c>null</c>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Thrown when the <paramref name="index" /> or <paramref name="length" /> parameters are negative, or if the sum of
+    ///     <paramref name="index" /> and <paramref name="length" /> is greater than the array length.
+    /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Clear(this Array array, int index, int length)
     {

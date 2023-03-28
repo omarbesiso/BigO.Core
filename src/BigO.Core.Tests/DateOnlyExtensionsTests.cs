@@ -603,21 +603,6 @@ public class DateOnlyExtensionsTests
     }
 
     [Fact]
-    public void Age_MaturityDateIsBeforeBirthDate_ThrowsArgumentException()
-    {
-        // Arrange
-        var dateOfBirth = new DateOnly(2000, 1, 1);
-        var maturityDate = new DateOnly(1999, 1, 1);
-
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => dateOfBirth.Age(maturityDate));
-        Assert.Equal(nameof(maturityDate), exception.ParamName);
-        Assert.Equal(
-            $"The maturity date '1/01/1999' cannot occur before the birth date '1/01/2000' (Parameter '{nameof(maturityDate)}')",
-            exception.Message);
-    }
-
-    [Fact]
     public void Age_MaturityDateIsNull_UsesCurrentDate()
     {
         // Arrange

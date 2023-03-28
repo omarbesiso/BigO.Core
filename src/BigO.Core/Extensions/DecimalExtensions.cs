@@ -20,6 +20,15 @@ public static class DecimalExtensions
     ///     The culture specified by the <paramref name="cultureName" /> parameter is
     ///     not found.
     /// </exception>
+    /// <example>
+    ///     The following example shows how to use the <see cref="ToCurrencyString" /> method to format a decimal value as
+    ///     currency using the default culture ("en-US").
+    ///     <code><![CDATA[
+    /// decimal value = 1234.56m;
+    /// string currencyString = value.ToCurrencyString();
+    /// Console.WriteLine("Currency string: {0}", currencyString);
+    /// ]]></code>
+    /// </example>
     /// <remarks>
     ///     This method converts the given decimal value to a currency string using the specified culture. If no culture is
     ///     specified, or if the culture is "en-US", the invariant culture is used.

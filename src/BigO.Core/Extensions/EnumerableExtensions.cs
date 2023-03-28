@@ -12,15 +12,24 @@ namespace BigO.Core.Extensions;
 public static class EnumerableExtensions
 {
     /// <summary>
-    ///     Determines whether the specified collection is empty.
+    ///     Determines whether the specified <paramref name="collection" /> is empty.
     /// </summary>
     /// <param name="collection">The collection to check for emptiness.</param>
-    /// <returns>True if the collection is empty; otherwise, false.</returns>
+    /// <returns>true if the specified <paramref name="collection" /> is empty; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="collection" /> is null.</exception>
     /// <remarks>
-    ///     This method checks if the enumerator of the collection can move to the next element. If it cannot, then the
-    ///     collection is considered empty.
+    ///     This extension method can be used on any type that implements the <see cref="System.Collections.IEnumerable" />
+    ///     interface, including arrays and lists.
     /// </remarks>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="collection" /> is <c>null</c>.</exception>
+    /// <example>
+    ///     The following code demonstrates how to use the <see cref="IsEmpty" /> method to check if an array is empty.
+    ///     <code><![CDATA[
+    /// int[] emptyArray = new int[0];
+    /// bool isEmpty = emptyArray.IsEmpty();
+    /// Console.WriteLine(isEmpty); // Output: True
+    /// ]]></code>
+    /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsEmpty([NoEnumeration] this IEnumerable collection)
     {
         if (collection == null)
@@ -33,15 +42,56 @@ public static class EnumerableExtensions
     }
 
     /// <summary>
-    ///     Determines whether the specified collection is not empty.
+    ///     Determines whether the specified <paramref name="collection" /> is empty.
     /// </summary>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
     /// <param name="collection">The collection to check for emptiness.</param>
-    /// <returns><c>true</c> if the collection is not empty; otherwise, <c>false</c>.</returns>
+    /// <returns>true if the specified <paramref name="collection" /> is empty; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="collection" /> is null.</exception>
     /// <remarks>
-    ///     This method checks if the enumerator of the collection can move to the next element. If it can, then the collection
-    ///     is considered not empty.
+    ///     This extension method can be used on any type that implements the
+    ///     <see cref="System.Collections.Generic.IEnumerable{T}" /> interface, including arrays and lists.
     /// </remarks>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="collection" /> is <c>null</c>.</exception>
+    /// <example>
+    ///     The following code demonstrates how to use the <see cref="IsEmpty{T}(IEnumerable{T})" /> method to check if a list
+    ///     is empty.
+    ///     <code><![CDATA[
+    /// List<int> emptyList = new List<int>();
+    /// bool isEmpty = emptyList.IsEmpty();
+    /// Console.WriteLine(isEmpty); // Output: True
+    /// ]]></code>
+    /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsEmpty<T>([NoEnumeration] this IEnumerable<T> collection)
+    {
+        if (collection == null)
+        {
+            throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
+        }
+
+        using var enumerator = collection.GetEnumerator();
+        return !enumerator.MoveNext();
+    }
+
+    /// <summary>
+    ///     Determines whether the specified <paramref name="collection" /> is not empty.
+    /// </summary>
+    /// <param name="collection">The collection to check for non-emptiness.</param>
+    /// <returns>true if the specified <paramref name="collection" /> is not empty; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="collection" /> is null.</exception>
+    /// <remarks>
+    ///     This extension method can be used on any type that implements the <see cref="System.Collections.IEnumerable" />
+    ///     interface, including arrays and lists.
+    /// </remarks>
+    /// <example>
+    ///     The following code demonstrates how to use the <see cref="IsNotEmpty" /> method to check if an array is not empty.
+    ///     <code><![CDATA[
+    /// int[] nonEmptyArray = new int[] { 1, 2, 3 };
+    /// bool isNotEmpty = nonEmptyArray.IsNotEmpty();
+    /// Console.WriteLine(isNotEmpty); // Output: True
+    /// ]]></code>
+    /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNotEmpty([NoEnumeration] this IEnumerable collection)
     {
         if (collection == null)
@@ -54,15 +104,61 @@ public static class EnumerableExtensions
     }
 
     /// <summary>
-    ///     Determines whether the specified collection is null or has no items.
+    ///     Determines whether the specified <paramref name="collection" /> is not empty.
     /// </summary>
-    /// <param name="collection">The collection to check for null or no items.</param>
-    /// <returns>True if the collection is null or has no items; otherwise, false.</returns>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <param name="collection">The collection to check for non-emptiness.</param>
+    /// <returns>true if the specified <paramref name="collection" /> is not empty; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="collection" /> is null.</exception>
     /// <remarks>
-    ///     If the collection is null, this method returns true. If the collection is not null, this method checks if the
-    ///     enumerator of the collection can move to the next element. If it cannot, then the collection is considered to have
-    ///     no items.
+    ///     This extension method can be used on any type that implements the
+    ///     <see cref="System.Collections.Generic.IEnumerable{T}" /> interface, including arrays and lists.
     /// </remarks>
+    /// <example>
+    ///     The following code demonstrates how to use the <see cref="IsNotEmpty(System.Collections.IEnumerable)" /> method to
+    ///     check if a list is not empty.
+    ///     <code><![CDATA[
+    /// List<int> nonEmptyList = new List<int>() { 1, 2, 3 };
+    /// bool isNotEmpty = nonEmptyList.IsNotEmpty();
+    /// Console.WriteLine(isNotEmpty); // Output: True
+    /// ]]></code>
+    /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsNotEmpty<T>([NoEnumeration] this IEnumerable<T> collection)
+    {
+        if (collection == null)
+        {
+            throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
+        }
+
+        using var enumerator = collection.GetEnumerator();
+        return enumerator.MoveNext();
+    }
+
+    /// <summary>
+    ///     Determines whether the specified <paramref name="collection" /> is null, empty, or contains no elements.
+    /// </summary>
+    /// <param name="collection">The collection to check for null or emptiness.</param>
+    /// <returns>
+    ///     true if the specified <paramref name="collection" /> is null, empty, or contains no elements; otherwise,
+    ///     false.
+    /// </returns>
+    /// <remarks>
+    ///     This extension method can be used on any type that implements the <see cref="System.Collections.IEnumerable" />
+    ///     interface, including arrays and lists.
+    /// </remarks>
+    /// <example>
+    ///     The following code demonstrates how to use the <see cref="IsNullOrEmpty" /> method to check if an array is null or
+    ///     empty.
+    ///     <code><![CDATA[
+    /// int[] emptyArray = new int[0];
+    /// int[] nullArray = null;
+    /// bool isNullOrEmpty1 = emptyArray.IsNullOrEmpty();
+    /// bool isNullOrEmpty2 = nullArray.IsNullOrEmpty();
+    /// Console.WriteLine(isNullOrEmpty1); // Output: True
+    /// Console.WriteLine(isNullOrEmpty2); // Output: True
+    /// ]]></code>
+    /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNullOrEmpty([NotNullWhen(false)] [NoEnumeration] this IEnumerable? collection)
     {
@@ -76,15 +172,66 @@ public static class EnumerableExtensions
     }
 
     /// <summary>
-    ///     Determines whether the specified collection is not null and has items.
+    ///     Determines whether the specified <paramref name="collection" /> is null, empty, or contains no elements.
     /// </summary>
-    /// <param name="collection">The collection to check for not null and having items.</param>
-    /// <returns>True if the collection is not null and has items; otherwise, false.</returns>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <param name="collection">The collection to check for null or emptiness.</param>
+    /// <returns>
+    ///     true if the specified <paramref name="collection" /> is null, empty, or contains no elements; otherwise,
+    ///     false.
+    /// </returns>
     /// <remarks>
-    ///     If the collection is null, this method returns false. If the collection is not null, this method checks if the
-    ///     enumerator of the collection can move to the next element. If it can, then the collection is considered to have
-    ///     items.
+    ///     This extension method can be used on any type that implements the
+    ///     <see cref="System.Collections.Generic.IEnumerable{T}" /> interface, including arrays and lists.
     /// </remarks>
+    /// <example>
+    ///     The following code demonstrates how to use the <see cref="IsNullOrEmpty{T}(IEnumerable{T})" /> method to check if a
+    ///     list is null or empty.
+    ///     <code><![CDATA[
+    /// List<int> emptyList = new List<int>();
+    /// List<int> nullList = null;
+    /// bool isNullOrEmpty1 = emptyList.IsNullOrEmpty();
+    /// bool isNullOrEmpty2 = nullList.IsNullOrEmpty();
+    /// Console.WriteLine(isNullOrEmpty1); // Output: True
+    /// Console.WriteLine(isNullOrEmpty2); // Output: True
+    /// ]]></code>
+    /// </example>
+    public static bool IsNullOrEmpty<T>([NotNullWhen(false)] [NoEnumeration] this IEnumerable<T>? collection)
+    {
+        if (collection == null)
+        {
+            return true;
+        }
+
+        using var enumerator = collection.GetEnumerator();
+        return !enumerator.MoveNext();
+    }
+
+    /// <summary>
+    ///     Determines whether the specified <paramref name="collection" /> is not null and contains at least one element.
+    /// </summary>
+    /// <param name="collection">The collection to check for non-nullness and non-emptiness.</param>
+    /// <returns>
+    ///     true if the specified <paramref name="collection" /> is not null and contains at least one element; otherwise,
+    ///     false.
+    /// </returns>
+    /// <remarks>
+    ///     This extension method can be used on any type that implements the <see cref="System.Collections.IEnumerable" />
+    ///     interface, including arrays and lists.
+    /// </remarks>
+    /// <example>
+    ///     The following code demonstrates how to use the <see cref="IsNotNullOrEmpty" /> method to check if an array is not
+    ///     null and not empty.
+    ///     <code><![CDATA[
+    /// int[] nonEmptyArray = new int[] { 1, 2, 3 };
+    /// int[] nullArray = null;
+    /// bool isNotNullOrEmpty1 = nonEmptyArray.IsNotNullOrEmpty();
+    /// bool isNotNullOrEmpty2 = nullArray.IsNotNullOrEmpty();
+    /// Console.WriteLine(isNotNullOrEmpty1); // Output: True
+    /// Console.WriteLine(isNotNullOrEmpty2); // Output: False
+    /// ]]></code>
+    /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNotNullOrEmpty([NotNullWhen(true)] [NoEnumeration] this IEnumerable? collection)
     {
         if (collection == null)
@@ -93,6 +240,42 @@ public static class EnumerableExtensions
         }
 
         var enumerator = collection.GetEnumerator();
+        return enumerator.MoveNext();
+    }
+
+    /// <summary>
+    ///     Determines whether the specified <paramref name="collection" /> is not null and contains at least one element.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <param name="collection">The collection to check for non-nullness and non-emptiness.</param>
+    /// <returns>
+    ///     true if the specified <paramref name="collection" /> is not null and contains at least one element; otherwise,
+    ///     false.
+    /// </returns>
+    /// <remarks>
+    ///     This extension method can be used on any type that implements the
+    ///     <see cref="System.Collections.Generic.IEnumerable{T}" /> interface, including arrays and lists.
+    /// </remarks>
+    /// <example>
+    ///     The following code demonstrates how to use the <see cref="IsNotNullOrEmpty{T}(IEnumerable{T})" /> method to check
+    ///     if a list is not null and not empty.
+    ///     <code><![CDATA[
+    /// List<int> nonEmptyList = new List<int> { 1, 2, 3 };
+    /// List<int> nullList = null;
+    /// bool isNotNullOrEmpty1 = nonEmptyList.IsNotNullOrEmpty();
+    /// bool isNotNullOrEmpty2 = nullList.IsNotNullOrEmpty();
+    /// Console.WriteLine(isNotNullOrEmpty1); // Output: True
+    /// Console.WriteLine(isNotNullOrEmpty2); // Output: False
+    /// ]]></code>
+    /// </example>
+    public static bool IsNotNullOrEmpty<T>([NotNullWhen(true)] [NoEnumeration] this IEnumerable<T>? collection)
+    {
+        if (collection == null)
+        {
+            return false;
+        }
+
+        using var enumerator = collection.GetEnumerator();
         return enumerator.MoveNext();
     }
 

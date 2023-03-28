@@ -12,26 +12,34 @@ namespace BigO.Core.Extensions;
 public static class StringBuilderExtensions
 {
     /// <summary>
-    ///     Determines whether the specified <see cref="StringBuilder" /> is empty.
+    ///     Determines whether the <see cref="System.Text.StringBuilder" /> is empty, optionally counting white-space
+    ///     characters.
     /// </summary>
-    /// <param name="stringBuilder">The <see cref="StringBuilder" /> to check.</param>
-    /// <param name="countWhiteSpace">
-    ///     A flag that indicates whether white space should be considered when determining if the <see cref="StringBuilder" />
-    ///     is empty.
-    /// </param>
-    /// <returns>
-    ///     <c>true</c> if the specified <see cref="StringBuilder" /> is empty; otherwise, <c>false</c>.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///     If <paramref name="stringBuilder" /> is <c>null</c>.
-    /// </exception>
+    /// <param name="stringBuilder">The <see cref="System.Text.StringBuilder" /> to check for emptiness.</param>
+    /// <param name="countWhiteSpace">True to count white-space characters; otherwise, false. Default is false.</param>
+    /// <returns>true if the <see cref="System.Text.StringBuilder" /> is empty; otherwise, false.</returns>
+    /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="stringBuilder" /> is null.</exception>
     /// <remarks>
-    ///     If <paramref name="countWhiteSpace" /> is <c>false</c>, the <see cref="StringBuilder" /> is considered empty if its
-    ///     <see cref="StringBuilder.Length" /> property is 0. If <paramref name="countWhiteSpace" /> is <c>true</c>, the
-    ///     <see cref="StringBuilder" /> is considered empty if its <see cref="StringBuilder.ToString" /> method returns
-    ///     <c>null</c> or
-    ///     a string that consists only of white space.
+    ///     This extension method can be used to determine whether a <see cref="System.Text.StringBuilder" /> instance is
+    ///     empty.
+    ///     By default, only non-white-space characters are considered when checking for emptiness, but if the
+    ///     <paramref name="countWhiteSpace" /> parameter is set to true,
+    ///     white-space characters are also counted. The method returns true if the <see cref="System.Text.StringBuilder" /> is
+    ///     empty; otherwise, it returns false.
     /// </remarks>
+    /// <example>
+    ///     The following code demonstrates how to use the <see cref="IsEmpty(StringBuilder, bool)" /> method to determine
+    ///     whether a StringBuilder instance is empty.
+    ///     <code><![CDATA[
+    /// var sb = new StringBuilder("Hello, world!");
+    /// bool isEmpty = sb.IsEmpty(); // false
+    /// bool isWhiteSpace = sb.IsEmpty(true); // false
+    /// 
+    /// sb.Clear();
+    /// isEmpty = sb.IsEmpty(); // true
+    /// isWhiteSpace = sb.IsEmpty(true); // true
+    /// ]]></code>
+    /// </example>
     public static bool IsEmpty(this StringBuilder stringBuilder, bool countWhiteSpace = false)
     {
         if (stringBuilder == null)
@@ -39,14 +47,13 @@ public static class StringBuilderExtensions
             throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
         }
 
-        switch (countWhiteSpace)
+        // Early return if stringBuilder is empty and whitespace should not be counted
+        if (stringBuilder.Length == 0 && !countWhiteSpace)
         {
-            case false when stringBuilder.Length == 0:
-            case true when string.IsNullOrWhiteSpace(stringBuilder.ToString()):
-                return true;
-            default:
-                return false;
+            return true;
         }
+
+        return countWhiteSpace ? string.IsNullOrWhiteSpace(stringBuilder.ToString()) : stringBuilder.Length == 0;
     }
 
     /// <summary>

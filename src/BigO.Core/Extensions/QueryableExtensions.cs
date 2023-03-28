@@ -9,31 +9,64 @@ namespace BigO.Core.Extensions;
 public static class QueryableExtensions
 {
     /// <summary>
-    ///     Returns a specified number of contiguous elements from the start of a sequence.
+    ///     Returns a specified page of elements from the source sequence.
     /// </summary>
-    /// <typeparam name="T">The type of the elements of <paramref name="source" />.</typeparam>
-    /// <param name="source">The <see cref="IQueryable{T}" /> to return elements from.</param>
-    /// <param name="pageNumber">The page number to retrieve.</param>
-    /// <param name="pageSize">The number of elements to retrieve in each page.</param>
+    /// <typeparam name="T">The type of elements in the sequence.</typeparam>
+    /// <param name="source">The source sequence to page.</param>
+    /// <param name="pageNumber">The index of the page to retrieve, starting from 1.</param>
+    /// <param name="pageSize">The number of elements to include in the page.</param>
     /// <returns>
-    ///     An <see cref="IQueryable{T}" /> that contains the specified number of elements from the start of the input
+    ///     An <see cref="System.Linq.IQueryable{T}" /> that represents the specified page of elements from the source
     ///     sequence.
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///     If <paramref name="source" /> is <c>null</c>.
+    /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="source" /> is null.</exception>
+    /// <exception cref="System.ArgumentOutOfRangeException">
+    ///     Thrown when <paramref name="pageNumber" /> or
+    ///     <paramref name="pageSize" /> is less than or equal to 0.
     /// </exception>
     /// <remarks>
-    ///     This method applies the <see cref="IQueryable{T}.Skip(int)" /> and <see cref="IQueryable{T}.Take(int)" /> methods
-    ///     to the input
-    ///     <paramref name="source" /> to implement paging. The <paramref name="pageNumber" /> parameter determines the number
-    ///     of elements to skip,
-    ///     and the <paramref name="pageSize" /> parameter determines the number of elements to take.
+    ///     This extension method can be used to page any type that implements the <see cref="System.Linq.IQueryable{T}" />
+    ///     interface, such as a database table.
+    ///     The <paramref name="pageNumber" /> parameter is one-based, meaning that the first page is 1, not 0.
+    ///     The returned sequence is an <see cref="System.Linq.IQueryable{T}" /> that represents the specified page of elements
+    ///     from the source sequence.
     /// </remarks>
+    /// <example>
+    ///     The following code demonstrates how to use the <see cref="Page{T}(IQueryable{T}, int, int)" /> method to retrieve a
+    ///     page of elements from a database table.
+    ///     <code><![CDATA[
+    /// using (var dbContext = new MyDbContext())
+    /// {
+    ///     var query = dbContext.Customers.OrderBy(c => c.LastName);
+    ///     
+    ///     var pageSize = 10;
+    ///     var pageNumber = 2;
+    ///     
+    ///     var pageOfCustomers = query.Page(pageNumber, pageSize);
+    ///     foreach (var customer in pageOfCustomers)
+    ///     {
+    ///         Console.WriteLine("{0} {1}", customer.FirstName, customer.LastName);
+    ///     }
+    /// }
+    /// ]]></code>
+    /// </example>
     public static IQueryable<T> Page<T>(this IQueryable<T> source, int pageNumber, int pageSize)
     {
         if (source == null)
         {
             throw new ArgumentNullException(nameof(source), $"The {nameof(source)} list to be paged cannot be null.");
+        }
+
+        if (pageNumber <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(pageNumber),
+                $"The {nameof(pageNumber)} cannot be less than or equal to 0.");
+        }
+
+        if (pageSize <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(pageSize),
+                $"The {nameof(pageSize)} cannot be less than or equal to 0.");
         }
 
         var skipCount = (pageNumber - 1) * pageSize;
