@@ -10,47 +10,42 @@ namespace BigO.Core;
 public static class TransactionFactory
 {
     /// <summary>
-    ///     Creates a new <see cref="TransactionScope" /> instance with the specified isolation level, timeout, and
-    ///     asynchronous flow options.
+    ///     Creates a new <see cref="TransactionScope" /> with the specified settings.
     /// </summary>
     /// <param name="isolationLevel">
-    ///     The isolation level for the transaction. Default is
+    ///     The desired <see cref="IsolationLevel" /> for the transaction scope. Defaults to
     ///     <see cref="IsolationLevel.ReadCommitted" />.
     /// </param>
     /// <param name="transactionScopeOption">
-    ///     The transaction scope option. Default is
-    ///     <see cref="TransactionScopeOption.Required" />.
+    ///     The desired <see cref="TransactionScopeOption" /> for the transaction scope.
+    ///     Defaults to <see cref="TransactionScopeOption.Required" />.
     /// </param>
     /// <param name="transactionScopeAsyncFlowOption">
-    ///     The transaction scope asynchronous flow option. Default is
-    ///     <see cref="TransactionScopeAsyncFlowOption.Enabled" />.
+    ///     The desired <see cref="TransactionScopeAsyncFlowOption" /> for the
+    ///     transaction scope. Defaults to <see cref="TransactionScopeAsyncFlowOption.Enabled" />.
     /// </param>
     /// <param name="timeOut">
-    ///     The timeout for the transaction. Default is <see cref="TransactionManager.MaximumTimeout" /> if
-    ///     null.
+    ///     The desired timeout for the transaction scope. If not provided,
+    ///     <see cref="TransactionManager.MaximumTimeout" /> is used.
     /// </param>
-    /// <returns>A new <see cref="TransactionScope" /> instance with the specified options.</returns>
-    /// <remarks>
-    ///     This extension method creates a new <see cref="TransactionScope" /> instance with the specified options. The method
-    ///     returns a new <see cref="TransactionScope" /> instance
-    ///     with the specified <paramref name="isolationLevel" />, <paramref name="transactionScopeOption" />,
-    ///     <paramref name="transactionScopeAsyncFlowOption" />, and <paramref name="timeOut" /> options.
-    /// </remarks>
-    /// <exception cref="System.ArgumentOutOfRangeException">
-    ///     Thrown when <paramref name="isolationLevel" /> is not a valid
-    ///     <see cref="IsolationLevel" /> value.
-    /// </exception>
+    /// <returns>A new <see cref="TransactionScope" /> instance with the specified settings.</returns>
     /// <example>
-    ///     The following code demonstrates how to use the <see cref="CreateTransaction" /> method to create a new
-    ///     <see cref="TransactionScope" /> instance.
     ///     <code><![CDATA[
-    /// using(var transaction = CreateTransaction())
+    /// using (var scope = CreateTransaction(IsolationLevel.Serializable, TransactionScopeOption.RequiresNew))
     /// {
-    ///     // Perform transactional work here
-    ///     transaction.Complete();
+    ///     // Perform transactional work here.
+    ///     scope.Complete();
     /// }
     /// ]]></code>
     /// </example>
+    /// <remarks>
+    ///     The <see cref="CreateTransaction" /> method is a helper method that simplifies the creation of a
+    ///     <see cref="TransactionScope" /> with custom settings. It allows you to specify the <see cref="IsolationLevel" />,
+    ///     <see cref="TransactionScopeOption" />, <see cref="TransactionScopeAsyncFlowOption" />, and an optional timeout.
+    ///     By default, it creates a transaction scope with <see cref="IsolationLevel.ReadCommitted" />,
+    ///     <see cref="TransactionScopeOption.Required" />, and <see cref="TransactionScopeAsyncFlowOption.Enabled" />. If no
+    ///     timeout is provided, it uses the <see cref="TransactionManager.MaximumTimeout" /> value.
+    /// </remarks>
     public static TransactionScope CreateTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
         TransactionScopeOption transactionScopeOption = TransactionScopeOption.Required,
         TransactionScopeAsyncFlowOption transactionScopeAsyncFlowOption = TransactionScopeAsyncFlowOption.Enabled,

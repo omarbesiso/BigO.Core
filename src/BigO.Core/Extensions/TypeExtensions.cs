@@ -187,17 +187,27 @@ public static class TypeExtensions
     }
 
     /// <summary>
-    ///     Determines whether the specified source is of a nullable type.
+    ///     Determines whether the specified <paramref name="type" /> is nullable.
     /// </summary>
-    /// <typeparam name="T">The type of the source object.</typeparam>
-    /// <param name="source">The source object to check.</param>
-    /// <returns>
-    ///     <c>true</c> if the specified source is of a nullable type; otherwise, <c>false</c>.
-    /// </returns>
-    /// <exception cref="System.ArgumentNullException">
-    ///     Thrown if the specified source is <c>null</c> and the type of the source
-    ///     object is a value type.
-    /// </exception>
+    /// <param name="type">The type to check for nullability.</param>
+    /// <returns><c>true</c> if the specified type is nullable; otherwise, <c>false</c>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the <paramref name="type" /> is <c>null</c>.</exception>
+    /// <example>
+    ///     <code><![CDATA[
+    /// Type nullableIntType = typeof(int?);
+    /// bool isNullable = nullableIntType.IsNullable(); // true
+    /// 
+    /// Type nonNullableIntType = typeof(int);
+    /// bool isNotNullable = nonNullableIntType.IsNullable(); // false
+    /// ]]></code>
+    /// </example>
+    /// <remarks>
+    ///     This method checks if the provided <paramref name="type" /> is a nullable value type. Reference types (except for
+    ///     Nullable
+    ///     <T>
+    ///         itself) are not considered nullable by this method. To check for a nullable value type, the method inspects
+    ///         whether the type is a generic instantiation of Nullable<T>.
+    /// </remarks>
     public static bool IsNullable(this Type? type)
     {
         ArgumentNullException.ThrowIfNull(type);
@@ -220,14 +230,27 @@ public static class TypeExtensions
     }
 
     /// <summary>
-    ///     Determines whether the specified type is a nullable type.
+    ///     Determines whether the specified source object is of a nullable type.
     /// </summary>
-    /// <typeparam name="T">The type to check.</typeparam>
-    /// <returns>True if the type is a nullable type; otherwise, false.</returns>
+    /// <typeparam name="T">The type of the source object.</typeparam>
+    /// <param name="source">The source object to check for nullability.</param>
+    /// <returns><c>true</c> if the specified source object is of a nullable type; otherwise, <c>false</c>.</returns>
+    /// <example>
+    ///     <code><![CDATA[
+    /// int? nullableInt = 5;
+    /// bool isNullableType = nullableInt.IsOfNullableType(); // true
+    /// 
+    /// int nonNullableInt = 5;
+    /// bool isNotNullableType = nonNullableInt.IsOfNullableType(); // false
+    /// ]]></code>
+    /// </example>
     /// <remarks>
-    ///     A nullable type is a type that can represent a value or <c>null</c>.
-    ///     This method checks if the specified type is a nullable type by using the
-    ///     <see cref="Nullable.GetUnderlyingType(Type)" /> method.
+    ///     This method checks if the provided <paramref name="source" /> object is of a nullable value type. If the
+    ///     <paramref name="source" /> object is <c>null</c>, the method checks the underlying type <typeparamref name="T" />
+    ///     instead. Reference types (except for Nullable
+    ///     <T>
+    ///         itself) are not considered nullable by this method. To check for a nullable value type, the method inspects
+    ///         whether the type is a generic instantiation of Nullable<T>.
     /// </remarks>
     public static bool IsOfNullableType<T>()
     {
@@ -236,22 +259,30 @@ public static class TypeExtensions
     }
 
     /// <summary>
-    ///     Determines whether the specified type is a numeric type.
+    ///     Determines whether the provided <paramref name="type" /> is a numeric type, optionally including nullable numeric
+    ///     types.
     /// </summary>
-    /// <param name="type">The type to check.</param>
+    /// <param name="type">The <see cref="Type" /> to check if it is a numeric type.</param>
     /// <param name="includeNullableTypes">
-    ///     A flag indicating whether nullable types should be included in the check.
-    ///     If this flag is set to true, nullable numeric types will be considered numeric.
-    ///     If this flag is set to false, nullable numeric types will not be considered numeric.
+    ///     A <c>bool</c> value indicating whether nullable numeric types should be considered
+    ///     as numeric. The default value is <c>true</c>.
     /// </param>
-    /// <returns>True if the type is a numeric type; otherwise, false.</returns>
-    /// <exception cref="ArgumentNullException">
-    ///     If <paramref name="type" /> is <c>null</c>.
-    /// </exception>
+    /// <returns><c>true</c> if the <paramref name="type" /> is a numeric type, <c>false</c> otherwise.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="type" /> is <c>null</c>.</exception>
+    /// <example>
+    ///     <code><![CDATA[
+    /// var isIntNumeric = typeof(int).IsNumeric(); // true
+    /// var isNullableIntNumeric = typeof(int?).IsNumeric(); // true
+    /// var isStringNumeric = typeof(string).IsNumeric(); // false
+    /// ]]></code>
+    /// </example>
     /// <remarks>
-    ///     This method checks if the specified type is a numeric type by using the
-    ///     <see cref="Type.GetTypeCode(Type)" /> method and a switch statement.
-    ///     Numeric types include byte, decimal, double, int16, int32, int64, sbyte, single, uint16, uint32, and uint64.
+    ///     This method checks if the provided <paramref name="type" /> is one of the following numeric types:
+    ///     <see cref="Byte" />, <see cref="Decimal" />, <see cref="Double" />, <see cref="Int16" />, <see cref="Int32" />,
+    ///     <see cref="Int64" />, <see cref="SByte" />, <see cref="Single" />, <see cref="UInt16" />, <see cref="UInt32" />,
+    ///     and <see cref="UInt64" />. If the <paramref name="includeNullableTypes" /> parameter is set to <c>true</c>, the
+    ///     method will also consider the nullable versions of these numeric types as valid numeric types. Otherwise, it will
+    ///     exclude them from the check.
     /// </remarks>
     public static bool IsNumeric(this Type? type, bool includeNullableTypes = true)
     {
@@ -280,20 +311,25 @@ public static class TypeExtensions
     }
 
     /// <summary>
-    ///     Determines whether the specified type is an open generic type.
+    ///     Determines whether the specified <see cref="Type" /> represents an open generic type.
     /// </summary>
-    /// <param name="type">The type to check.</param>
-    /// <returns>True if the type is an open generic type; otherwise, false.</returns>
-    /// <exception cref="ArgumentNullException">
-    ///     If <paramref name="type" /> is <c>null</c>.
-    /// </exception>
+    /// <param name="type">The type to check for being an open generic type.</param>
+    /// <returns><c>true</c> if the specified type is an open generic type; otherwise, <c>false</c>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is <c>null</c>.</exception>
+    /// <example>
+    ///     <code><![CDATA[
+    /// bool isOpenGeneric = typeof(Dictionary<,>).IsOpenGeneric(); // true
+    /// 
+    /// bool isNotOpenGeneric = typeof(Dictionary<string, int>).IsOpenGeneric(); // false
+    /// ]]></code>
+    /// </example>
     /// <remarks>
-    ///     An open generic type is a generic type that is not closed over specific type arguments.
-    ///     For example, the type `List&lt;&gt;` is an open generic type, while the type `List&lt;int&gt;` is a closed generic
-    ///     type.
-    ///     This method checks if the specified type is an open generic type by using the
-    ///     <see cref="Type.GetTypeInfo()" /> method and the
-    ///     <see cref="TypeInfo.IsGenericTypeDefinition" /> property.
+    ///     An open generic type is a generic type definition, such as
+    ///     <c>
+    ///         Dictionary<,></c>
+    ///     , that has not been provided with specific type arguments. This method checks if the provided
+    ///     <paramref name="type" /> represents an open generic type by examining the
+    ///     <see cref="TypeInfo.IsGenericTypeDefinition" /> property of the type's <see cref="TypeInfo" />.
     /// </remarks>
     public static bool IsOpenGeneric(this Type type)
     {
@@ -302,20 +338,29 @@ public static class TypeExtensions
     }
 
     /// <summary>
-    ///     Determines whether the specified type has the specified attribute.
+    ///     Determines whether the specified <see cref="Type" /> has a specified attribute type.
     /// </summary>
-    /// <param name="type">The type to check.</param>
-    /// <param name="attributeType">The attribute type to check for.</param>
-    /// <returns>True if the type has the attribute; otherwise, false.</returns>
+    /// <param name="type">The type to check for the presence of the attribute type.</param>
+    /// <param name="attributeType">The attribute type to look for.</param>
+    /// <returns><c>true</c> if the specified type has the attribute type; otherwise, <c>false</c>.</returns>
     /// <exception cref="ArgumentNullException">
-    ///     If <paramref name="type" /> or <paramref name="attributeType" /> is <c>null</c>.
+    ///     Thrown when <paramref name="type" /> or <paramref name="attributeType" /> is
+    ///     <c>null</c>.
     /// </exception>
+    /// <example>
+    ///     <code><![CDATA[
+    /// [Serializable]
+    /// public class MyClass { }
+    /// 
+    /// bool hasAttribute = typeof(MyClass).HasAttribute(typeof(SerializableAttribute)); // true
+    /// 
+    /// bool noAttribute = typeof(MyClass).HasAttribute(typeof(ObsoleteAttribute)); // false
+    /// ]]></code>
+    /// </example>
     /// <remarks>
-    ///     This method checks if the specified type has the specified attribute by using the
-    ///     <see cref="Type.GetTypeInfo()" /> method and the
-    ///     <see cref="TypeInfo.IsDefined(Type, bool)" /> method.
-    ///     The second parameter of the <see cref="TypeInfo.IsDefined(Type, bool)" /> method is set to true,
-    ///     which indicates that the search should include inherited attributes.
+    ///     The <see cref="HasAttribute" /> method checks if the provided <paramref name="type" /> is decorated with the
+    ///     specified <paramref name="attributeType" />. This is done by calling the
+    ///     <see cref="MemberInfo.IsDefined(Type, bool)" /> method on the type's <see cref="TypeInfo" />.
     /// </remarks>
     public static bool HasAttribute(this Type type, Type attributeType)
     {
@@ -324,29 +369,35 @@ public static class TypeExtensions
     }
 
     /// <summary>
-    ///     Determines whether the specified type has an attribute of type <typeparamref name="T" /> that satisfies the
-    ///     specified predicate.
+    ///     Determines whether the specified <see cref="Type" /> has an attribute of type <typeparamref name="T" /> that
+    ///     satisfies the specified predicate.
     /// </summary>
-    /// <typeparam name="T">The type of attribute to check for.</typeparam>
-    /// <param name="type">The type to check.</param>
-    /// <param name="predicate">The predicate to apply to the attribute.</param>
+    /// <typeparam name="T">The attribute type to look for.</typeparam>
+    /// <param name="type">The type to check for the presence of the attribute.</param>
+    /// <param name="predicate">A function to test each attribute for a condition.</param>
     /// <returns>
-    ///     True if the type has an attribute of type <typeparamref name="T" /> that satisfies the predicate; otherwise,
-    ///     false.
+    ///     <c>true</c> if the specified type has an attribute of type <typeparamref name="T" /> that satisfies the
+    ///     predicate; otherwise, <c>false</c>.
     /// </returns>
     /// <exception cref="ArgumentNullException">
-    ///     If <paramref name="type" /> or <paramref name="predicate" /> is <c>null</c>.
+    ///     Thrown when <paramref name="type" /> or <paramref name="predicate" /> is
+    ///     <c>null</c>.
     /// </exception>
+    /// <example>
+    ///     <code><![CDATA[
+    /// [Obsolete("This class is obsolete.")]
+    /// public class MyClass { }
+    /// 
+    /// bool hasObsoleteAttribute = typeof(MyClass).HasAttribute<ObsoleteAttribute>(attr => attr.Message == "This class is obsolete."); // true
+    /// 
+    /// bool noObsoleteAttribute = typeof(MyClass).HasAttribute<ObsoleteAttribute>(attr => attr.Message == "This class is not supported."); // false
+    /// ]]></code>
+    /// </example>
     /// <remarks>
-    ///     This method checks if the specified type has an attribute of type <typeparamref name="T" /> that satisfies the
-    ///     specified predicate by using the
-    ///     <see cref="Type.GetTypeInfo()" /> method and the
-    ///     <see cref="TypeInfo.GetCustomAttributes{T}(bool)" /> method.
-    ///     The second parameter of the <see cref="TypeInfo.GetCustomAttributes{T}(bool)" /> method is set to true,
-    ///     which indicates that the search should include inherited attributes.
-    ///     The resulting array of attributes is then filtered using the
-    ///     <see cref="Enumerable.Any{TSource}(IEnumerable{TSource}, Func{TSource, bool})" /> method and the specified
-    ///     predicate.
+    ///     The <see cref="HasAttribute{T}" /> method checks if the provided <paramref name="type" /> is decorated with an
+    ///     attribute of type <typeparamref name="T" /> that satisfies the specified <paramref name="predicate" />. This is
+    ///     done by calling the <see cref="TypeInfo.GetCustomAttributes{T}(bool)" /> method
+    ///     method.
     /// </remarks>
     public static bool HasAttribute<T>(this Type type, Func<T, bool> predicate) where T : Attribute
     {

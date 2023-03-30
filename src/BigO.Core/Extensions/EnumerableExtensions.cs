@@ -280,20 +280,31 @@ public static class EnumerableExtensions
     }
 
     /// <summary>
-    ///     Divides the specified list into chunks of the specified size.
+    ///     Splits the input list into smaller chunks of the specified size.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
-    /// <param name="list">The list to divide into chunks.</param>
-    /// <param name="chunkSize">The size of the chunks.</param>
+    /// <param name="list">The list to be split into chunks.</param>
+    /// <param name="chunkSize">The size of each chunk.</param>
     /// <returns>
-    ///     A list of <see cref="IEnumerable" /> objects, where each inner enumerable represents a chunk of the original
-    ///     list.
+    ///     An <see cref="IEnumerable{T}" /> of chunks, where each chunk is an <see cref="IEnumerable{T}" /> of elements
+    ///     from the input list.
     /// </returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="list" /> is <c>null</c>.</exception>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="chunkSize" /> is less than or equal to 0.</exception>
+    /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="list" /> is <c>null</c>.</exception>
+    /// <exception cref="System.ArgumentException">Thrown when <paramref name="chunkSize" /> is less than or equal to 0.</exception>
+    /// <example>
+    ///     <code><![CDATA[
+    /// var inputList = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    /// int chunkSize = 3;
+    /// 
+    /// var chunks = inputList.Chunk(chunkSize);
+    /// 
+    /// // The chunks variable now contains the following chunks: [1, 2, 3], [4, 5, 6], and [7, 8, 9].
+    /// ]]></code>
+    /// </example>
     /// <remarks>
-    ///     This method divides the list into chunks by iterating through the list and taking a specified number of elements at
-    ///     a time. The final chunk may have fewer elements if the list's size is not evenly divisible by the chunk size.
+    ///     This method can be used to divide a large list into smaller chunks of the specified size. The last chunk may
+    ///     contain fewer elements if the input list's size is not evenly divisible by the specified chunk size. Note that the
+    ///     input list remains unchanged and the returned chunks are new <see cref="IEnumerable{T}" /> instances.
     /// </remarks>
     public static IEnumerable<IEnumerable<T>> Chunk<T>(IEnumerable<T> list, int chunkSize)
     {
@@ -307,12 +318,18 @@ public static class EnumerableExtensions
             throw new ArgumentException($"The {chunkSize} has to be greater than 0.");
         }
 
-        var internalList = list.ToList();
-
-        for (var i = 0; i < internalList.Count; i += chunkSize)
+        using var enumerator = list.GetEnumerator();
+        while (enumerator.MoveNext())
         {
-            var chunk = internalList.Skip(i).Take(chunkSize);
-            yield return chunk;
+            yield return GetChunk(enumerator, chunkSize);
         }
+    }
+
+    private static IEnumerable<T> GetChunk<T>(IEnumerator<T> enumerator, int chunkSize)
+    {
+        do
+        {
+            yield return enumerator.Current;
+        } while (--chunkSize > 0 && enumerator.MoveNext());
     }
 }

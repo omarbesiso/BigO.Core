@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿using BigO.Core.Extensions;
+using BigO.Core.Validation;
+using JetBrains.Annotations;
 
 namespace BigO.Core.Types;
 
@@ -6,8 +8,28 @@ namespace BigO.Core.Types;
 ///     Represents a range of times.
 /// </summary>
 [PublicAPI]
-public readonly struct TimeRange : IEquatable<TimeRange>
+public readonly record struct TimeRange
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="TimeRange" /> struct.
+    /// </summary>
+    /// <param name="startTime">The start time of the time range.</param>
+    /// <param name="endTime">The end time of the time range.</param>
+    /// <exception cref="ArgumentException">Thrown if the end time is before the start time.</exception>
+    public TimeRange(TimeOnly startTime, TimeOnly endTime)
+    {
+        Guard.NotNull(startTime, nameof(startTime));
+        Guard.NotNull(endTime, nameof(endTime));
+
+        if (endTime < startTime)
+        {
+            throw new ArgumentException("End time cannot be before start time.");
+        }
+
+        StartTime = startTime;
+        EndTime = endTime;
+    }
+
     /// <summary>
     ///     Gets the start time of the time range.
     /// </summary>
@@ -19,21 +41,9 @@ public readonly struct TimeRange : IEquatable<TimeRange>
     public TimeOnly EndTime { get; }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="TimeRange" /> struct.
+    ///     Gets the duration of the time range.
     /// </summary>
-    /// <param name="startTime">The start time of the time range.</param>
-    /// <param name="endTime">The end time of the time range.</param>
-    /// <exception cref="ArgumentException">Thrown if the end time is before the start time.</exception>
-    public TimeRange(TimeOnly startTime, TimeOnly endTime)
-    {
-        if (endTime < startTime)
-        {
-            throw new ArgumentException("End time cannot be before start time.");
-        }
-
-        StartTime = startTime;
-        EndTime = endTime;
-    }
+    public TimeSpan Duration => EndTime - StartTime;
 
     /// <summary>
     ///     Determines whether the current instance and another specified <see cref="TimeRange" /> object have the same value.
@@ -49,59 +59,12 @@ public readonly struct TimeRange : IEquatable<TimeRange>
     }
 
     /// <summary>
-    ///     Determines whether the specified object is a <see cref="TimeRange" /> and whether it has the same value as the
-    ///     current instance.
-    /// </summary>
-    /// <param name="obj">The object to compare to this instance.</param>
-    /// <returns>
-    ///     <c>true</c> if <paramref name="obj" /> is a <see cref="TimeRange" /> and its value is the same as the value of
-    ///     this instance; otherwise, <c>false</c>.
-    /// </returns>
-    public override bool Equals(object? obj)
-    {
-        if (obj is TimeRange range)
-        {
-            return Equals(range);
-        }
-
-        return false;
-    }
-
-    /// <summary>
     ///     Returns the hash code for this instance.
     /// </summary>
     /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
     public override int GetHashCode()
     {
         return HashCode.Combine(StartTime, EndTime);
-    }
-
-    /// <summary>
-    ///     Determines whether two specified <see cref="TimeRange" /> objects have the same value.
-    /// </summary>
-    /// <param name="left">The first <see cref="TimeRange" /> to compare, or <c>null</c>.</param>
-    /// <param name="right">The second <see cref="TimeRange" /> to compare, or <c>null</c>.</param>
-    /// <returns>
-    ///     <c>true</c> if the value of <paramref name="left" /> is the same as the value of <paramref name="right" />;
-    ///     otherwise, <c>false</c>.
-    /// </returns>
-    public static bool operator ==(TimeRange left, TimeRange right)
-    {
-        return left.Equals(right);
-    }
-
-    /// <summary>
-    ///     Determines whether two specified <see cref="TimeRange" /> objects have different values.
-    /// </summary>
-    /// <param name="left">The first <see cref="TimeRange" /> to compare, or <c>null</c>.</param>
-    /// <param name="right">The second <see cref="TimeRange" /> to compare, or <c>null</c>.</param>
-    /// <returns>
-    ///     <c>true</c> if the value of <paramref name="left" /> is different from the value of <paramref name="right" />;
-    ///     otherwise, <c>false</c>.
-    /// </returns>
-    public static bool operator !=(TimeRange left, TimeRange right)
-    {
-        return !left.Equals(right);
     }
 
     /// <summary>
@@ -113,7 +76,7 @@ public readonly struct TimeRange : IEquatable<TimeRange>
     /// </returns>
     public bool Contains(TimeOnly time)
     {
-        return time.IsBetween(StartTime, EndTime);
+        return time.IsBetween(StartTime, EndTime, true);
     }
 
     /// <summary>
@@ -159,14 +122,147 @@ public readonly struct TimeRange : IEquatable<TimeRange>
     }
 
     /// <summary>
+    ///     Merges the current <see cref="TimeRange" /> instance with another <see cref="TimeRange" /> instance to create a new
+    ///     <see cref="TimeRange" /> that encompasses both. It's a union with the mandatory check of overlapping.
+    /// </summary>
+    /// <param name="other">The other <see cref="TimeRange" /> instance to merge with.</param>
+    /// <returns>
+    ///     A new <see cref="TimeRange" /> instance that encompasses both the current <see cref="TimeRange" /> instance
+    ///     and the other <see cref="TimeRange" /> instance.
+    /// </returns>
+    /// <remarks>
+    ///     The resulting <see cref="TimeRange" /> instance will have a start time equal to the later of the two start times,
+    ///     and an end time equal to the earlier of the two end times.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">Thrown when the two time ranges do not overlap.</exception>
+    public TimeRange Merge(TimeRange other)
+    {
+        if (!Overlaps(other))
+        {
+            throw new InvalidOperationException("Cannot merge two time-ranges that do not overlap.");
+        }
+
+        var startTime = StartTime < other.StartTime ? StartTime : other.StartTime;
+        var endTime = EndTime > other.EndTime ? EndTime : other.EndTime;
+        return new TimeRange(startTime, endTime);
+    }
+
+    /// <summary>
     ///     Returns a new <see cref="TimeRange" /> that is the overlap between the current range and the given range.
     /// </summary>
     /// <param name="other">The other time range to intersect with.</param>
     /// <returns>A new <see cref="TimeRange" /> that is the overlap between the current range and the given range.</returns>
-    public TimeRange Intersect(TimeRange other)
+    public TimeRange? Intersect(TimeRange other)
     {
+        if (!Overlaps(other))
+        {
+            return null;
+        }
+
         var startTime = StartTime > other.StartTime ? StartTime : other.StartTime;
         var endTime = EndTime < other.EndTime ? EndTime : other.EndTime;
         return new TimeRange(startTime, endTime);
+    }
+
+    /// <summary>
+    ///     Determines whether the current <see cref="TimeRange" /> instance overlaps with another <see cref="TimeRange" />
+    ///     instance.
+    /// </summary>
+    /// <param name="other">The other <see cref="TimeRange" /> instance to compare to.</param>
+    /// <returns>
+    ///     <c>true</c> if the current <see cref="TimeRange" /> instance overlaps with the other <see cref="TimeRange" />
+    ///     instance; otherwise, <c>false</c>.
+    /// </returns>
+    public bool Overlaps(TimeRange other)
+    {
+        return StartTime <= other.EndTime && EndTime >= other.StartTime;
+    }
+
+    /// <summary>
+    ///     Determines whether the current <see cref="TimeRange" /> instance contains another <see cref="TimeRange" />
+    ///     instance.
+    /// </summary>
+    /// <param name="other">The other <see cref="TimeRange" /> instance to check for containment.</param>
+    /// <returns>
+    ///     <c>true</c> if the current <see cref="TimeRange" /> instance fully contains the other <see cref="TimeRange" />
+    ///     instance; otherwise, <c>false</c>.
+    /// </returns>
+    public bool Contains(TimeRange other)
+    {
+        return StartTime <= other.StartTime && EndTime >= other.EndTime;
+    }
+
+    /// <summary>
+    ///     Removes the specified <see cref="TimeRange" /> from the current instance and returns a
+    ///     <see cref="TimeRangeDiffResult" /> representing the remaining time.
+    /// </summary>
+    /// <param name="other">The time range to remove from the current instance.</param>
+    /// <exception cref="NotSupportedException">Thrown when a non-supported scenario was encountered.</exception>
+    /// <returns>
+    ///     A <see cref="TimeRangeDiffResult" /> containing the remaining time ranges after removing the specified time range,
+    ///     or <c>null</c> if the other time range does not overlap or completely contains the current instance.
+    /// </returns>
+    /// <remarks>
+    ///     This method can handle various scenarios:
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <description>
+    ///                 If the other time range does not overlap with the current instance, the method returns
+    ///                 <c>null</c>.
+    ///             </description>
+    ///         </item>
+    ///         <item>
+    ///             <description>
+    ///                 If the other time range completely contains the current instance, the method returns
+    ///                 <c>null</c>.
+    ///             </description>
+    ///         </item>
+    ///         <item>
+    ///             <description>
+    ///                 If the current instance contains the other time range, the method returns two remaining time
+    ///                 ranges representing the time before and after the other time range.
+    ///             </description>
+    ///         </item>
+    ///         <item>
+    ///             <description>
+    ///                 If the other time range overlaps with the start or end of the current instance, the method
+    ///                 returns the remaining time range after removing the overlapping time.
+    ///             </description>
+    ///         </item>
+    ///     </list>
+    ///     If a non-supported scenario is encountered, a <see cref="NotSupportedException" /> is thrown.
+    /// </remarks>
+    public TimeRangeDiffResult? RemoveTimeRange(TimeRange other)
+    {
+        if (!Overlaps(other) || other.Contains(this))
+        {
+            // The other time range does not over lap or completely contains the current instance.
+            return null;
+        }
+
+        if (Contains(other))
+        {
+            // The other time range is fully contained within this instance, so split it into two time ranges.
+            var beforeRange = new TimeRange(StartTime, other.StartTime);
+            var afterRange = new TimeRange(other.EndTime, EndTime);
+            return new TimeRangeDiffResult(null, beforeRange, afterRange);
+        }
+
+        if (other.StartTime < StartTime)
+        {
+            // The other time range overlaps with the start of this instance, so return the remaining time after the end of the other range.
+            var range = new TimeRange(other.EndTime, EndTime);
+            return new TimeRangeDiffResult(range);
+        }
+
+        if (other.EndTime > EndTime)
+        {
+            // The other time range overlaps with the end of this instance, so return the remaining time before the start of the other range.
+            var range = new TimeRange(StartTime, other.StartTime);
+            return new TimeRangeDiffResult(range);
+        }
+
+        throw new NotSupportedException(
+            $"A non-supported scenario was encountered when removing time range '{other}' from {this}.");
     }
 }

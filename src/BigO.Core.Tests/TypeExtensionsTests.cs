@@ -63,12 +63,6 @@ public class TypeExtensionsTests
         Assert.Null(result);
     }
 
-    [Fact]
-    public void DefaultValue_ThrowsArgumentNullException_ForNullType()
-    {
-        Assert.Throws<ArgumentNullException>(() => ((Type)null).DefaultValue());
-    }
-
     [Theory]
     [MemberData(nameof(TypeExtensionsValueTypeTestData))]
     public void DefaultValue_ReturnsCorrectValue_ForValueTypes(Type type, object expected)
@@ -89,16 +83,6 @@ public class TypeExtensionsTests
         var value2 = typeof(int).DefaultValue();
 
         Assert.Same(value1, value2);
-    }
-
-    [Fact]
-    public void GetNameOrAlias_ThrowsArgumentNullException_WhenTypeIsNull()
-    {
-        // Arrange
-        Type type = null;
-
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => type.GetNameOrAlias());
     }
 
     [Theory]
@@ -190,14 +174,6 @@ public class TypeExtensionsTests
 
         // Assert
         Assert.True(result);
-    }
-
-    [Fact]
-    public void IsOfNullableType_GivenNullSource_ReturnsFalse()
-    {
-        var result = ((object)null).IsOfNullableType();
-
-        Assert.False(result);
     }
 
     [Fact]

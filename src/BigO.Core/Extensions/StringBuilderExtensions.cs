@@ -57,14 +57,33 @@ public static class StringBuilderExtensions
     }
 
     /// <summary>
-    ///     Appends a character to the end of a <see cref="StringBuilder" /> object until its length reaches the specified
-    ///     target length.
+    ///     Appends a character to the StringBuilder until it reaches the specified target length.
     /// </summary>
-    /// <param name="stringBuilder">The <see cref="StringBuilder" /> object to which to append the character.</param>
-    /// <param name="targetLength">The target length to which to append the character.</param>
+    /// <param name="stringBuilder">The StringBuilder instance.</param>
+    /// <param name="targetLength">The desired length of the StringBuilder.</param>
     /// <param name="charToAppend">The character to append.</param>
-    /// <returns>The modified <see cref="StringBuilder" /> object.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="stringBuilder" /> is <c>null</c>.</exception>
+    /// <returns>The modified StringBuilder instance.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="stringBuilder" /> is null.</exception>
+    /// <remarks>
+    ///     If the current length of the <paramref name="stringBuilder" /> is already greater than or equal to
+    ///     <paramref name="targetLength" />,
+    ///     this method will not append anything and return the original <paramref name="stringBuilder" /> instance. Otherwise,
+    ///     it appends <paramref name="charToAppend" />
+    ///     to the <paramref name="stringBuilder" /> until it reaches the desired <paramref name="targetLength" />.
+    /// </remarks>
+    /// <example>
+    ///     The following example demonstrates how to use <see cref="AppendCharToLength" /> to append a specific character to a
+    ///     StringBuilder until it reaches a specified length:
+    ///     <code><![CDATA[
+    /// StringBuilder sb = new StringBuilder("Hello");
+    /// sb.AppendCharToLength(10, 'o');
+    /// Console.WriteLine(sb.ToString()); // Output: "Helloooooo"
+    /// sb.AppendCharToLength(5, '!');
+    /// Console.WriteLine(sb.ToString()); // Output: "Helloooooo"
+    /// sb.AppendCharToLength(7, ' ');
+    /// Console.WriteLine(sb.ToString()); // Output: "Helloooooo   "
+    /// ]]></code>
+    /// </example>
     public static StringBuilder AppendCharToLength(this StringBuilder stringBuilder, int targetLength,
         char charToAppend)
     {
@@ -73,33 +92,45 @@ public static class StringBuilderExtensions
             throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
         }
 
-        var stringBuilderLength = stringBuilder.Length;
-        if (stringBuilderLength >= targetLength)
+        var currentLength = stringBuilder.Length;
+        if (currentLength >= targetLength)
         {
             return stringBuilder;
         }
 
-        while (stringBuilderLength < targetLength)
-        {
-            stringBuilder.Append(charToAppend);
-            stringBuilderLength++;
-        }
-
+        stringBuilder.Append(charToAppend, targetLength - currentLength);
         return stringBuilder;
     }
 
     /// <summary>
-    ///     Reduces the length of the specified StringBuilder to the specified maximum length.
+    ///     Reduces the length of the StringBuilder to the specified maximum length.
     /// </summary>
-    /// <param name="stringBuilder">The StringBuilder to reduce in length.</param>
-    /// <param name="maxLength">The maximum length to reduce the StringBuilder to.</param>
-    /// <returns>The modified StringBuilder.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="stringBuilder" /> is <c>null</c>.</exception>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="maxLength" /> is less than 0.</exception>
+    /// <param name="stringBuilder">The StringBuilder instance.</param>
+    /// <param name="maxLength">The maximum length of the StringBuilder.</param>
+    /// <returns>The modified StringBuilder instance.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="stringBuilder" /> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the <paramref name="maxLength" /> is less than zero.</exception>
     /// <remarks>
-    ///     If <paramref name="maxLength" /> is 0, this method clears the StringBuilder. If <paramref name="maxLength" /> is
-    ///     greater than 0, this method sets the length of the StringBuilder to the specified maximum length.
+    ///     This method reduces the length of the <paramref name="stringBuilder" /> to the specified
+    ///     <paramref name="maxLength" />.
+    ///     If <paramref name="maxLength" /> is less than or equal to zero, this method clears the
+    ///     <paramref name="stringBuilder" />. If <paramref name="maxLength" /> is greater than the current length of the
+    ///     <paramref name="stringBuilder" />,
+    ///     this method does not modify the <paramref name="stringBuilder" />.
     /// </remarks>
+    /// <example>
+    ///     The following example demonstrates how to use <see cref="ReduceToLength" /> to reduce the length of a StringBuilder
+    ///     to a specified maximum length:
+    ///     <code><![CDATA[
+    /// StringBuilder sb = new StringBuilder("Hello World!");
+    /// sb.ReduceToLength(5);
+    /// Console.WriteLine(sb.ToString()); // Output: "Hello"
+    /// sb.ReduceToLength(0);
+    /// Console.WriteLine(sb.ToString()); // Output: ""
+    /// sb.ReduceToLength(10);
+    /// Console.WriteLine(sb.ToString()); // Output: ""
+    /// ]]></code>
+    /// </example>
     public static StringBuilder ReduceToLength(this StringBuilder stringBuilder, int maxLength)
     {
         if (stringBuilder == null)
@@ -107,30 +138,44 @@ public static class StringBuilderExtensions
             throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
         }
 
-        switch (maxLength)
+        if (maxLength < 0)
         {
-            case < 0:
-                throw new ArgumentException("The maxlength cannot be less then 0.", nameof(maxLength));
-            case 0:
-                stringBuilder.Clear();
-                return stringBuilder;
-            default:
-                stringBuilder.Length = maxLength;
-                return stringBuilder;
+            throw new ArgumentException("The maxlength cannot be less then 0.", nameof(maxLength));
         }
+
+        if (maxLength == 0)
+        {
+            stringBuilder.Clear();
+        }
+        else
+        {
+            stringBuilder.Length = maxLength;
+        }
+
+        return stringBuilder;
     }
 
     /// <summary>
-    ///     Reverses the characters in the specified <see cref="StringBuilder" />.
+    ///     Reverses the characters in the StringBuilder.
     /// </summary>
-    /// <param name="stringBuilder">The <see cref="StringBuilder" /> to reverse.</param>
-    /// <returns>The modified <see cref="StringBuilder" />.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="stringBuilder" /> is <c>null</c>.</exception>
+    /// <param name="stringBuilder">The StringBuilder instance.</param>
+    /// <returns>The modified StringBuilder instance.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="stringBuilder" /> is null.</exception>
     /// <remarks>
-    ///     This method converts the <see cref="StringBuilder" /> to a string, reverses the characters in the string using the
-    ///     <see cref="Array.Reverse(Array)" /> method, and then clears the <see cref="StringBuilder" /> and appends the
-    ///     reversed characters to it.
+    ///     This method reverses the order of characters in the <paramref name="stringBuilder" />.
+    ///     If the <paramref name="stringBuilder" /> is empty, this method returns the original
+    ///     <paramref name="stringBuilder" /> instance.
     /// </remarks>
+    /// <example>
+    ///     The following example demonstrates how to use <see cref="Reverse" /> to reverse the characters in a StringBuilder:
+    ///     <code><![CDATA[
+    /// StringBuilder sb = new StringBuilder("Hello World!");
+    /// sb.Reverse();
+    /// Console.WriteLine(sb.ToString()); // Output: "!dlroW olleH"
+    /// sb.Reverse();
+    /// Console.WriteLine(sb.ToString()); // Output: "Hello World!"
+    /// ]]></code>
+    /// </example>
     public static StringBuilder Reverse(this StringBuilder stringBuilder)
     {
         if (stringBuilder == null)
@@ -138,45 +183,51 @@ public static class StringBuilderExtensions
             throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
         }
 
-        if (stringBuilder.Length == 0)
+        var length = stringBuilder.Length;
+        if (length == 0)
         {
             return stringBuilder;
         }
 
-        var originalString = stringBuilder.ToString();
-
-        stringBuilder.Clear();
-
-        var chars = originalString.ToCharArray();
-        Array.Reverse(chars);
-
-        foreach (var c in chars)
+        for (int i = 0, j = length - 1; i < j; i++, j--)
         {
-            stringBuilder.Append(c);
+            (stringBuilder[i], stringBuilder[j]) = (stringBuilder[j], stringBuilder[i]);
         }
 
         return stringBuilder;
     }
 
     /// <summary>
-    ///     Ensures that the specified <see cref="StringBuilder" /> starts with the specified prefix.
+    ///     Ensures that the <see cref="StringBuilder" /> instance starts with the specified prefix string using the specified
+    ///     comparison rules.
     /// </summary>
-    /// <param name="stringBuilder">The <see cref="StringBuilder" /> to modify.</param>
-    /// <param name="prefix">The prefix to ensure the <see cref="StringBuilder" /> starts with.</param>
+    /// <param name="stringBuilder">The <see cref="StringBuilder" /> instance to be modified.</param>
+    /// <param name="prefix">The prefix string to ensure the <paramref name="stringBuilder" /> instance starts with.</param>
     /// <param name="stringComparison">
-    ///     The <see cref="StringComparison" /> to use when comparing the prefix and the
-    ///     <see cref="StringBuilder" />. Default is <see cref="StringComparison.InvariantCulture" />.
+    ///     One of the enumeration values that determines the rules for comparing the prefix string
+    ///     and the <paramref name="stringBuilder" /> instance. The default value is
+    ///     <see cref="StringComparison.InvariantCulture" />.
     /// </param>
-    /// <returns>The modified <see cref="StringBuilder" />.</returns>
+    /// <returns>The <see cref="StringBuilder" /> instance with the ensured prefix string.</returns>
     /// <exception cref="ArgumentNullException">
-    ///     Thrown if <paramref name="stringBuilder" /> or <paramref name="prefix" /> is
-    ///     <c>null</c> or whitespace.
+    ///     Thrown when either <paramref name="stringBuilder" /> or
+    ///     <paramref name="prefix" /> is null or empty.
     /// </exception>
     /// <remarks>
-    ///     If the <see cref="StringBuilder" /> is empty or already starts with the prefix (according to the specified
-    ///     <paramref name="stringComparison" />), this method returns the <see cref="StringBuilder" /> as is. Otherwise, it
-    ///     inserts the prefix at the beginning of the <see cref="StringBuilder" />.
+    ///     This method checks if the <paramref name="stringBuilder" /> instance already starts with the specified prefix
+    ///     string. If it doesn't, the prefix string will be inserted at the beginning of the <paramref name="stringBuilder" />
+    ///     instance. The comparison between the prefix string and the <paramref name="stringBuilder" /> instance is performed
+    ///     using the specified comparison rules, which are set to <see cref="StringComparison.InvariantCulture" /> by default.
     /// </remarks>
+    /// <example>
+    ///     The following example demonstrates how to use the <see cref="EnsureStartsWith" /> method to ensure that a
+    ///     <see cref="StringBuilder" /> instance starts with a specified prefix string:
+    ///     <code><![CDATA[
+    /// StringBuilder sb = new StringBuilder("fox jumps over the lazy dog");
+    /// sb.EnsureStartsWith("the ");
+    /// Console.WriteLine(sb.ToString()); // Output: "the fox jumps over the lazy dog"
+    /// ]]></code>
+    /// </example>
     public static StringBuilder EnsureStartsWith(this StringBuilder stringBuilder, string prefix,
         StringComparison stringComparison = StringComparison.InvariantCulture)
     {
@@ -190,34 +241,47 @@ public static class StringBuilderExtensions
             throw new ArgumentNullException(nameof(prefix), "The prefix cannot be null or whitespace.");
         }
 
-        if (stringBuilder.Length == 0 || stringBuilder.ToString().StartsWith(prefix, stringComparison))
+        var prefixLength = prefix.Length;
+        if (stringBuilder.Length < prefixLength ||
+            !stringBuilder.ToString(0, prefixLength).Equals(prefix, stringComparison))
         {
-            return stringBuilder;
+            stringBuilder.Insert(0, prefix);
         }
 
-        stringBuilder.Insert(0, prefix);
         return stringBuilder;
     }
 
     /// <summary>
-    ///     Ensures that the specified <see cref="StringBuilder" /> ends with the specified suffix.
+    ///     Ensures that the <see cref="StringBuilder" /> instance ends with the specified suffix string using the specified
+    ///     comparison rules.
     /// </summary>
-    /// <param name="stringBuilder">The <see cref="StringBuilder" /> to modify.</param>
-    /// <param name="suffix">The suffix to ensure the <see cref="StringBuilder" /> ends with.</param>
+    /// <param name="stringBuilder">The <see cref="StringBuilder" /> instance to be modified.</param>
+    /// <param name="suffix">The suffix string to ensure the <paramref name="stringBuilder" /> instance ends with.</param>
     /// <param name="stringComparison">
-    ///     The <see cref="StringComparison" /> to use when comparing the suffix and the
-    ///     <see cref="StringBuilder" />. Default is <see cref="StringComparison.InvariantCulture" />.
+    ///     One of the enumeration values that determines the rules for comparing the suffix string
+    ///     and the <paramref name="stringBuilder" /> instance. The default value is
+    ///     <see cref="StringComparison.InvariantCulture" />.
     /// </param>
-    /// <returns>The modified <see cref="StringBuilder" />.</returns>
+    /// <returns>The <see cref="StringBuilder" /> instance with the ensured suffix string.</returns>
     /// <exception cref="ArgumentNullException">
-    ///     Thrown if <paramref name="stringBuilder" /> or <paramref name="suffix" /> is
-    ///     <c>null</c> or whitespace.
+    ///     Thrown when either <paramref name="stringBuilder" /> or
+    ///     <paramref name="suffix" /> is null or empty.
     /// </exception>
     /// <remarks>
-    ///     If the <see cref="StringBuilder" /> already ends with the suffix (according to the specified
-    ///     <paramref name="stringComparison" />), this method returns the <see cref="StringBuilder" /> as is. Otherwise, it
-    ///     appends the suffix to the end of the <see cref="StringBuilder" />.
+    ///     This method checks if the <paramref name="stringBuilder" /> instance already ends with the specified suffix string.
+    ///     If it doesn't, the suffix string will be appended to the end of the <paramref name="stringBuilder" /> instance. The
+    ///     comparison between the suffix string and the <paramref name="stringBuilder" /> instance is performed using the
+    ///     specified comparison rules, which are set to <see cref="StringComparison.InvariantCulture" /> by default.
     /// </remarks>
+    /// <example>
+    ///     The following example demonstrates how to use the <see cref="EnsureEndsWith" /> method to ensure that a
+    ///     <see cref="StringBuilder" /> instance ends with a specified suffix string:
+    ///     <code><![CDATA[
+    /// StringBuilder sb = new StringBuilder("the quick brown fox jumps over the lazy ");
+    /// sb.EnsureEndsWith("dog");
+    /// Console.WriteLine(sb.ToString()); // Output: "the quick brown fox jumps over the lazy dog"
+    /// ]]></code>
+    /// </example>
     public static StringBuilder EnsureEndsWith(this StringBuilder stringBuilder, string suffix,
         StringComparison stringComparison = StringComparison.InvariantCulture)
     {
@@ -232,7 +296,11 @@ public static class StringBuilderExtensions
                 $"The {nameof(stringBuilder)} cannot be null or whitespace.");
         }
 
-        if (stringBuilder.ToString().EndsWith(suffix, stringComparison))
+        var suffixLength = suffix.Length;
+        var startIndex = stringBuilder.Length - suffixLength;
+
+        if (startIndex >= 0 &&
+            stringBuilder.ToString(startIndex, suffixLength).Equals(suffix, stringComparison))
         {
             return stringBuilder;
         }
@@ -242,18 +310,38 @@ public static class StringBuilderExtensions
     }
 
     /// <summary>
-    ///     Appends multiple items to the specified <see cref="StringBuilder" />.
+    ///     Appends multiple strings to the <see cref="StringBuilder" /> instance, optionally inserting a new line between each
+    ///     string.
     /// </summary>
-    /// <param name="stringBuilder">The <see cref="StringBuilder" /> to modify.</param>
-    /// <param name="withNewLine">Indicates whether to append each item with a new line. Default is <c>false</c>.</param>
-    /// <param name="items">The items to append to the <see cref="StringBuilder" />.</param>
-    /// <returns>The modified <see cref="StringBuilder" />.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="stringBuilder" /> is <c>null</c>.</exception>
+    /// <param name="stringBuilder">The <see cref="StringBuilder" /> instance to append the strings to.</param>
+    /// <param name="withNewLine">Whether to insert a new line between each string. The default value is <c>false</c>.</param>
+    /// <param name="items">The strings to append to the <paramref name="stringBuilder" /> instance.</param>
+    /// <returns>The <see cref="StringBuilder" /> instance with the appended strings.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stringBuilder" /> is null.</exception>
     /// <remarks>
-    ///     If <paramref name="items" /> is <c>null</c> or empty, this method returns the <see cref="StringBuilder" /> as is.
-    ///     Otherwise, it appends each item in <paramref name="items" /> to the <see cref="StringBuilder" />, with an optional
-    ///     new line between each item depending on the value of <paramref name="withNewLine" />.
+    ///     This method appends the specified strings to the <paramref name="stringBuilder" /> instance, optionally inserting a
+    ///     new line between each string. If <paramref name="items" /> is null or empty, the <paramref name="stringBuilder" />
+    ///     instance remains unchanged. Empty or null strings in <paramref name="items" /> are skipped.
     /// </remarks>
+    /// <example>
+    ///     The following example demonstrates how to use the <see cref="AppendMultiple" /> method to append multiple strings
+    ///     to a <see cref="StringBuilder" /> instance:
+    ///     <code><![CDATA[
+    /// StringBuilder sb = new StringBuilder();
+    /// sb.AppendMultiple(true, "The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog");
+    /// Console.WriteLine(sb.ToString());
+    /// // Output:
+    /// // The
+    /// // quick
+    /// // brown
+    /// // fox
+    /// // jumps
+    /// // over
+    /// // the
+    /// // lazy
+    /// // dog
+    /// ]]></code>
+    /// </example>
     public static StringBuilder AppendMultiple(this StringBuilder stringBuilder, bool withNewLine = false,
         params string[]? items)
     {
@@ -262,20 +350,32 @@ public static class StringBuilderExtensions
             throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
         }
 
-        if (items == null || !items.Any())
+        if (items == null || items.Length == 0)
         {
             return stringBuilder;
         }
 
-        foreach (var item in items.Where(item => !string.IsNullOrEmpty(item)))
+        if (withNewLine)
         {
-            if (withNewLine)
+            foreach (var item in items)
             {
-                stringBuilder.AppendLine(item);
-            }
-            else
-            {
+                if (string.IsNullOrEmpty(item))
+                {
+                    continue;
+                }
+
                 stringBuilder.Append(item);
+                stringBuilder.Append(Environment.NewLine);
+            }
+        }
+        else
+        {
+            foreach (var item in items)
+            {
+                if (!string.IsNullOrEmpty(item))
+                {
+                    stringBuilder.Append(item);
+                }
             }
         }
 
@@ -283,16 +383,25 @@ public static class StringBuilderExtensions
     }
 
     /// <summary>
-    ///     Removes all occurrences of a specified character from the specified <see cref="StringBuilder" />.
+    ///     Removes all occurrences of the specified character from the <see cref="StringBuilder" /> instance.
     /// </summary>
-    /// <param name="stringBuilder">The <see cref="StringBuilder" /> to modify.</param>
-    /// <param name="characterToBeRemoved">The character to remove from the <see cref="StringBuilder" />.</param>
-    /// <returns>The modified <see cref="StringBuilder" />.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="stringBuilder" /> is <c>null</c>.</exception>
+    /// <param name="stringBuilder">The <see cref="StringBuilder" /> instance to remove the specified character from.</param>
+    /// <param name="characterToBeRemoved">The character to be removed from the <paramref name="stringBuilder" /> instance.</param>
+    /// <returns>The <see cref="StringBuilder" /> instance with the specified character removed.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stringBuilder" /> is null.</exception>
     /// <remarks>
-    ///     This method iterates through each character in the <see cref="StringBuilder" /> and removes any occurrences of
-    ///     <paramref name="characterToBeRemoved" />.
+    ///     This method removes all occurrences of the specified character from the <paramref name="stringBuilder" /> instance.
+    ///     The length of the <paramref name="stringBuilder" /> instance will be updated accordingly.
     /// </remarks>
+    /// <example>
+    ///     The following example demonstrates how to use the <see cref="RemoveAllOccurrences" /> method to remove all
+    ///     occurrences of a specified character from a <see cref="StringBuilder" /> instance:
+    ///     <code><![CDATA[
+    /// StringBuilder sb = new StringBuilder("The quick brown fox jumps over the lazy dog");
+    /// sb.RemoveAllOccurrences('o');
+    /// Console.WriteLine(sb.ToString()); // Output: "The quick brwn fx jumps ver the lazy dg"
+    /// ]]></code>
+    /// </example>
     public static StringBuilder RemoveAllOccurrences(this StringBuilder stringBuilder, char characterToBeRemoved)
     {
         if (stringBuilder == null)
@@ -300,31 +409,43 @@ public static class StringBuilderExtensions
             throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
         }
 
-        for (var i = 0; i < stringBuilder.Length;)
+        var length = stringBuilder.Length;
+        var newIndex = 0;
+
+        for (var i = 0; i < length; i++)
         {
-            if (stringBuilder[i] == characterToBeRemoved)
+            if (stringBuilder[i] != characterToBeRemoved)
             {
-                stringBuilder.Remove(i, 1);
-            }
-            else
-            {
-                i++;
+                stringBuilder[newIndex++] = stringBuilder[i];
             }
         }
 
+        stringBuilder.Length = newIndex;
         return stringBuilder;
     }
 
     /// <summary>
-    ///     Trims leading and trailing whitespace from the specified <see cref="StringBuilder" />.
+    ///     Removes all leading and trailing white-space characters from the <see cref="StringBuilder" /> instance.
     /// </summary>
-    /// <param name="stringBuilder">The <see cref="StringBuilder" /> to modify.</param>
-    /// <returns>The modified <see cref="StringBuilder" />.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="stringBuilder" /> is <c>null</c>.</exception>
+    /// <param name="stringBuilder">
+    ///     The <see cref="StringBuilder" /> instance to remove the leading and trailing white-space
+    ///     characters from.
+    /// </param>
+    /// <returns>The <see cref="StringBuilder" /> instance with the leading and trailing white-space characters removed.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stringBuilder" /> is null.</exception>
     /// <remarks>
-    ///     This method removes any leading and trailing whitespace from the <see cref="StringBuilder" /> by iterating through
-    ///     each character and checking if it is a whitespace character.
+    ///     This method removes all leading and trailing white-space characters from the <paramref name="stringBuilder" />
+    ///     instance. The length of the <paramref name="stringBuilder" /> instance will be updated accordingly.
     /// </remarks>
+    /// <example>
+    ///     The following example demonstrates how to use the <see cref="Trim" /> method to remove all leading and trailing
+    ///     white-space characters from a <see cref="StringBuilder" /> instance:
+    ///     <code><![CDATA[
+    /// StringBuilder sb = new StringBuilder("    The quick brown fox jumps over the lazy dog    ");
+    /// sb.Trim();
+    /// Console.WriteLine(sb.ToString()); // Output: "The quick brown fox jumps over the lazy dog"
+    /// ]]></code>
+    /// </example>
     public static StringBuilder Trim(this StringBuilder stringBuilder)
     {
         if (stringBuilder == null)
@@ -332,51 +453,53 @@ public static class StringBuilderExtensions
             throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
         }
 
-        if (stringBuilder.Length == 0)
+        var startIndex = 0;
+        var endIndex = stringBuilder.Length - 1;
+
+        while (startIndex <= endIndex && char.IsWhiteSpace(stringBuilder[startIndex]))
         {
-            return stringBuilder;
+            startIndex++;
         }
 
-        var length = 0;
-        var num2 = stringBuilder.Length;
-        while (char.IsWhiteSpace(stringBuilder[length]) && length < num2)
+        while (endIndex >= startIndex && char.IsWhiteSpace(stringBuilder[endIndex]))
         {
-            length++;
+            endIndex--;
         }
 
-        if (length > 0)
+        if (startIndex > 0 || endIndex < stringBuilder.Length - 1)
         {
-            stringBuilder.Remove(0, length);
-            num2 = stringBuilder.Length;
-        }
-
-        length = num2 - 1;
-        while (char.IsWhiteSpace(stringBuilder[length]) && length > -1)
-        {
-            length--;
-        }
-
-        if (length < num2 - 1)
-        {
-            stringBuilder.Remove(length + 1, num2 - length - 1);
+            stringBuilder.Remove(endIndex + 1, stringBuilder.Length - endIndex - 1);
+            stringBuilder.Remove(0, startIndex);
         }
 
         return stringBuilder;
     }
 
     /// <summary>
-    ///     Appends the string returned by processing a composite format string, which contains one or more placeholders that
-    ///     are replaced by the string representation of a corresponding argument, to this instance.
-    ///     A line terminator is also appended after the last format item.
+    ///     Appends a formatted string, followed by a line terminator, to the end of the <see cref="StringBuilder" /> instance.
     /// </summary>
-    /// <param name="stringBuilder">The <see cref="StringBuilder" /> instance to which this method appends the format string.</param>
+    /// <param name="stringBuilder">The <see cref="StringBuilder" /> instance to append the formatted string to.</param>
     /// <param name="format">A composite format string.</param>
     /// <param name="items">An object array that contains zero or more objects to format.</param>
     /// <exception cref="ArgumentNullException">
-    ///     <paramref name="stringBuilder" /> cannot be <c>null</c>.
-    ///     <para>-or-</para>
-    ///     <paramref name="format" /> cannot be <c>null</c> or whitespace.
+    ///     Thrown when <paramref name="stringBuilder" /> or <paramref name="format" /> is
+    ///     null or white-space.
     /// </exception>
+    /// <remarks>
+    ///     This method appends a formatted string, followed by a line terminator, to the end of the
+    ///     <paramref name="stringBuilder" /> instance using the specified <paramref name="format" /> and
+    ///     <paramref name="items" />. If <paramref name="items" /> is null or empty, the <paramref name="format" /> string is
+    ///     appended as is. The line terminator used is the newline character ("\n") for all platforms.
+    /// </remarks>
+    /// <example>
+    ///     The following example demonstrates how to use the <see cref="AppendFormatLine" /> method to append a formatted
+    ///     string, followed by a line terminator, to a <see cref="StringBuilder" /> instance:
+    ///     <code><![CDATA[
+    /// StringBuilder sb = new StringBuilder();
+    /// sb.AppendFormatLine("The value of pi is approximately {0:F2}", Math.PI);
+    /// Console.WriteLine(sb.ToString()); // Output: "The value of pi is approximately 3.14\n"
+    /// ]]></code>
+    /// </example>
     public static void AppendFormatLine(this StringBuilder stringBuilder, string format, params object[] items)
     {
         if (stringBuilder == null)
@@ -394,19 +517,28 @@ public static class StringBuilderExtensions
     }
 
     /// <summary>
-    ///     Appends the specified number of new line characters to the end of the <see cref="StringBuilder" /> instance.
+    ///     Appends the specified number of newlines to the end of the <see cref="StringBuilder" /> instance.
     /// </summary>
-    /// <param name="stringBuilder">The <see cref="StringBuilder" /> instance.</param>
-    /// <param name="numberOfLines">
-    ///     The number of new line characters to append to the end of the <see cref="StringBuilder" />
-    ///     instance.
-    /// </param>
-    /// <exception cref="ArgumentNullException">
-    ///     <paramref name="stringBuilder" /> is <c>null</c>.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///     <paramref name="numberOfLines" /> is less than 1.
-    /// </exception>
+    /// <param name="stringBuilder">The <see cref="StringBuilder" /> instance to append the newlines to.</param>
+    /// <param name="numberOfLines">The number of newlines to append to the end of the <see cref="StringBuilder" /> instance.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stringBuilder" /> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="numberOfLines" /> is less than 1.</exception>
+    /// <remarks>
+    ///     This method appends the specified number of newlines to the end of the <paramref name="stringBuilder" /> instance.
+    ///     The number of newlines is specified by the <paramref name="numberOfLines" /> parameter. The newline character used
+    ///     is the newline character ("\n") for all platforms.
+    /// </remarks>
+    /// <example>
+    ///     The following example demonstrates how to use the <see cref="AppendMultipleLines" /> method to append the specified
+    ///     number of newlines to a <see cref="StringBuilder" /> instance:
+    ///     <code><![CDATA[
+    /// StringBuilder sb = new StringBuilder();
+    /// sb.Append("Hello");
+    /// sb.AppendMultipleLines(2);
+    /// sb.Append("World");
+    /// Console.WriteLine(sb.ToString()); // Output: "Hello\n\nWorld"
+    /// ]]></code>
+    /// </example>
     public static void AppendMultipleLines(this StringBuilder stringBuilder, int numberOfLines)
     {
         if (stringBuilder == null)

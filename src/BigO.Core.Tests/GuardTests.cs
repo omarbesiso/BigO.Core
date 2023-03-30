@@ -137,7 +137,6 @@ public class GuardTest
     [InlineData("test", 2, 5)]
     [InlineData("test", 3, 5)]
     [InlineData("test", 4, 5)]
-    [InlineData("test", 4, 5)]
     public void StrengthLength_ValidInput_ReturnsInput(string value, int minLength, int maxLength)
     {
         // Act
