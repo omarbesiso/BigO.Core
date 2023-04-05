@@ -120,7 +120,7 @@ public class TypeExtensionsTests
     public void GetNameOrAlias_ReturnsTypeAlias_ForAliasedTypes(Type type, string expectedResult)
     {
         // Act
-        var result = type.GetNameOrAlias();
+        var result = type.GetTypeAsString();
 
         // Assert
         Assert.Equal(expectedResult, result);
@@ -134,7 +134,7 @@ public class TypeExtensionsTests
 
         // Act
 
-        var result = type.GetNameOrAlias();
+        var result = type.GetTypeAsString();
 
         // Assert
         Assert.Equal(type.Name, result);

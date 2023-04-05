@@ -10,7 +10,7 @@ public class DateTimeExtensionsTests
     [Theory]
     [InlineData(1990, 1, 1, 2020, 1, 1, 30)]
     [InlineData(1990, 1, 1, 2020, 6, 30, 30)]
-    [InlineData(1990, 1, 1, 2020, 12, 31, 30)]
+    [InlineData(1990, 1, 1, 2020, 12, 31, 30)] 
     [InlineData(1990, 1, 1, 2021, 1, 1, 31)]
     [InlineData(1990, 1, 1, 2021, 1, 2, 31)]
     public void Age_CorrectAgeInYears(int birthYear, int birthMonth, int birthDay, int maturityYear, int maturityMonth,

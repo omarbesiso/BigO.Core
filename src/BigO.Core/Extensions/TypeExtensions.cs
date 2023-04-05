@@ -171,7 +171,7 @@ public static class TypeExtensions
     ///     If the specified type is not in the dictionary, the method returns the value of the <see cref="Type.Name" />
     ///     property.
     /// </remarks>
-    public static string GetNameOrAlias(this Type type)
+    public static string GetTypeAsString(this Type type)
     {
         if (type == null)
         {
