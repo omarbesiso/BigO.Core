@@ -7,7 +7,7 @@ namespace BigO.Core.Types;
 ///     Value object defining a range of <see cref="DateTime" />.
 /// </summary>
 [PublicAPI]
-public struct DateTimeRange : IEquatable<DateTimeRange>
+public record struct DateTimeRange
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="DateTimeRange" /> struct.
@@ -51,18 +51,6 @@ public struct DateTimeRange : IEquatable<DateTimeRange>
     public bool Equals(DateTimeRange other)
     {
         return StartDate.Equals(other.StartDate) && EndDate.Equals(other.EndDate);
-    }
-
-    /// <summary>
-    ///     Determines whether the specified <see cref="System.Object" /> is equal to this instance.
-    /// </summary>
-    /// <param name="obj">The object to compare with the current instance.</param>
-    /// <returns>
-    ///     <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
-    /// </returns>
-    public override bool Equals(object? obj)
-    {
-        return obj is DateTimeRange other && Equals(other);
     }
 
     /// <summary>
@@ -151,33 +139,5 @@ public struct DateTimeRange : IEquatable<DateTimeRange>
 
         dateRange = new DateTimeRange(startDate, endDate);
         return true;
-    }
-
-    /// <summary>
-    ///     Determines whether the two specified <see cref="DateTimeRange" /> instances are equal.
-    /// </summary>
-    /// <param name="left">The first object to compare.</param>
-    /// <param name="right">The second object to compare.</param>
-    /// <returns>
-    ///     <c>true</c> if <paramref name="left" /> and <paramref name="right" /> represent the same date range; otherwise,
-    ///     <c>false</c>.
-    /// </returns>
-    public static bool operator ==(DateTimeRange left, DateTimeRange right)
-    {
-        return left.Equals(right);
-    }
-
-    /// <summary>
-    ///     Determines whether the two specified <see cref="DateTimeRange" /> instances are not equal.
-    /// </summary>
-    /// <param name="left">The first object to compare.</param>
-    /// <param name="right">The second object to compare.</param>
-    /// <returns>
-    ///     <c>true</c> if <paramref name="left" /> and <paramref name="right" /> do not represent the same date range;
-    ///     otherwise, <c>false</c>.
-    /// </returns>
-    public static bool operator !=(DateTimeRange left, DateTimeRange right)
-    {
-        return !left.Equals(right);
     }
 }

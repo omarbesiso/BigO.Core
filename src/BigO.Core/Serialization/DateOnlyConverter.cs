@@ -1,12 +1,14 @@
 ﻿using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
 namespace BigO.Core.Serialization;
 
 /// <summary>
 ///     A custom JSON converter for serializing and deserializing <see cref="DateOnly" /> objects.
 /// </summary>
+[PublicAPI]
 public class DateOnlyConverter : JsonConverter<DateOnly>
 {
     private const string Format = "yyyy-MM-dd";

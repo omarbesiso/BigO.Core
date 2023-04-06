@@ -6,7 +6,7 @@ namespace BigO.Core.Types;
 ///     Represents a range between two <see cref="DateTimeWithTimeZone" /> instances.
 /// </summary>
 [PublicAPI]
-public class DateTimeWithTimeZoneRange : IEquatable<DateTimeWithTimeZoneRange>
+public record struct DateTimeWithTimeZoneRange
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="DateTimeWithTimeZoneRange" /> class.
@@ -33,17 +33,7 @@ public class DateTimeWithTimeZoneRange : IEquatable<DateTimeWithTimeZoneRange>
     ///     Gets the end of the range.
     /// </summary>
     public DateTimeWithTimeZone End { get; }
-
-    /// <summary>
-    ///     Determines whether this range is equal to another range.
-    /// </summary>
-    /// <param name="other">The other range to compare to.</param>
-    /// <returns>True if the ranges are equal, false otherwise.</returns>
-    public bool Equals(DateTimeWithTimeZoneRange? other)
-    {
-        return other != null && Start == other.Start && End == other.End;
-    }
-
+    
     /// <summary>
     ///     Determines whether this instance contains the object.
     /// </summary>
@@ -84,21 +74,6 @@ public class DateTimeWithTimeZoneRange : IEquatable<DateTimeWithTimeZoneRange>
     {
         return new DateTimeWithTimeZoneRange(Start > other.Start ? Start : other.Start,
             End < other.End ? End : other.End);
-    }
-
-    /// <summary>
-    ///     Determines whether this range is equal to another object.
-    /// </summary>
-    /// <param name="obj">The other object to compare to.</param>
-    /// <returns>True if the object is a range equal to this range, false otherwise.</returns>
-    public override bool Equals(object? obj)
-    {
-        if (obj is DateTimeWithTimeZoneRange range)
-        {
-            return Equals(range);
-        }
-
-        return false;
     }
 
     /// <summary>

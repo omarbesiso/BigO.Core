@@ -7,7 +7,7 @@ namespace BigO.Core.Types;
 ///     Represents a DateTime value with a specified Timezone.
 /// </summary>
 [PublicAPI]
-public struct DateTimeWithTimeZone : IComparable<DateTimeWithTimeZone>, IEquatable<DateTimeWithTimeZone>
+public record struct DateTimeWithTimeZone : IComparable<DateTimeWithTimeZone>, IEquatable<DateTimeWithTimeZone>
 {
     private readonly DateTime _dateTime;
     private readonly TimeZoneInfo _timeZone;
@@ -138,21 +138,6 @@ public struct DateTimeWithTimeZone : IComparable<DateTimeWithTimeZone>, IEquatab
     }
 
     /// <summary>
-    ///     Determines whether this <see cref="DateTimeWithTimeZone" /> value is equal to another object.
-    /// </summary>
-    /// <param name="obj">The other object to compare to.</param>
-    /// <returns>True if the values are equal, false otherwise.</returns>
-    public override bool Equals(object? obj)
-    {
-        if (obj is DateTimeWithTimeZone zone)
-        {
-            return Equals(zone);
-        }
-
-        return false;
-    }
-
-    /// <summary>
     ///     Returns the hash code for this <see cref="DateTimeWithTimeZone" /> value.
     /// </summary>
     /// <returns>The hash code.</returns>
@@ -168,28 +153,6 @@ public struct DateTimeWithTimeZone : IComparable<DateTimeWithTimeZone>, IEquatab
     public override string ToString()
     {
         return ToString("yyyy-MM-dd HH:mm:ss");
-    }
-
-    /// <summary>
-    ///     Determines whether two <see cref="DateTimeWithTimeZone" /> values are equal.
-    /// </summary>
-    /// <param name="left">The first value to compare.</param>
-    /// <param name="right">The second value to compare.</param>
-    /// <returns>True if the values are equal, false otherwise.</returns>
-    public static bool operator ==(DateTimeWithTimeZone left, DateTimeWithTimeZone right)
-    {
-        return left.Equals(right);
-    }
-
-    /// <summary>
-    ///     Determines whether two <see cref="DateTimeWithTimeZone" /> values are not equal.
-    /// </summary>
-    /// <param name="left">The first value to compare.</param>
-    /// <param name="right">The second value to compare.</param>
-    /// <returns>True if the values are not equal, false otherwise.</returns>
-    public static bool operator !=(DateTimeWithTimeZone left, DateTimeWithTimeZone right)
-    {
-        return !left.Equals(right);
     }
 
     /// <summary>

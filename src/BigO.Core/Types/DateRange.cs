@@ -6,7 +6,7 @@ namespace BigO.Core.Types;
 ///     Represents a range of dates.
 /// </summary>
 [PublicAPI]
-public readonly struct DateRange : IEquatable<DateRange>
+public readonly record struct DateRange 
 {
     /// <summary>
     ///     Gets the start date of the date range.
@@ -49,59 +49,12 @@ public readonly struct DateRange : IEquatable<DateRange>
     }
 
     /// <summary>
-    ///     Determines whether the specified object is a <see cref="DateRange" /> and whether it has the same value as the
-    ///     current instance.
-    /// </summary>
-    /// <param name="obj">The object to compare to this instance.</param>
-    /// <returns>
-    ///     <c>true</c> if <paramref name="obj" /> is a <see cref="DateRange" /> and its value is the same as the value of this
-    ///     instance; otherwise, <c>false</c>.
-    /// </returns>
-    public override bool Equals(object? obj)
-    {
-        if (obj is DateRange range)
-        {
-            return Equals(range);
-        }
-
-        return false;
-    }
-
-    /// <summary>
     ///     Returns the hash code for this instance.
     /// </summary>
     /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
     public override int GetHashCode()
     {
         return HashCode.Combine(StartDate, EndDate);
-    }
-
-    /// <summary>
-    ///     Determines whether two specified <see cref="DateRange" /> objects have the same value.
-    /// </summary>
-    /// <param name="left">The first <see cref="DateRange" /> to compare, or <c>null</c>.</param>
-    /// <param name="right">The second <see cref="DateRange" /> to compare, or <c>null</c>.</param>
-    /// <returns>
-    ///     <c>true</c> if the value of <paramref name="left" /> is the same as the value of <paramref name="right" />;
-    ///     otherwise, <c>false</c>.
-    /// </returns>
-    public static bool operator ==(DateRange left, DateRange right)
-    {
-        return left.Equals(right);
-    }
-
-    /// <summary>
-    ///     Determines whether two specified <see cref="DateRange" /> objects have different values.
-    /// </summary>
-    /// <param name="left">The first <see cref="DateRange" /> to compare, or <c>null</c>.</param>
-    /// <param name="right">The second <see cref="DateRange" /> to compare, or <c>null</c>.</param>
-    /// <returns>
-    ///     <c>true</c> if the value of <paramref name="left" /> is different from the value of <paramref name="right" />;
-    ///     otherwise, <c>false</c>.
-    /// </returns>
-    public static bool operator !=(DateRange left, DateRange right)
-    {
-        return !left.Equals(right);
     }
 
     /// <summary>

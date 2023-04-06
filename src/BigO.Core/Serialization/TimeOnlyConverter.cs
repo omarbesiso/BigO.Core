@@ -1,12 +1,14 @@
 ﻿using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
 namespace BigO.Core.Serialization;
 
 /// <summary>
 ///     A custom JSON converter for serializing and deserializing <see cref="TimeOnly" /> objects.
 /// </summary>
+[PublicAPI]
 public class TimeOnlyConverter : JsonConverter<TimeOnly>
 {
     private const string TimeFormat = "HH:mm:ss.FFFFFFF";
