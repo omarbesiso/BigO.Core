@@ -92,13 +92,12 @@ public static class StringBuilderExtensions
             throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
         }
 
-        var currentLength = stringBuilder.Length;
-        if (currentLength >= targetLength)
+        var repeatCount = targetLength - stringBuilder.Length;
+        if (repeatCount > 0)
         {
-            return stringBuilder;
+            stringBuilder.Append(charToAppend, repeatCount);
         }
 
-        stringBuilder.Append(charToAppend, targetLength - currentLength);
         return stringBuilder;
     }
 
@@ -242,10 +241,26 @@ public static class StringBuilderExtensions
         }
 
         var prefixLength = prefix.Length;
-        if (stringBuilder.Length < prefixLength ||
-            !stringBuilder.ToString(0, prefixLength).Equals(prefix, stringComparison))
+        if (stringBuilder.Length < prefixLength)
         {
             stringBuilder.Insert(0, prefix);
+        }
+        else
+        {
+            var mismatchFound = false;
+            for (var i = 0; i < prefixLength; i++)
+            {
+                if (!string.Equals(stringBuilder[i].ToString(), prefix[i].ToString(), stringComparison))
+                {
+                    mismatchFound = true;
+                    break;
+                }
+            }
+
+            if (mismatchFound)
+            {
+                stringBuilder.Insert(0, prefix);
+            }
         }
 
         return stringBuilder;
@@ -299,10 +314,22 @@ public static class StringBuilderExtensions
         var suffixLength = suffix.Length;
         var startIndex = stringBuilder.Length - suffixLength;
 
-        if (startIndex >= 0 &&
-            stringBuilder.ToString(startIndex, suffixLength).Equals(suffix, stringComparison))
+        if (startIndex >= 0)
         {
-            return stringBuilder;
+            var matchFound = true;
+            for (var i = 0; i < suffixLength; i++)
+            {
+                if (!string.Equals(stringBuilder[startIndex + i].ToString(), suffix[i].ToString(), stringComparison))
+                {
+                    matchFound = false;
+                    break;
+                }
+            }
+
+            if (matchFound)
+            {
+                return stringBuilder;
+            }
         }
 
         stringBuilder.Append(suffix);

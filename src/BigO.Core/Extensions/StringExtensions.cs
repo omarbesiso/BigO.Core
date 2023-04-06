@@ -194,4 +194,140 @@ public static class StringExtensions
 
         return sb.ToString();
     }
+
+    /// <summary>
+    ///     Converts the specified <see cref="string" /> into a <see cref="StringBuilder" />.
+    /// </summary>
+    /// <param name="value">The <see cref="string" /> to convert.</param>
+    /// <returns>A <see cref="StringBuilder" /> containing the contents of the <paramref name="value" />.</returns>
+    /// <example>
+    ///     <code><![CDATA[
+    /// string originalString = "Hello, world!";
+    /// StringBuilder stringBuilder = originalString.ToStringBuilder();
+    /// stringBuilder.Append(" This is a StringBuilder.");
+    /// Console.WriteLine(stringBuilder); // Output: Hello, world! This is a StringBuilder.
+    /// ]]></code>
+    /// </example>
+    /// <remarks>
+    ///     The <see cref="ToStringBuilder" /> method creates a new <see cref="StringBuilder" /> instance with the contents of
+    ///     the specified <see cref="string" />. If the input <paramref name="value" /> is <c>null</c>, the resulting
+    ///     <see cref="StringBuilder" /> will be empty.
+    /// </remarks>
+    public static StringBuilder ToStringBuilder(this string? value)
+    {
+        return new StringBuilder(value);
+    }
+
+    /// <summary>
+    ///     Appends a specified character to the given <see cref="string" /> until it reaches the specified target length.
+    /// </summary>
+    /// <param name="value">The <see cref="string" /> to which the character will be appended.</param>
+    /// <param name="targetLength">The target length of the resulting <see cref="string" />.</param>
+    /// <param name="charToAppend">The character to append to the <paramref name="value" />.</param>
+    /// <returns>A <see cref="string" /> with the specified character appended to reach the target length.</returns>
+    /// <example>
+    ///     <code><![CDATA[
+    /// string originalString = "Hello";
+    /// string result = originalString.AppendCharToLength(10, '-');
+    /// Console.WriteLine(result); // Output: Hello-----
+    /// ]]></code>
+    /// </example>
+    /// <remarks>
+    ///     The <see cref="AppendCharToLength" /> method appends the specified <paramref name="charToAppend" /> to the
+    ///     <paramref name="value" /> until the resulting <see cref="string" /> reaches the specified
+    ///     <paramref name="targetLength" />. If the <paramref name="value" /> is already longer than or equal to the
+    ///     <paramref name="targetLength" />, the method returns the original <paramref name="value" /> without any changes.
+    /// </remarks>
+    public static string AppendCharToLength(this string? value, int targetLength,
+        char charToAppend)
+    {
+        var stringBuilder = new StringBuilder(value);
+        return stringBuilder.AppendCharToLength(targetLength, charToAppend).ToString();
+    }
+
+    /// <summary>
+    ///     Reduces the length of the given <see cref="string" /> to the specified maximum length using the underlying
+    ///     <see cref="StringBuilder" /> method.
+    /// </summary>
+    /// <param name="value">The <see cref="string" /> to reduce in length.</param>
+    /// <param name="maxLength">The maximum length of the resulting <see cref="string" />.</param>
+    /// <returns>A <see cref="string" /> with a length reduced to the specified maximum length.</returns>
+    /// <exception cref="ArgumentException">Thrown if the <paramref name="maxLength" /> is less than 0.</exception>
+    /// <example>
+    ///     <code><![CDATA[
+    /// string originalString = "Hello, World!";
+    /// string result = originalString.ReduceToLength(5);
+    /// Console.WriteLine(result); // Output: Hello
+    /// ]]></code>
+    /// </example>
+    /// <remarks>
+    ///     The <see cref="ReduceToLength" /> method reduces the length of the <paramref name="value" /> to the specified
+    ///     <paramref name="maxLength" />. If the <paramref name="value" /> is already shorter than or equal to the
+    ///     <paramref name="maxLength" />, the method returns the original <paramref name="value" /> without any changes.
+    /// </remarks>
+    public static string ReduceToLength(this string value, int maxLength)
+    {
+        var stringBuilder = new StringBuilder(value);
+        return stringBuilder.ReduceToLength(maxLength).ToString();
+    }
+
+    /// <summary>
+    ///     Ensures the given <see cref="string" /> starts with the specified prefix.
+    /// </summary>
+    /// <param name="value">The <see cref="string" /> to ensure starts with the prefix.</param>
+    /// <param name="prefix">The prefix to check and add if needed.</param>
+    /// <param name="stringComparison">
+    ///     An optional <see cref="StringComparison" /> enumeration value that determines how the
+    ///     comparison is performed. The default is <see cref="StringComparison.InvariantCulture" />.
+    /// </param>
+    /// <returns>A <see cref="string" /> that starts with the specified prefix.</returns>
+    /// <example>
+    ///     <code><![CDATA[
+    /// string originalString = "World";
+    /// string result = originalString.EnsureStartsWith("Hello, ");
+    /// Console.WriteLine(result); // Output: Hello, World
+    /// ]]></code>
+    /// </example>
+    /// <remarks>
+    ///     The <see cref="EnsureStartsWith" /> method checks if the <paramref name="value" /> starts with the specified
+    ///     <paramref name="prefix" />. If it doesn't, the method adds the <paramref name="prefix" /> to the beginning of the
+    ///     <paramref name="value" />. If the <paramref name="value" /> already starts with the <paramref name="prefix" />, the
+    ///     method returns the original <paramref name="value" /> without any changes.
+    /// </remarks>
+    public static string EnsureStartsWith(this string value, string prefix,
+        StringComparison stringComparison = StringComparison.InvariantCulture)
+    {
+        var stringBuilder = new StringBuilder(value);
+        return stringBuilder.EnsureStartsWith(prefix, stringComparison).ToString();
+    }
+
+    /// <summary>
+    ///     Ensures the given <see cref="string" /> ends with the specified suffix.
+    /// </summary>
+    /// <param name="value">The <see cref="string" /> to ensure ends with the suffix.</param>
+    /// <param name="suffix">The suffix to check and add if needed.</param>
+    /// <param name="stringComparison">
+    ///     An optional <see cref="StringComparison" /> enumeration value that determines how the
+    ///     comparison is performed. The default is <see cref="StringComparison.InvariantCulture" />.
+    /// </param>
+    /// <returns>A <see cref="string" /> that ends with the specified suffix.</returns>
+    /// <example>
+    ///     <code><![CDATA[
+    /// string originalString = "Hello";
+    /// string result = originalString.EnsureEndsWith(", World");
+    /// Console.WriteLine(result); // Output: Hello, World
+    /// ]]></code>
+    /// </example>
+    /// <remarks>
+    ///     The <see cref="EnsureEndsWith" /> method checks if the <paramref name="value" /> ends with the specified
+    ///     <paramref name="suffix" />. If it doesn't, the method appends the <paramref name="suffix" /> to the
+    ///     <paramref name="value" />. If the <paramref name="value" /> already ends with the <paramref name="suffix" />, the
+    ///     method returns the original <paramref name="value" /> without any changes.
+    /// </remarks>
+    public static string EnsureEndsWith(this string value, string suffix,
+        StringComparison stringComparison = StringComparison.InvariantCulture)
+    {
+        var stringBuilder = new StringBuilder(value);
+        return stringBuilder.EnsureEndsWith(suffix, stringComparison).ToString();
+    }
 }
