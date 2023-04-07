@@ -6,18 +6,8 @@ namespace BigO.Core.Types;
 ///     Represents a range of dates.
 /// </summary>
 [PublicAPI]
-public readonly record struct DateRange 
+public readonly record struct DateRange
 {
-    /// <summary>
-    ///     Gets the start date of the date range.
-    /// </summary>
-    public DateOnly StartDate { get; }
-
-    /// <summary>
-    ///     Gets the end date of the date range.
-    /// </summary>
-    public DateOnly EndDate { get; }
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="DateRange" /> struct.
     /// </summary>
@@ -34,6 +24,16 @@ public readonly record struct DateRange
         StartDate = startDate;
         EndDate = endDate;
     }
+
+    /// <summary>
+    ///     Gets the start date of the date range.
+    /// </summary>
+    public DateOnly StartDate { get; }
+
+    /// <summary>
+    ///     Gets the end date of the date range.
+    /// </summary>
+    public DateOnly EndDate { get; }
 
     /// <summary>
     ///     Determines whether the current instance and another specified <see cref="DateRange" /> object have the same value.

@@ -33,7 +33,7 @@ public record struct DateTimeWithTimeZoneRange
     ///     Gets the end of the range.
     /// </summary>
     public DateTimeWithTimeZone End { get; }
-    
+
     /// <summary>
     ///     Determines whether this instance contains the object.
     /// </summary>

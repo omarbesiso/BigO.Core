@@ -11,9 +11,9 @@ public record struct DateTimeWithTimeZone : IComparable<DateTimeWithTimeZone>, I
 {
     private readonly DateTime _dateTime;
     private readonly TimeZoneInfo _timeZone;
+    private DateTime? _localTime;
 
     private DateTime? _universalTime;
-    private DateTime? _localTime;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="DateTimeWithTimeZone" /> struct.
@@ -48,6 +48,29 @@ public record struct DateTimeWithTimeZone : IComparable<DateTimeWithTimeZone>, I
             _localTime ??= TimeZoneInfo.ConvertTime(UniversalTime, TimeZoneInfo.Local, TimeZoneInfo.Local);
             return _localTime.Value;
         }
+    }
+
+    /// <summary>
+    ///     Compares this <see cref="DateTimeWithTimeZone" /> value to another value.
+    /// </summary>
+    /// <param name="other">The other value to compare to.</param>
+    /// <returns>
+    ///     A value less than 0 if this value is earlier than the other value, 0 if the values are equal, or a value
+    ///     greater than 0 if this value is later than the other value.
+    /// </returns>
+    public int CompareTo(DateTimeWithTimeZone other)
+    {
+        return UniversalTime.CompareTo(other.UniversalTime);
+    }
+
+    /// <summary>
+    ///     Determines whether this <see cref="DateTimeWithTimeZone" /> value is equal to another value.
+    /// </summary>
+    /// <param name="other">The other value to compare to.</param>
+    /// <returns>True if the values are equal, false otherwise.</returns>
+    public bool Equals(DateTimeWithTimeZone other)
+    {
+        return UniversalTime == other.UniversalTime;
     }
 
     /// <summary>
@@ -112,29 +135,6 @@ public record struct DateTimeWithTimeZone : IComparable<DateTimeWithTimeZone>, I
     {
         var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(timestamp);
         return new DateTimeWithTimeZone(dateTime, timeZone);
-    }
-
-    /// <summary>
-    ///     Compares this <see cref="DateTimeWithTimeZone" /> value to another value.
-    /// </summary>
-    /// <param name="other">The other value to compare to.</param>
-    /// <returns>
-    ///     A value less than 0 if this value is earlier than the other value, 0 if the values are equal, or a value
-    ///     greater than 0 if this value is later than the other value.
-    /// </returns>
-    public int CompareTo(DateTimeWithTimeZone other)
-    {
-        return UniversalTime.CompareTo(other.UniversalTime);
-    }
-
-    /// <summary>
-    ///     Determines whether this <see cref="DateTimeWithTimeZone" /> value is equal to another value.
-    /// </summary>
-    /// <param name="other">The other value to compare to.</param>
-    /// <returns>True if the values are equal, false otherwise.</returns>
-    public bool Equals(DateTimeWithTimeZone other)
-    {
-        return UniversalTime == other.UniversalTime;
     }
 
     /// <summary>

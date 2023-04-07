@@ -330,4 +330,31 @@ public static class StringExtensions
         var stringBuilder = new StringBuilder(value);
         return stringBuilder.EnsureEndsWith(suffix, stringComparison).ToString();
     }
+
+    /// <summary>
+    ///     Determines whether the specified <see cref="string" /> can be parsed as a valid <see cref="DateTime" />.
+    /// </summary>
+    /// <param name="input">The <see cref="string" /> to check for a valid date representation.</param>
+    /// <returns>
+    ///     <c>true</c> if the <paramref name="input" /> can be parsed as a valid <see cref="DateTime" />; otherwise,
+    ///     <c>false</c>.
+    /// </returns>
+    /// <example>
+    ///     <code><![CDATA[
+    /// string validDate = "2022-01-01";
+    /// string invalidDate = "invalid-date";
+    /// bool validResult = validDate.IsDateTime(); // true
+    /// bool invalidResult = invalidDate.IsDateTime(); // false
+    /// ]]></code>
+    /// </example>
+    /// <remarks>
+    ///     The <see cref="IsDateTime" /> method checks if the provided <paramref name="input" /> is not <c>null</c> or empty
+    ///     and can be successfully parsed as a <see cref="DateTime" /> using the
+    ///     <see cref="DateTime.TryParse(string, out DateTime)" /> method.
+    ///     Note that this method returns <c>false</c> if the input is <c>null</c> or an empty string.
+    /// </remarks>
+    public static bool IsDateTime(this string? input)
+    {
+        return !string.IsNullOrEmpty(input) && DateTime.TryParse(input, out _);
+    }
 }
