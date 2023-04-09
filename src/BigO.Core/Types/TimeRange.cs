@@ -8,7 +8,7 @@ namespace BigO.Core.Types;
 ///     Represents a range of times.
 /// </summary>
 [PublicAPI]
-public readonly record struct TimeRange
+public readonly record struct TimeRange : IComparable<TimeRange>
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="TimeRange" /> struct.
@@ -44,6 +44,21 @@ public readonly record struct TimeRange
     ///     Gets the duration of the time range.
     /// </summary>
     public TimeSpan Duration => EndTime - StartTime;
+
+    /// <summary>
+    ///     Compares the current <see cref="TimeRange" /> instance to another <see cref="TimeRange" /> instance.
+    /// </summary>
+    /// <param name="other">The <see cref="TimeRange" /> instance to compare with the current instance.</param>
+    /// <returns>A value indicating the relative order of the instances being compared.</returns>
+    /// <remarks>
+    ///     The comparison is performed by comparing the start times of the two time ranges. If the start times are equal,
+    ///     the end times are compared.
+    /// </remarks>
+    public int CompareTo(TimeRange other)
+    {
+        var startTimeComparison = StartTime.CompareTo(other.StartTime);
+        return startTimeComparison != 0 ? startTimeComparison : EndTime.CompareTo(other.EndTime);
+    }
 
     /// <summary>
     ///     Determines whether the current instance and another specified <see cref="TimeRange" /> object have the same value.

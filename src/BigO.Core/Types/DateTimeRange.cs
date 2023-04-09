@@ -7,7 +7,7 @@ namespace BigO.Core.Types;
 ///     Value object defining a range of <see cref="DateTime" />.
 /// </summary>
 [PublicAPI]
-public record struct DateTimeRange
+public record struct DateTimeRange : IComparable<DateTimeRange>
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="DateTimeRange" /> struct.
@@ -139,5 +139,20 @@ public record struct DateTimeRange
 
         dateRange = new DateTimeRange(startDate, endDate);
         return true;
+    }
+
+    /// <summary>
+    ///     Compares the current <see cref="DateTimeRange" /> instance to another <see cref="DateTimeRange" /> instance.
+    /// </summary>
+    /// <param name="other">The <see cref="DateTimeRange" /> instance to compare with the current instance.</param>
+    /// <returns>A value indicating the relative order of the instances being compared.</returns>
+    /// <remarks>
+    ///     The comparison is performed by comparing the start date times of the two time ranges. If the start date times are equal,
+    ///     the end date times are compared.
+    /// </remarks>
+    public int CompareTo(DateTimeRange other)
+    {
+        var startDateComparison = StartDate.CompareTo(other.StartDate);
+        return startDateComparison != 0 ? startDateComparison : EndDate.CompareTo(other.EndDate);
     }
 }

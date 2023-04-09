@@ -6,7 +6,7 @@ namespace BigO.Core.Types;
 ///     Represents a range of dates.
 /// </summary>
 [PublicAPI]
-public readonly record struct DateRange
+public readonly record struct DateRange : IComparable<DateRange>
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="DateRange" /> struct.
@@ -34,6 +34,41 @@ public readonly record struct DateRange
     ///     Gets the end date of the date range.
     /// </summary>
     public DateOnly EndDate { get; }
+
+    /// <summary>
+    ///     Compares the current instance to another <see cref="DateRange"/> instance and returns an integer that indicates whether the current instance
+    ///     precedes, follows, or occurs in the same position in the sort order as the other instance.
+    /// </summary>
+    /// <param name="other">The <see cref="DateRange"/> instance to compare with the current instance.</param>
+    /// <returns>A value that indicates the relative order of the objects being compared. The return value has these meanings:
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <description>
+    ///                 Less than zero: The current instance precedes <paramref name="other"/> in the sort order.
+    ///             </description>
+    ///         </item>
+    ///         <item>
+    ///             <description>
+    ///                 Zero: The current instance occurs in the same position in the sort order as <paramref name="other"/>.
+    ///             </description>
+    ///         </item>
+    ///         <item>
+    ///             <description>
+    ///                 Greater than zero: The current instance follows <paramref name="other"/> in the sort order.
+    ///             </description>
+    ///         </item>
+    ///     </list>
+    /// </returns>
+    public int CompareTo(DateRange other)
+    {
+        var startDateComparison = StartDate.CompareTo(other.StartDate);
+        if (startDateComparison != 0)
+        {
+            return startDateComparison;
+        }
+
+        return EndDate.CompareTo(other.EndDate);
+    }
 
     /// <summary>
     ///     Determines whether the current instance and another specified <see cref="DateRange" /> object have the same value.
