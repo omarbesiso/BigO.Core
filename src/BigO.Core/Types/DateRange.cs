@@ -28,33 +28,35 @@ public readonly record struct DateRange : IComparable<DateRange>
     /// <summary>
     ///     Gets the start date of the date range.
     /// </summary>
-    public DateOnly StartDate { get; }
+    public DateOnly StartDate { get; init; }
 
     /// <summary>
     ///     Gets the end date of the date range.
     /// </summary>
-    public DateOnly EndDate { get; }
+    public DateOnly EndDate { get; init; }
 
     /// <summary>
-    ///     Compares the current instance to another <see cref="DateRange"/> instance and returns an integer that indicates whether the current instance
+    ///     Compares the current instance to another <see cref="DateRange" /> instance and returns an integer that indicates
+    ///     whether the current instance
     ///     precedes, follows, or occurs in the same position in the sort order as the other instance.
     /// </summary>
-    /// <param name="other">The <see cref="DateRange"/> instance to compare with the current instance.</param>
-    /// <returns>A value that indicates the relative order of the objects being compared. The return value has these meanings:
+    /// <param name="other">The <see cref="DateRange" /> instance to compare with the current instance.</param>
+    /// <returns>
+    ///     A value that indicates the relative order of the objects being compared. The return value has these meanings:
     ///     <list type="bullet">
     ///         <item>
     ///             <description>
-    ///                 Less than zero: The current instance precedes <paramref name="other"/> in the sort order.
+    ///                 Less than zero: The current instance precedes <paramref name="other" /> in the sort order.
     ///             </description>
     ///         </item>
     ///         <item>
     ///             <description>
-    ///                 Zero: The current instance occurs in the same position in the sort order as <paramref name="other"/>.
+    ///                 Zero: The current instance occurs in the same position in the sort order as <paramref name="other" />.
     ///             </description>
     ///         </item>
     ///         <item>
     ///             <description>
-    ///                 Greater than zero: The current instance follows <paramref name="other"/> in the sort order.
+    ///                 Greater than zero: The current instance follows <paramref name="other" /> in the sort order.
     ///             </description>
     ///         </item>
     ///     </list>
@@ -62,12 +64,7 @@ public readonly record struct DateRange : IComparable<DateRange>
     public int CompareTo(DateRange other)
     {
         var startDateComparison = StartDate.CompareTo(other.StartDate);
-        if (startDateComparison != 0)
-        {
-            return startDateComparison;
-        }
-
-        return EndDate.CompareTo(other.EndDate);
+        return startDateComparison != 0 ? startDateComparison : EndDate.CompareTo(other.EndDate);
     }
 
     /// <summary>

@@ -1,14 +1,15 @@
-﻿using BigO.Core.Extensions;
+﻿using System.Globalization;
+using BigO.Core.Extensions;
 using BigO.Core.Validation;
 using JetBrains.Annotations;
 
 namespace BigO.Core.Types;
 
 /// <summary>
-///     Represents a range of times.
+///     Represents a range of between two defined <see cref="TimeOnly" /> values.
 /// </summary>
 [PublicAPI]
-public readonly record struct TimeRange : IComparable<TimeRange>
+public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="TimeRange" /> struct.
@@ -44,6 +45,26 @@ public readonly record struct TimeRange : IComparable<TimeRange>
     ///     Gets the duration of the time range.
     /// </summary>
     public TimeSpan Duration => EndTime - StartTime;
+
+    /// <summary>
+    ///     Compares the current <see cref="TimeRange" /> instance to another object.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current instance.</param>
+    /// <returns>A value indicating the relative order of the instances being compared.</returns>
+    /// <exception cref="ArgumentException">Thrown if the object is not a <see cref="TimeRange" />.</exception>
+    /// <remarks>
+    ///     The comparison is performed by comparing the start times of the two time ranges. If the start times are equal,
+    ///     the end times are compared.
+    /// </remarks>
+    public int CompareTo(object? obj)
+    {
+        if (obj is TimeRange other)
+        {
+            return CompareTo(other);
+        }
+
+        throw new ArgumentException("Object must be of type TimeRange.");
+    }
 
     /// <summary>
     ///     Compares the current <see cref="TimeRange" /> instance to another <see cref="TimeRange" /> instance.
@@ -104,17 +125,27 @@ public readonly record struct TimeRange : IComparable<TimeRange>
     }
 
     /// <summary>
-    ///     Tries to parse the specified string representation of a time range.
+    ///     Attempts to parse a string representation of a time range into a new <see cref="TimeRange" /> object.
     /// </summary>
-    /// <param name="s">The string to parse.</param>
-    /// <param name="timeRange">The resulting <see cref="TimeRange" /> object.</param>
-    /// <returns>
-    ///     <c>true</c> if the string was successfully parsed; otherwise, <c>false</c>.
-    /// </returns>
-    public static bool TryParse(string s, out TimeRange timeRange)
+    /// <param name="s">A string containing a time range to parse.</param>
+    /// <param name="timeRange">
+    ///     When this method returns, contains the <see cref="TimeRange" /> value equivalent to the time
+    ///     range contained in <paramref name="s" />, if the conversion succeeded, or <c>null</c> if the conversion failed.
+    /// </param>
+    /// <param name="culture">An optional object that supplies culture-specific formatting information.</param>
+    /// <returns><c>true</c> if <paramref name="s" /> was converted successfully; otherwise, <c>false</c>.</returns>
+    /// <remarks>
+    ///     This method is designed to parse a time range string of the format "StartTime - EndTime", where StartTime and
+    ///     EndTime are <see cref="TimeOnly" /> values.
+    ///     If the provided culture is not specified, the current culture is used.
+    /// </remarks>
+    public static bool TryParse(string s, out TimeRange timeRange, CultureInfo? culture = null)
     {
         var parts = s.Split(" - ");
-        if (parts.Length == 2 && TimeOnly.TryParse(parts[0], out var start) && TimeOnly.TryParse(parts[1], out var end))
+        culture ??= CultureInfo.CurrentCulture;
+
+        if (parts.Length == 2 && TimeOnly.TryParse(parts[0], culture, out var start) &&
+            TimeOnly.TryParse(parts[1], culture, out var end))
         {
             timeRange = new TimeRange(start, end);
             return true;
@@ -122,6 +153,28 @@ public readonly record struct TimeRange : IComparable<TimeRange>
 
         timeRange = default;
         return false;
+    }
+
+    /// <summary>
+    ///     Creates a new <see cref="TimeRange" /> object from a start time and a duration.
+    /// </summary>
+    /// <param name="startTime">The start time of the time range.</param>
+    /// <param name="duration">The duration of the time range.</param>
+    /// <returns>A new <see cref="TimeRange" /> object with the specified start time and duration.</returns>
+    public static TimeRange FromDuration(TimeOnly startTime, TimeSpan duration)
+    {
+        return new TimeRange(startTime, startTime.Add(duration));
+    }
+
+    /// <summary>
+    ///     Shifts the entire time range by a specified <see cref="TimeSpan" /> and returns a new <see cref="TimeRange" />
+    ///     object.
+    /// </summary>
+    /// <param name="offset">The <see cref="TimeSpan" /> value by which the time range will be shifted.</param>
+    /// <returns>A new <see cref="TimeRange" /> object representing the shifted time range.</returns>
+    public TimeRange Shift(TimeSpan offset)
+    {
+        return new TimeRange(StartTime.Add(offset), EndTime.Add(offset));
     }
 
     /// <summary>
