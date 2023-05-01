@@ -7,48 +7,34 @@ namespace BigO.Core.Types;
 ///     Represents a DateTime value with a specified Timezone.
 /// </summary>
 [PublicAPI]
-public record struct DateTimeWithTimeZone : IComparable<DateTimeWithTimeZone>, IEquatable<DateTimeWithTimeZone>
+public readonly record struct DateTimeWithTimeZone : IComparable<DateTimeWithTimeZone>
 {
-    private readonly DateTime _dateTime;
-    private readonly TimeZoneInfo _timeZone;
-    private DateTime? _localTime;
-
-    private DateTime? _universalTime;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="DateTimeWithTimeZone" /> struct.
     /// </summary>
-    /// <param name="dateTime">The date and time value.</param>
+    /// <param name="utcDateTime">The date and time value.</param>
     /// <param name="timeZone">The time zone of the date and time value.</param>
-    public DateTimeWithTimeZone(DateTime dateTime, TimeZoneInfo timeZone)
+    public DateTimeWithTimeZone(DateTime utcDateTime, TimeZoneInfo timeZone)
     {
-        _dateTime = dateTime;
-        _timeZone = timeZone;
+        Zone = timeZone;
+        UniversalTime = utcDateTime;
+        LocalTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, Zone);
     }
 
     /// <summary>
     ///     Gets the date and time value in universal time.
     /// </summary>
-    public DateTime UniversalTime
-    {
-        get
-        {
-            _universalTime ??= TimeZoneInfo.ConvertTimeToUtc(_dateTime, _timeZone);
-            return _universalTime.Value;
-        }
-    }
+    public DateTime UniversalTime { get; }
 
     /// <summary>
     ///     Gets the date and time value in the local time zone.
     /// </summary>
-    public DateTime LocalTime
-    {
-        get
-        {
-            _localTime ??= TimeZoneInfo.ConvertTime(UniversalTime, TimeZoneInfo.Local, TimeZoneInfo.Local);
-            return _localTime.Value;
-        }
-    }
+    public DateTime LocalTime { get; }
+
+    /// <summary>
+    /// Gets the time zone.
+    /// </summary>
+    public TimeZoneInfo Zone { get; }
 
     /// <summary>
     ///     Compares this <see cref="DateTimeWithTimeZone" /> value to another value.
@@ -70,7 +56,7 @@ public record struct DateTimeWithTimeZone : IComparable<DateTimeWithTimeZone>, I
     /// <returns>True if the values are equal, false otherwise.</returns>
     public bool Equals(DateTimeWithTimeZone other)
     {
-        return UniversalTime == other.UniversalTime;
+        return UniversalTime == other.UniversalTime && Zone.Equals(other.Zone);
     }
 
     /// <summary>
@@ -97,7 +83,7 @@ public record struct DateTimeWithTimeZone : IComparable<DateTimeWithTimeZone>, I
     /// <returns>A string representation of the date and time value.</returns>
     public string ToString(string format)
     {
-        return _dateTime.ToString(format) + " " + _timeZone.Id;
+        return LocalTime.ToString(format) + " " + Zone.Id;
     }
 
     /// <summary>

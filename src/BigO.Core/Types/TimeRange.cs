@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text.Json.Serialization;
 using BigO.Core.Extensions;
 using BigO.Core.Validation;
 using JetBrains.Annotations;
@@ -17,6 +18,7 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
     /// <param name="startTime">The start time of the time range.</param>
     /// <param name="endTime">The end time of the time range.</param>
     /// <exception cref="ArgumentException">Thrown if the end time is before the start time.</exception>
+    [JsonConstructor]
     public TimeRange(TimeOnly startTime, TimeOnly endTime)
     {
         Guard.NotNull(startTime, nameof(startTime));
@@ -34,11 +36,15 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
     /// <summary>
     ///     Gets the start time of the time range.
     /// </summary>
+    [JsonPropertyName("@startTime")]
+    [JsonInclude]
     public TimeOnly StartTime { get; }
 
     /// <summary>
     ///     Gets the end time of the time range.
     /// </summary>
+    [JsonPropertyName("@endTime")]
+    [JsonInclude]
     public TimeOnly EndTime { get; }
 
     /// <summary>
