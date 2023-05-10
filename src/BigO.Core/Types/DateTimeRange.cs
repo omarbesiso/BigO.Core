@@ -1,4 +1,7 @@
-﻿using BigO.Core.Extensions;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+using BigO.Core.Extensions;
 using JetBrains.Annotations;
 
 namespace BigO.Core.Types;
@@ -7,6 +10,7 @@ namespace BigO.Core.Types;
 ///     Value object defining a range of <see cref="DateTime" />.
 /// </summary>
 [PublicAPI]
+[DataContract]
 public readonly record struct DateTimeRange : IComparable<DateTimeRange>
 {
     /// <summary>
@@ -18,6 +22,7 @@ public readonly record struct DateTimeRange : IComparable<DateTimeRange>
     ///     Thrown if the end time <paramref name="startDate" /> is less than or equal the
     ///     start time <paramref name="endDate" />.
     /// </exception>
+    [JsonConstructor]
     public DateTimeRange(DateTime startDate, DateTime endDate)
     {
         if (endDate <= startDate)
@@ -33,11 +38,21 @@ public readonly record struct DateTimeRange : IComparable<DateTimeRange>
     /// <summary>
     ///     Gets the start date.
     /// </summary>
+    [Required]
+    [JsonInclude]
+    [JsonPropertyOrder(10)]
+    [JsonPropertyName("startDate")]
+    [DataMember(Name = "startDate", Order = 10)]
     public DateTime StartDate { get; }
 
     /// <summary>
     ///     Gets the end date.
     /// </summary>
+    [Required]
+    [JsonInclude]
+    [JsonPropertyOrder(20)]
+    [JsonPropertyName("endDate")]
+    [DataMember(Name = "endDate", Order = 20)]
     public DateTime EndDate { get; }
 
     /// <summary>
