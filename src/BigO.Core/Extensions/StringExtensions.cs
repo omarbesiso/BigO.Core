@@ -357,4 +357,35 @@ public static class StringExtensions
     {
         return !string.IsNullOrEmpty(input) && DateTime.TryParse(input, out _);
     }
+
+    /// <summary>
+    /// Limits the length of the text to the specified maximum length.
+    /// If the source text is shorter than or equal to the maximum length, the entire source text is returned.
+    /// Otherwise, a substring of the source text is returned with a length equal to the specified maximum length.
+    /// </summary>
+    /// <param name="source">The source text. If null, a null value is returned.</param>
+    /// <param name="maxLength">The maximum length for the returned string.</param>
+    /// <returns>
+    /// A string that represents the limited length of the source text.
+    /// If <paramref name="source"/> is null, the method returns null.
+    /// If <paramref name="source"/> is shorter than or equal to <paramref name="maxLength"/>, the method returns <paramref name="source"/>.
+    /// Otherwise, the method returns a substring of <paramref name="source"/> with length equal to <paramref name="maxLength"/>.
+    /// </returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="maxLength"/> is less than 0.
+    /// </exception>
+    public static string? LimitLength(this string? source, int maxLength)
+    {
+        if (maxLength < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(maxLength), "Maximum length should be non-negative.");
+        }
+
+        if (source is null || source.Length <= maxLength)
+        {
+            return source;
+        }
+
+        return source[..maxLength];
+    }
 }

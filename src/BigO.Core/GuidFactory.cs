@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 
 namespace BigO.Core;
 
@@ -9,6 +8,8 @@ namespace BigO.Core;
 [PublicAPI]
 public static class GuidFactory
 {
+    private static long _counter = DateTime.UtcNow.Ticks;
+
     /// <summary>
     ///     Generates a new sequential <see cref="Guid" /> based on the current timestamp and a counter.
     /// </summary>
@@ -30,9 +31,13 @@ public static class GuidFactory
     /// </example>
     public static Guid NewSequentialGuid()
     {
-        var counter = Stopwatch.GetTimestamp();
+        //var counter = Stopwatch.GetTimestamp();
+        //var guidBytes = Guid.NewGuid().ToByteArray();
+        //var counterBytes = BitConverter.GetBytes(Interlocked.Increment(ref counter));
+
+        var counter = Interlocked.Increment(ref _counter);
         var guidBytes = Guid.NewGuid().ToByteArray();
-        var counterBytes = BitConverter.GetBytes(Interlocked.Increment(ref counter));
+        var counterBytes = BitConverter.GetBytes(counter);
 
         if (!BitConverter.IsLittleEndian)
         {
