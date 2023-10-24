@@ -9,7 +9,7 @@ public interface IPagedList<T>
     /// <summary>
     ///     Gets the items for the current page.
     /// </summary>
-    IList<T> Items { get; }
+    List<T> Items { get; }
 
     /// <summary>
     ///     Gets the current page number.

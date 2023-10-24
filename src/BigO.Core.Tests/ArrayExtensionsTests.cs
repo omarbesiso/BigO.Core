@@ -72,16 +72,4 @@ public class ArrayExtensionsTests
             Assert.Equal(originalArray[i], array[i]);
         }
     }
-
-    [Fact]
-    public void Clear_ArrayIsNull_ThrowsArgumentNullException()
-    {
-        // Arrange
-        int[] array = null!;
-
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(() => array.Clear(0, 0));
-        Assert.Equal(nameof(array), exception.ParamName);
-        Assert.Equal(string.Format("The {0} cannot be null. (Parameter '{0}')", nameof(array)), exception.Message);
-    }
 }

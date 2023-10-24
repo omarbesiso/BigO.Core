@@ -35,7 +35,7 @@ public abstract class PagedList<T> : IPagedList<T>
     [JsonPropertyOrder(10)]
     [JsonPropertyName("items")]
     [DataMember(Name = "items", Order = 10)]
-    public IList<T> Items { get; }
+    public List<T> Items { get; }
 
 
     /// <summary>
