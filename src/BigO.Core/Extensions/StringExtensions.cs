@@ -1,5 +1,6 @@
 ﻿using System.Net.Mail;
 using System.Text;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 
 namespace BigO.Core.Extensions;
@@ -8,8 +9,11 @@ namespace BigO.Core.Extensions;
 ///     Provides a set of useful extension methods for working with <see cref="string" /> objects.
 /// </summary>
 [PublicAPI]
-public static class StringExtensions
+public static partial class StringExtensions
 {
+    [GeneratedRegex(@"\d+", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
+    private static partial Regex DigitsOnlyRegex();
+
     /// <summary>
     ///     Determines whether the specified string value is a valid GUID.
     /// </summary>
@@ -359,20 +363,22 @@ public static class StringExtensions
     }
 
     /// <summary>
-    /// Limits the length of the text to the specified maximum length.
-    /// If the source text is shorter than or equal to the maximum length, the entire source text is returned.
-    /// Otherwise, a substring of the source text is returned with a length equal to the specified maximum length.
+    ///     Limits the length of the text to the specified maximum length.
+    ///     If the source text is shorter than or equal to the maximum length, the entire source text is returned.
+    ///     Otherwise, a substring of the source text is returned with a length equal to the specified maximum length.
     /// </summary>
     /// <param name="source">The source text. If null, a null value is returned.</param>
     /// <param name="maxLength">The maximum length for the returned string.</param>
     /// <returns>
-    /// A string that represents the limited length of the source text.
-    /// If <paramref name="source"/> is null, the method returns null.
-    /// If <paramref name="source"/> is shorter than or equal to <paramref name="maxLength"/>, the method returns <paramref name="source"/>.
-    /// Otherwise, the method returns a substring of <paramref name="source"/> with length equal to <paramref name="maxLength"/>.
+    ///     A string that represents the limited length of the source text.
+    ///     If <paramref name="source" /> is null, the method returns null.
+    ///     If <paramref name="source" /> is shorter than or equal to <paramref name="maxLength" />, the method returns
+    ///     <paramref name="source" />.
+    ///     Otherwise, the method returns a substring of <paramref name="source" /> with length equal to
+    ///     <paramref name="maxLength" />.
     /// </returns>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="maxLength"/> is less than 0.
+    ///     <paramref name="maxLength" /> is less than 0.
     /// </exception>
     public static string? LimitLength(this string? source, int maxLength)
     {
@@ -387,5 +393,39 @@ public static class StringExtensions
         }
 
         return source[..maxLength];
+    }
+
+    /// <summary>
+    ///     Extracts all the digits from the given input string.
+    /// </summary>
+    /// <param name="input">The input string from which the digits are to be extracted.</param>
+    /// <returns>
+    ///     Returns a string containing only the digits from the input. If the input is <c>null</c>, empty, or consists
+    ///     only of white-space characters, an empty string is returned.
+    /// </returns>
+    /// <exception cref="System.ArgumentException">
+    ///     Thrown if the input string contains invalid characters that are not
+    ///     recognized by the internal regex.
+    /// </exception>
+    /// <example>
+    ///     <code><![CDATA[
+    /// string text = "Hello123World";
+    /// string result = text.ExtractDigitsOnly();
+    /// Console.WriteLine(result); // Outputs: "123"
+    /// ]]></code>
+    /// </example>
+    /// <remarks>
+    ///     The method utilizes the <see cref="DigitsOnlyRegex" /> to match and extract digits from the provided input string.
+    ///     It is designed to be an extension method for the <see cref="System.String" /> class, meaning it can be called
+    ///     directly on string instances. If the input string is <c>null</c>, empty or only white-space, the method will return
+    ///     an empty string without throwing an exception. It is essential to ensure that the regex pattern used in
+    ///     <see cref="DigitsOnlyRegex" /> is correct and valid for this method to work correctly. The method assumes that the
+    ///     regex will match valid strings and does not check for potential regex pattern mismatches. Hence, an
+    ///     <see cref="System.ArgumentException" /> could be thrown if the regex encounters unrecognized characters in the
+    ///     input string.
+    /// </remarks>
+    public static string ExtractDigitsOnly(this string input)
+    {
+        return string.IsNullOrWhiteSpace(input) ? string.Empty : DigitsOnlyRegex().Match(input).Value;
     }
 }

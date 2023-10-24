@@ -35,15 +35,20 @@ public static class CollectionExtensions
             throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
         }
 
-        if (collection.Contains(value))
+        // If collection is a HashSet<T>, this will be more efficient.
+        if (collection is HashSet<T> hashSet)
         {
-            return false;
+            return hashSet.Add(value);
         }
 
-        collection.Add(value);
-        return true;
-    }
+        if (!collection.Contains(value))
+        {
+            collection.Add(value);
+            return true;
+        }
 
+        return false;
+    }
 
     /// <summary>
     ///     Adds a range of values to a collection, only adding values that do not already exist in the collection.
@@ -80,15 +85,30 @@ public static class CollectionExtensions
 
         var counter = 0;
 
-        foreach (var value in values)
+        // Special case for HashSet<T>
+        if (collection is HashSet<T> hashSet)
         {
-            if (collection.Contains(value))
+            foreach (var value in values)
             {
-                continue;
+                if (hashSet.Add(value))
+                {
+                    counter++;
+                }
             }
 
-            collection.Add(value);
-            counter++;
+            return counter;
+        }
+
+        // Buffer values for other collections
+        var valueSet = new HashSet<T>(values);
+
+        foreach (var value in valueSet)
+        {
+            if (!collection.Contains(value))
+            {
+                collection.Add(value);
+                counter++;
+            }
         }
 
         return counter;
@@ -204,24 +224,23 @@ public static class CollectionExtensions
     /// </exception>
     public static bool AddIf<T>(this ICollection<T> collection, Func<T, bool> predicate, T value)
     {
-        if (collection == null)
+        if (collection is null)
         {
             throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
         }
 
-        if (predicate == null)
+        if (predicate is null)
         {
             throw new ArgumentNullException(nameof(predicate), $"The {nameof(predicate)} cannot be null.");
         }
 
-        // ReSharper disable once InvertIf
-        if (predicate(value))
+        if (!predicate(value))
         {
-            collection.Add(value);
-            return true;
+            return false;
         }
 
-        return false;
+        collection.Add(value);
+        return true;
     }
 
     /// <summary>
@@ -250,9 +269,25 @@ public static class CollectionExtensions
     {
         if (collection == null)
         {
-            throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
+            throw new ArgumentNullException(nameof(collection));
         }
 
-        return !collection.IsEmpty() && values.Any(collection.Contains);
+        // For small collections, direct check might be faster
+        if (values.Length <= 5)
+        {
+            foreach (var value in values)
+            {
+                if (collection.Contains(value))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // For larger collections, using HashSet can be more efficient
+        var valueSet = new HashSet<T>(values);
+        return collection.Any(valueSet.Contains);
     }
 }

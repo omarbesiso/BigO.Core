@@ -123,11 +123,6 @@ public static class ArrayExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Clear(this Array array, int index, int length)
     {
-        if (array == null)
-        {
-            throw new ArgumentNullException(nameof(array), $"The {nameof(array)} cannot be null.");
-        }
-
         Array.Clear(array, index, length);
     }
 }

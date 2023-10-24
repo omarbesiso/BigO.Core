@@ -60,14 +60,12 @@ public static class QueryableExtensions
 
         if (pageNumber <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(pageNumber),
-                $"The {nameof(pageNumber)} cannot be less than or equal to 0.");
+            throw new ArgumentOutOfRangeException(nameof(pageNumber), $"The {nameof(pageNumber)} cannot be less than or equal to 0.");
         }
 
         if (pageSize <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(pageSize),
-                $"The {nameof(pageSize)} cannot be less than or equal to 0.");
+            throw new ArgumentOutOfRangeException(nameof(pageSize), $"The {nameof(pageSize)} cannot be less than or equal to 0.");
         }
 
         var skipCount = (pageNumber - 1) * pageSize;
