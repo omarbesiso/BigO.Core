@@ -21,9 +21,21 @@ public abstract class PagedList<T, TK> : IPagedList<T>
     /// <param name="totalCount">The total number of items across all pages.</param>
     /// <param name="pageNumber">The current page number.</param>
     /// <param name="pageSize">The size of the page.</param>
+    protected PagedList(IEnumerable<T> items, int totalCount, int pageNumber, int pageSize) : this(new List<T>(items),
+        totalCount, pageNumber, pageSize)
+    {
+    }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="PagedList{T, K}" /> class.
+    /// </summary>
+    /// <param name="items">The items for the current page.</param>
+    /// <param name="totalCount">The total number of items across all pages.</param>
+    /// <param name="pageNumber">The current page number.</param>
+    /// <param name="pageSize">The size of the page.</param>
     protected PagedList(List<T> items, int totalCount, int pageNumber, int pageSize)
     {
-        Items = items;
+        Items = new List<T>(items);
         TotalCount = totalCount;
         PageSize = pageSize;
         PageNumber = pageNumber;
