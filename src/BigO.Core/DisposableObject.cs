@@ -1,6 +1,4 @@
-﻿using JetBrains.Annotations;
-
-namespace BigO.Core;
+﻿namespace BigO.Core;
 
 /// <summary>
 ///     Defines an object base with necessary disposable implementation.

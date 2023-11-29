@@ -2,7 +2,6 @@
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using BigO.Core.Extensions;
-using JetBrains.Annotations;
 
 namespace BigO.Core.Types;
 
@@ -119,9 +118,9 @@ public readonly record struct DateTimeRange : IComparable<DateTimeRange>
     ///     Gets the duration of the date range in days.
     /// </summary>
     /// <returns>The number of days between the start and end dates of the date range.</returns>
-    public int Duration()
+    public TimeSpan Duration()
     {
-        return (EndDate - StartDate).Days;
+        return EndDate - StartDate;
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+﻿using BigO.Core.Validation;
 
 namespace BigO.Core.Extensions;
 
@@ -9,40 +9,38 @@ namespace BigO.Core.Extensions;
 public static class ComparableExtensions
 {
     /// <summary>
-    ///     Determines whether the value is between the specified boundaries.
+    ///     Determines whether the specified value falls within a certain range.
     /// </summary>
-    /// <typeparam name="T">The type of the value and boundaries. It must implement <see cref="IComparable{T}" />.</typeparam>
-    /// <param name="value">The value to check if it is between the boundaries.</param>
-    /// <param name="lowerBoundary">The lower boundary.</param>
-    /// <param name="upperBoundary">The upper boundary.</param>
-    /// <param name="isBoundaryInclusive">Whether the boundaries are inclusive or exclusive. Default is true.</param>
-    /// <returns>True if the value is between the boundaries, otherwise false.</returns>
+    /// <typeparam name="T">The type of the value being checked. Must implement <see cref="IComparable{T}" />.</typeparam>
+    /// <param name="value">The value to check.</param>
+    /// <param name="lowerBoundary">The lower boundary of the range.</param>
+    /// <param name="upperBoundary">The upper boundary of the range.</param>
+    /// <param name="isBoundaryInclusive">
+    ///     Specifies whether the boundaries are inclusive. If <c>true</c>, the method checks if the value is greater than or
+    ///     equal to the lower boundary
+    ///     and less than or equal to the upper boundary; otherwise, it checks if the value is strictly greater than the lower
+    ///     boundary and strictly less than the upper boundary.
+    /// </param>
+    /// <returns>
+    ///     <c>true</c> if the value is within the range; <c>false</c> otherwise or if the value is <c>null</c>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown if either the lower boundary or the upper boundary is <c>null</c>.
+    /// </exception>
     /// <remarks>
-    ///     This method will check if the <paramref name="value" /> is between the specified <paramref name="lowerBoundary" />
-    ///     and <paramref name="upperBoundary" />.
-    ///     If the <paramref name="lowerBoundary" /> or <paramref name="upperBoundary" /> is null, an
-    ///     <see cref="ArgumentNullException" /> is thrown.
-    ///     If the <paramref name="value" /> is null, this method will always return false.
-    ///     If the <paramref name="isBoundaryInclusive" /> is true, then the comparison is inclusive of the boundaries (greater
-    ///     than or equal to the lower boundary and less than or equal to the upper boundary).
-    ///     If the <paramref name="isBoundaryInclusive" /> is false, then the comparison is exclusive of the boundaries
-    ///     (greater than the lower boundary and less than the upper boundary).
+    ///     This method provides a generic way to check if a value of any comparable type falls within a specific range.
+    ///     It can be used with numeric types, dates, and other comparable types.
     /// </remarks>
     /// <example>
-    ///     The following code example checks if an integer is between two other integers:
     ///     <code><![CDATA[
-    /// int value = 5;
-    /// int lowerBoundary = 1;
-    /// int upperBoundary = 10;
-    /// bool isBetween = value.IsBetween(lowerBoundary, upperBoundary);
-    /// Console.WriteLine(isBetween); // True
-    /// isBetween = value.IsBetween(lowerBoundary, upperBoundary, isBoundaryInclusive: false);
-    /// Console.WriteLine(isBetween); // False
-    /// ]]></code>
+    ///     int? number = 5;
+    ///     bool result = number.IsBetween(1, 10);
+    ///     // result is true
+    /// 
+    ///     result = number.IsBetween(5, 5, isBoundaryInclusive: false);
+    ///     // result is false
+    ///     ]]></code>
     /// </example>
-    /// <exception cref="ArgumentNullException">
-    ///     <paramref name="lowerBoundary" /> or <paramref name="upperBoundary" /> is null.
-    /// </exception>
     public static bool IsBetween<T>(this T? value, T lowerBoundary, T upperBoundary, bool isBoundaryInclusive = true)
         where T : IComparable<T>
     {
@@ -72,29 +70,32 @@ public static class ComparableExtensions
     /// <summary>
     ///     Limits a value to a specified maximum.
     /// </summary>
-    /// <typeparam name="T">The type of the value and maximum, which must implement <see cref="IComparable{T}" />.</typeparam>
-    /// <param name="value">The value to be limited.</param>
-    /// <param name="maximum">The maximum limit for the value.</param>
-    /// <returns>The original value if it's less than or equal to the maximum, otherwise the maximum value.</returns>
+    /// <typeparam name="T">The type of the value being checked. Must implement <see cref="IComparable{T}" />.</typeparam>
+    /// <param name="value">The value to limit.</param>
+    /// <param name="maximum">The maximum allowable value.</param>
+    /// <returns>
+    ///     The original value if it is less than or equal to the maximum; otherwise, the maximum value.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
-    ///     Thrown when either <paramref name="value" /> or <paramref name="maximum" /> is
-    ///     <c>null</c>.
+    ///     Thrown if either the value or the maximum is <c>null</c>.
     /// </exception>
+    /// <remarks>
+    ///     This method compares the provided value with the maximum and returns the lesser of the two.
+    ///     It's useful for enforcing upper limits on variable values, such as sizes, quantities, or other measurable
+    ///     quantities.
+    /// </remarks>
     /// <example>
     ///     <code><![CDATA[
-    /// int value = 42;
-    /// int max = 50;
-    /// int limitedValue = value.Limit(max); // limitedValue will be 42
-    /// ]]></code>
+    ///     int number = 10;
+    ///     int maxLimit = 8;
+    ///     int limitedNumber = number.Limit(maxLimit);
+    ///     // limitedNumber is 8
+    /// 
+    ///     number = 6;
+    ///     limitedNumber = number.Limit(maxLimit);
+    ///     // limitedNumber is 6
+    ///     ]]></code>
     /// </example>
-    /// <remarks>
-    ///     This extension method can be used with any type that implements <see cref="IComparable{T}" />. It compares the
-    ///     value and maximum using the <see cref="IComparable{T}.CompareTo(T)" /> method.
-    ///     If either <paramref name="value" /> or <paramref name="maximum" /> is <c>null</c>, an
-    ///     <see cref="ArgumentNullException" /> will be thrown.
-    ///     When the value is less than or equal to the maximum, the method returns the original value, otherwise it returns
-    ///     the maximum.
-    /// </remarks>
     public static T Limit<T>(this T value, T maximum) where T : IComparable<T>
     {
         if (value == null)
@@ -111,49 +112,43 @@ public static class ComparableExtensions
     }
 
     /// <summary>
-    ///     Limits a value between a specified minimum and maximum.
+    ///     Limits a value to be within a specified range defined by a minimum and maximum.
     /// </summary>
-    /// <typeparam name="T">The type of the value, minimum, and maximum, which must implement <see cref="IComparable" />.</typeparam>
+    /// <typeparam name="T">The type of the value being limited. Must implement IComparable.</typeparam>
     /// <param name="value">The value to be limited.</param>
-    /// <param name="minimum">The minimum limit for the value.</param>
-    /// <param name="maximum">The maximum limit for the value.</param>
-    /// <returns>The limited value between the minimum and maximum, inclusive.</returns>
+    /// <param name="minimum">The minimum allowable value.</param>
+    /// <param name="maximum">The maximum allowable value.</param>
+    /// <returns>
+    ///     The minimum value if the original value is less than the minimum,
+    ///     the maximum value if the original value is greater than the maximum,
+    ///     or the original value if it is within the range.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
-    ///     Thrown when either <paramref name="value" />, <paramref name="minimum" />, or
-    ///     <paramref name="maximum" /> is <c>null</c>.
+    ///     Thrown if the value, minimum, or maximum is <c>null</c>.
     /// </exception>
+    /// <remarks>
+    ///     This method checks whether the provided value falls within the specified range and adjusts it if necessary.
+    ///     It is useful for ensuring that a variable remains within certain bounds, such as within a valid range of dates,
+    ///     numbers, or other measurable quantities.
+    /// </remarks>
     /// <example>
     ///     <code><![CDATA[
-    /// int value = 42;
-    /// int min = 30;
-    /// int max = 50;
-    /// int limitedValue = value.Limit(min, max); // limitedValue will be 42
-    /// ]]></code>
+    ///     int number = 15;
+    ///     int minLimit = 10;
+    ///     int maxLimit = 20;
+    ///     int limitedNumber = number.Limit(minLimit, maxLimit);
+    ///     // limitedNumber is 15
+    /// 
+    ///     number = 25;
+    ///     limitedNumber = number.Limit(minLimit, maxLimit);
+    ///     // limitedNumber is 20
+    ///     ]]></code>
     /// </example>
-    /// <remarks>
-    ///     This extension method can be used with any type that implements <see cref="IComparable" />. It compares the value,
-    ///     minimum, and maximum using the <see cref="IComparable.CompareTo(object)" /> method.
-    ///     If either <paramref name="value" />, <paramref name="minimum" />, or <paramref name="maximum" /> is <c>null</c>, an
-    ///     <see cref="ArgumentNullException" /> will be thrown.
-    ///     When the value is less than the minimum, the method returns the minimum; when the value is greater than the
-    ///     maximum, it returns the maximum; otherwise, it returns the original value.
-    /// </remarks>
     public static T Limit<T>(this T value, T minimum, T maximum) where T : IComparable
     {
-        if (value == null)
-        {
-            throw new ArgumentNullException(nameof(value), $"The {nameof(value)} cannot be null.");
-        }
-
-        if (maximum == null)
-        {
-            throw new ArgumentNullException(nameof(maximum), $"The {nameof(maximum)} cannot be null.");
-        }
-
-        if (minimum == null)
-        {
-            throw new ArgumentNullException(nameof(minimum), $"The {nameof(minimum)} cannot be null.");
-        }
+        Guard.NotNull(value, nameof(value));
+        Guard.NotNull(minimum, nameof(minimum));
+        Guard.NotNull(maximum, nameof(maximum));
 
         if (value.CompareTo(minimum) < 0)
         {

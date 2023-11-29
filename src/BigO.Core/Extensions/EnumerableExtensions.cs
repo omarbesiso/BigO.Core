@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 
 namespace BigO.Core.Extensions;
 
@@ -210,7 +208,7 @@ public static class EnumerableExtensions
     /// <summary>
     ///     Determines whether the specified <paramref name="collection" /> is not null and contains at least one element.
     /// </summary>
-    /// <param name="collection">The collection to check for non-nullness and non-emptiness.</param>
+    /// <param name="collection">The collection to check for non-null-ness and non-emptiness.</param>
     /// <returns>
     ///     true if the specified <paramref name="collection" /> is not null and contains at least one element; otherwise,
     ///     false.

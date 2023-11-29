@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using BigO.Core.Types;
 
 namespace BigO.Core.Serialization;
 
@@ -8,9 +9,9 @@ namespace BigO.Core.Serialization;
 ///     A custom JSON converter for serializing and deserializing <see cref="DateOnly" /> objects.
 /// </summary>
 [PublicAPI]
-public class DateOnlyConverter : JsonConverter<DateOnly>
+public class DateRangeConverter : JsonConverter<DateRange>
 {
-    private const string Format = "yyyy-MM-dd";
+    private const string Format = "yyyy-MM-dd-yyyy-MM-dd";
 
     /// <summary>
     ///     Reads and converts the JSON to type <see cref="DateOnly" />.
@@ -19,9 +20,12 @@ public class DateOnlyConverter : JsonConverter<DateOnly>
     /// <param name="typeToConvert">The type to convert.</param>
     /// <param name="options">An object that specifies serialization options to use.</param>
     /// <returns>The converted value.</returns>
-    public override DateOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override DateRange Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        return DateOnly.ParseExact(reader.GetString()!, Format, CultureInfo.InvariantCulture);
+        var parts = reader.GetString()!.Split("-");
+        var startDate = DateOnly.ParseExact(parts[0], Format, CultureInfo.InvariantCulture);
+        var endDate = DateOnly.ParseExact(parts[1], Format, CultureInfo.InvariantCulture);
+        return new DateRange(startDate, endDate);
     }
 
     /// <summary>
@@ -30,8 +34,8 @@ public class DateOnlyConverter : JsonConverter<DateOnly>
     /// <param name="writer">The writer to write to.</param>
     /// <param name="value">The value to convert to JSON.</param>
     /// <param name="options">An object that specifies serialization options to use.</param>
-    public override void Write(Utf8JsonWriter writer, DateOnly value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, DateRange value, JsonSerializerOptions options)
     {
-        writer.WriteStringValue(value.ToString(Format, CultureInfo.InvariantCulture));
+        writer.WriteStringValue(value.ToString());
     }
 }

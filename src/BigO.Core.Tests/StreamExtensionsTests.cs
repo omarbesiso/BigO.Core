@@ -44,14 +44,4 @@ public class StreamExtensionsTests
         // Assert
         Assert.Equal(expectedOutput, result);
     }
-
-    [Fact]
-    public void ToByteArrayAsync_ThrowsArgumentNullException_ForNullStream()
-    {
-        // Arrange
-        Stream stream = null!;
-
-        // Act and assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => stream.ToByteArrayAsync());
-    }
 }

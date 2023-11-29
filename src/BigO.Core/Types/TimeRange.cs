@@ -2,7 +2,6 @@
 using System.Text.Json.Serialization;
 using BigO.Core.Extensions;
 using BigO.Core.Validation;
-using JetBrains.Annotations;
 
 namespace BigO.Core.Types;
 
@@ -264,79 +263,5 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
     public bool Contains(TimeRange other)
     {
         return StartTime <= other.StartTime && EndTime >= other.EndTime;
-    }
-
-    /// <summary>
-    ///     Removes the specified <see cref="TimeRange" /> from the current instance and returns a
-    ///     <see cref="TimeRangeDiffResult" /> representing the remaining time.
-    /// </summary>
-    /// <param name="other">The time range to remove from the current instance.</param>
-    /// <exception cref="NotSupportedException">Thrown when a non-supported scenario was encountered.</exception>
-    /// <returns>
-    ///     A <see cref="TimeRangeDiffResult" /> containing the remaining time ranges after removing the specified time range,
-    ///     or <c>null</c> if the other time range does not overlap or completely contains the current instance.
-    /// </returns>
-    /// <remarks>
-    ///     This method can handle various scenarios:
-    ///     <list type="bullet">
-    ///         <item>
-    ///             <description>
-    ///                 If the other time range does not overlap with the current instance, the method returns
-    ///                 <c>null</c>.
-    ///             </description>
-    ///         </item>
-    ///         <item>
-    ///             <description>
-    ///                 If the other time range completely contains the current instance, the method returns
-    ///                 <c>null</c>.
-    ///             </description>
-    ///         </item>
-    ///         <item>
-    ///             <description>
-    ///                 If the current instance contains the other time range, the method returns two remaining time
-    ///                 ranges representing the time before and after the other time range.
-    ///             </description>
-    ///         </item>
-    ///         <item>
-    ///             <description>
-    ///                 If the other time range overlaps with the start or end of the current instance, the method
-    ///                 returns the remaining time range after removing the overlapping time.
-    ///             </description>
-    ///         </item>
-    ///     </list>
-    ///     If a non-supported scenario is encountered, a <see cref="NotSupportedException" /> is thrown.
-    /// </remarks>
-    public TimeRangeDiffResult? RemoveTimeRange(TimeRange other)
-    {
-        if (!Overlaps(other) || other.Contains(this))
-        {
-            // The other time range does not over lap or completely contains the current instance.
-            return null;
-        }
-
-        if (Contains(other))
-        {
-            // The other time range is fully contained within this instance, so split it into two time ranges.
-            var beforeRange = new TimeRange(StartTime, other.StartTime);
-            var afterRange = new TimeRange(other.EndTime, EndTime);
-            return new TimeRangeDiffResult(null, beforeRange, afterRange);
-        }
-
-        if (other.StartTime < StartTime)
-        {
-            // The other time range overlaps with the start of this instance, so return the remaining time after the end of the other range.
-            var range = new TimeRange(other.EndTime, EndTime);
-            return new TimeRangeDiffResult(range);
-        }
-
-        if (other.EndTime > EndTime)
-        {
-            // The other time range overlaps with the end of this instance, so return the remaining time before the start of the other range.
-            var range = new TimeRange(StartTime, other.StartTime);
-            return new TimeRangeDiffResult(range);
-        }
-
-        throw new NotSupportedException(
-            $"A non-supported scenario was encountered when removing time range '{other}' from {this}.");
     }
 }

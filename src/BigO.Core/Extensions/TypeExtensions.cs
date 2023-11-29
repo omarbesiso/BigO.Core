@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.Serialization;
-using JetBrains.Annotations;
 
 // ReSharper disable InvalidXmlDocComment
 
@@ -14,6 +13,8 @@ namespace BigO.Core.Extensions;
 [PublicAPI]
 public static class TypeExtensions
 {
+    private static readonly Type ExtensionsClassType = typeof(TypeExtensions);
+    private static readonly MethodInfo DefaultValueMethod = ExtensionsClassType.GetMethod(nameof(DefaultValue))!;
     private static readonly ConcurrentDictionary<Type, object?> DefaultValues = new();
 
     private static readonly Dictionary<Type, string> TypeAlias = new()
@@ -91,69 +92,7 @@ public static class TypeExtensions
             return value;
         }
 
-        if (type.GetTypeInfo().IsValueType)
-        {
-            if (type == typeof(bool))
-            {
-                value = false;
-            }
-            else if (type == typeof(byte))
-            {
-                value = (byte)0;
-            }
-            else if (type == typeof(char))
-            {
-                value = '\0';
-            }
-            else if (type == typeof(decimal))
-            {
-                value = (decimal)0;
-            }
-            else if (type == typeof(double))
-            {
-                value = (double)0;
-            }
-            else if (type == typeof(float))
-            {
-                value = (float)0;
-            }
-            else if (type == typeof(int))
-            {
-                value = 0;
-            }
-            else if (type == typeof(long))
-            {
-                value = (long)0;
-            }
-            else if (type == typeof(sbyte))
-            {
-                value = (sbyte)0;
-            }
-            else if (type == typeof(short))
-            {
-                value = (short)0;
-            }
-            else if (type == typeof(uint))
-            {
-                value = (uint)0;
-            }
-            else if (type == typeof(ulong))
-            {
-                value = (ulong)0;
-            }
-            else if (type == typeof(ushort))
-            {
-                value = (ushort)0;
-            }
-            else
-            {
-                value = FormatterServices.GetUninitializedObject(type);
-            }
-        }
-        else
-        {
-            value = null;
-        }
+        value = DefaultValueMethod.MakeGenericMethod(type).Invoke(null, null);
 
         DefaultValues[type] = value;
         return value;

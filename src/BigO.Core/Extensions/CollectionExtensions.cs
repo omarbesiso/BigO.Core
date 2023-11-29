@@ -1,6 +1,4 @@
-﻿using JetBrains.Annotations;
-
-namespace BigO.Core.Extensions;
+﻿namespace BigO.Core.Extensions;
 
 /// <summary>
 ///     Provides a set of useful extension methods for working with <see cref="ICollection{T}" /> objects.
@@ -9,68 +7,77 @@ namespace BigO.Core.Extensions;
 public static class CollectionExtensions
 {
     /// <summary>
-    ///     Adds a value to a collection only if it does not already exist in the collection.
+    ///     Adds a value to the collection if it does not already exist in the collection.
     /// </summary>
     /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <param name="collection">The collection to which the value will be added.</param>
+    /// <param name="value">The value to add to the collection.</param>
+    /// <returns>
+    ///     <c>true</c> if the value was added to the collection;
+    ///     <c>false</c> if the value already exists in the collection.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if the collection is <c>null</c>.</exception>
     /// <remarks>
-    ///     This method is an extension method for ICollection types. It adds a value to the collection only if it does not
-    ///     already exist in the collection.
+    ///     This method checks if the collection already contains the given value. If not, the value is added.
+    ///     For collections that implement <see cref="HashSet{T}" />, this operation is more efficient as
+    ///     <see cref="HashSet{T}.Add" /> is used, which already handles uniqueness checks.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
-    ///     var collection = new List<int>() { 1, 2, 3 };
-    ///     collection.AddUnique(4);
-    ///     collection.AddUnique(3);
-    ///     Console.WriteLine(string.Join(",", collection));  // Output: "1,2,3,4"
-    /// ]]></code>
+    ///     ICollection<int> numbers = new List<int>();
+    ///     bool added = numbers.AddUnique(1);
+    ///     // added is true, numbers now contains 1
+    ///     
+    ///     added = numbers.AddUnique(1);
+    ///     // added is false, numbers still contains only 1
+    ///     ]]></code>
     /// </example>
-    /// <param name="collection">The collection to add the value to.</param>
-    /// <param name="value">The value to add to the collection.</param>
-    /// <returns>True if the value was added to the collection; otherwise, false.</returns>
-    /// <exception cref="System.ArgumentNullException">Thrown when collection is null.</exception>
     public static bool AddUnique<T>([NoEnumeration] this ICollection<T> collection, T value)
     {
-        if (collection == null)
+        switch (collection)
         {
-            throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
+            case null:
+                throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
+            // If collection is a HashSet<T>, this will be more efficient.
+            case HashSet<T> hashSet:
+                return hashSet.Add(value);
         }
 
-        // If collection is a HashSet<T>, this will be more efficient.
-        if (collection is HashSet<T> hashSet)
+        if (collection.Contains(value))
         {
-            return hashSet.Add(value);
+            return false;
         }
 
-        if (!collection.Contains(value))
-        {
-            collection.Add(value);
-            return true;
-        }
-
-        return false;
+        collection.Add(value);
+        return true;
     }
 
     /// <summary>
-    ///     Adds a range of values to a collection, only adding values that do not already exist in the collection.
+    ///     Adds a range of unique values to the collection.
     /// </summary>
-    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <typeparam name="T">The type of elements in the collection and enumerable.</typeparam>
+    /// <param name="collection">The collection to which the values will be added.</param>
+    /// <param name="values">The values to add to the collection.</param>
+    /// <returns>
+    ///     The count of values successfully added to the collection.
+    ///     If the values are already present in the collection, they are not added, and hence not counted.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown if the collection is <c>null</c>. The method returns 0 if the values are <c>null</c>.
+    /// </exception>
     /// <remarks>
-    ///     This method is an extension method for ICollection types. It adds a range of values to the collection, only adding
-    ///     values that do not already exist in the collection.
+    ///     This method iterates over the provided values and adds each one to the collection if it does not already exist.
+    ///     For collections that implement <see cref="HashSet{T}" />, this operation is more efficient.
+    ///     For other types of collections, the method uses a temporary <see cref="HashSet{T}" /> to buffer the values,
+    ///     which helps in avoiding duplicate entries.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
-    ///     var collection = new List<int>() { 1, 2, 3 };
-    ///     var valuesToAdd = new List<int>() { 2, 3, 4 };
-    ///     int count = collection.AddUniqueRange(valuesToAdd);
-    ///     Console.WriteLine(string.Join(",", collection));  // Output: "1,2,3,4"
-    ///     Console.WriteLine(count);  // Output: 1
-    /// ]]></code>
+    ///     ICollection<int> numbers = new List<int> { 1, 2 };
+    ///     int addedCount = numbers.AddUniqueRange(new int[] { 2, 3, 4 });
+    ///     // addedCount is 2, numbers now contains { 1, 2, 3, 4 }
+    ///     ]]></code>
     /// </example>
-    /// <param name="collection">The collection to add the values to.</param>
-    /// <param name="values">The values to add to the collection.</param>
-    /// <returns>The number of values that were added to the collection.</returns>
-    /// <exception cref="System.ArgumentNullException">Thrown when collection is null.</exception>
     public static int AddUniqueRange<T>([NoEnumeration] this ICollection<T> collection, IEnumerable<T>? values)
     {
         if (collection == null)
@@ -88,67 +95,45 @@ public static class CollectionExtensions
         // Special case for HashSet<T>
         if (collection is HashSet<T> hashSet)
         {
-            foreach (var value in values)
-            {
-                if (hashSet.Add(value))
-                {
-                    counter++;
-                }
-            }
-
+            counter += values.Count(hashSet.Add);
             return counter;
         }
 
         // Buffer values for other collections
         var valueSet = new HashSet<T>(values);
 
-        foreach (var value in valueSet)
+        foreach (var value in valueSet.Where(value => !collection.Contains(value)))
         {
-            if (!collection.Contains(value))
-            {
-                collection.Add(value);
-                counter++;
-            }
+            collection.Add(value);
+            counter++;
         }
 
         return counter;
     }
 
     /// <summary>
-    ///     Removes all the elements that match the conditions defined by the specified predicate from the collection.
+    ///     Removes all the elements from a collection that match the conditions defined by the specified predicate.
     /// </summary>
-    /// <typeparam name="T">The type of the elements in the collection.</typeparam>
-    /// <param name="collection">The collection to remove elements from.</param>
-    /// <param name="predicate">The predicate used to determine if an element should be removed.</param>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <param name="collection">The collection from which elements will be removed.</param>
+    /// <param name="predicate">The delegate that defines the conditions of the elements to remove.</param>
     /// <returns>The number of elements removed from the collection.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown if either the collection or the predicate is <c>null</c>.
+    /// </exception>
     /// <remarks>
-    ///     This method will remove all the elements from the collection that match the specified <paramref name="predicate" />
-    ///     .
-    ///     The elements are removed in reverse order to avoid invalidating the index of the remaining elements. If the
-    ///     <paramref name="collection" />
-    ///     is a <see cref="List{T}" />, then the <see cref="List{T}.RemoveAll" /> method is used instead to improve
-    ///     performance.
+    ///     This method iterates through the collection and removes each element that matches the conditions
+    ///     defined by the specified predicate. If the collection implements <see cref="List{T}" />,
+    ///     <see cref="List{T}.RemoveAll" /> is used for a more efficient removal process.
+    ///     For other types of collections, the method iterates through the collection in reverse order to remove elements.
     /// </remarks>
     /// <example>
-    ///     The following code example removes all the negative integers from a list:
     ///     <code><![CDATA[
-    /// var list = new List<int> { 1, -2, 3, -4, 5 };
-    /// int count = list.RemoveWhere(i => i < 0);
-    /// Console.WriteLine($"Removed {count} elements from the list.");
-    /// foreach (int i in list)
-    /// {
-    ///     Console.WriteLine(i);
-    /// }
-    /// // Output:
-    /// // Removed 2 elements from the list.
-    /// // 1
-    /// // 3
-    /// // 5
-    /// ]]></code>
+    ///     ICollection<int> numbers = new List<int> { 1, 2, 3, 4, 5 };
+    ///     int removedCount = numbers.RemoveWhere(x => x % 2 == 0);
+    ///     // removedCount is 2, numbers now contains { 1, 3, 5 }
+    ///     ]]></code>
     /// </example>
-    /// <exception cref="ArgumentNullException">
-    ///     <paramref name="collection" /> or <paramref name="predicate" /> is null.
-    /// </exception>
     public static int RemoveWhere<T>([NoEnumeration] this ICollection<T> collection, Predicate<T> predicate)
     {
         if (collection == null)
@@ -187,41 +172,35 @@ public static class CollectionExtensions
         return count;
     }
 
-
     /// <summary>
     ///     Adds an element to the collection if it satisfies the specified predicate.
     /// </summary>
-    /// <typeparam name="T">The type of the elements in the collection.</typeparam>
-    /// <param name="collection">The collection to add the element to.</param>
-    /// <param name="predicate">The predicate used to determine if the element should be added.</param>
-    /// <param name="value">The value to add to the collection.</param>
-    /// <returns>True if the element was added to the collection, otherwise false.</returns>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <param name="collection">The collection to which the element will be added.</param>
+    /// <param name="predicate">The predicate that determines if the element should be added.</param>
+    /// <param name="value">The element to add to the collection.</param>
+    /// <returns>
+    ///     <c>true</c> if the element is added to the collection;
+    ///     <c>false</c> if the element does not satisfy the predicate and is not added.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown if either the collection or the predicate is <c>null</c>.
+    /// </exception>
     /// <remarks>
-    ///     This method will add the specified <paramref name="value" /> to the <paramref name="collection" /> if it satisfies
-    ///     the specified <paramref name="predicate" />.
-    ///     If the <paramref name="collection" /> is null, an <see cref="ArgumentNullException" /> is thrown.
-    ///     If the <paramref name="predicate" /> is null, an <see cref="ArgumentNullException" /> is thrown.
+    ///     This method checks whether the provided value satisfies the predicate. If so, the value is added to the collection.
+    ///     It's a convenient way to add elements conditionally without needing separate conditional logic outside the method
+    ///     call.
     /// </remarks>
     /// <example>
-    ///     The following code example adds a string to a list if it starts with the letter 'A':
     ///     <code><![CDATA[
-    /// var list = new List<string> { "Apple", "Banana", "Cherry" };
-    /// bool added = list.AddIf(s => s.StartsWith("A"), "Apricot");
-    /// Console.WriteLine(added); // True
-    /// foreach (string s in list)
-    /// {
-    ///     Console.WriteLine(s);
-    /// }
-    /// // Output:
-    /// // Apple
-    /// // Banana
-    /// // Cherry
-    /// // Apricot
-    /// ]]></code>
+    ///     ICollection<int> numbers = new List<int>();
+    ///     bool added = numbers.AddIf(x => x > 0, 5);
+    ///     // added is true, numbers now contains 5
+    ///     
+    ///     added = numbers.AddIf(x => x > 0, -1);
+    ///     // added is false, numbers still contains only 5
+    ///     ]]></code>
     /// </example>
-    /// <exception cref="ArgumentNullException">
-    ///     <paramref name="collection" /> or <paramref name="predicate" /> is null.
-    /// </exception>
     public static bool AddIf<T>(this ICollection<T> collection, Func<T, bool> predicate, T value)
     {
         if (collection is null)
@@ -244,28 +223,35 @@ public static class CollectionExtensions
     }
 
     /// <summary>
-    ///     Determines whether the collection contains any of the specified values.
+    ///     Checks if the collection contains any of the specified elements.
     /// </summary>
-    /// <typeparam name="T">The type of the elements in the collection.</typeparam>
-    /// <param name="collection">The collection to search for the values.</param>
-    /// <param name="values">The values to search for in the collection.</param>
-    /// <returns>True if any of the specified values are found in the collection, otherwise false.</returns>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <param name="collection">The collection to check for the presence of elements.</param>
+    /// <param name="values">The elements to check in the collection.</param>
+    /// <returns>
+    ///     <c>true</c> if the collection contains any of the specified elements;
+    ///     <c>false</c> otherwise.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown if the collection is <c>null</c>.
+    /// </exception>
     /// <remarks>
-    ///     This method will search the <paramref name="collection" /> for any of the specified <paramref name="values" />.
-    ///     If the <paramref name="collection" /> is null, an <see cref="ArgumentNullException" /> is thrown.
+    ///     This method provides an efficient way to determine if a collection contains any elements from a given set.
+    ///     For small sets of values (less than or equal to 5), it directly iterates through the values to check for their
+    ///     presence.
+    ///     For larger sets of values, it uses a <see cref="HashSet{T}" /> for more efficient lookups.
     /// </remarks>
     /// <example>
-    ///     The following code example checks if a list contains any of the specified integers:
     ///     <code><![CDATA[
-    /// var list = new List<int> { 1, 2, 3 };
-    /// bool containsAny = list.ContainsAny(3, 4, 5);
-    /// Console.WriteLine(containsAny); // True
-    /// ]]></code>
+    ///     ICollection<int> numbers = new List<int> { 1, 2, 3, 4, 5 };
+    ///     bool containsAny = numbers.ContainsAny(6, 7, 8);
+    ///     // containsAny is false
+    ///     
+    ///     containsAny = numbers.ContainsAny(3, 6, 9);
+    ///     // containsAny is true
+    ///     ]]></code>
     /// </example>
-    /// <exception cref="ArgumentNullException">
-    ///     <paramref name="collection" /> is null.
-    /// </exception>
-    public static bool ContainsAny<T>(this ICollection<T> collection, params T[] values)
+    public static bool ContainsAny<T>([NoEnumeration] this ICollection<T> collection, params T[] values)
     {
         if (collection == null)
         {
@@ -275,15 +261,7 @@ public static class CollectionExtensions
         // For small collections, direct check might be faster
         if (values.Length <= 5)
         {
-            foreach (var value in values)
-            {
-                if (collection.Contains(value))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return values.Any(collection.Contains);
         }
 
         // For larger collections, using HashSet can be more efficient

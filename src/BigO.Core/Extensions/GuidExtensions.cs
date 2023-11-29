@@ -1,7 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
-
-namespace BigO.Core.Extensions;
+﻿namespace BigO.Core.Extensions;
 
 /// <summary>
 ///     Provides a set of useful extension methods for working with <see cref="Guid" /> objects.

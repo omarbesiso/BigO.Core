@@ -140,7 +140,7 @@ public class GuardTest
     public void StrengthLength_ValidInput_ReturnsInput(string value, int minLength, int maxLength)
     {
         // Act
-        var result = Guard.StrengthLength(value, minLength, maxLength);
+        var result = Guard.StringLengthWithinRange(value, minLength, maxLength);
 
         // Assert
         Assert.Equal(value, result);
@@ -155,19 +155,19 @@ public class GuardTest
     public void StrengthLength_InvalidInput_ThrowsArgumentException(string value, int minLength, int maxLength)
     {
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => Guard.StrengthLength(value, minLength, maxLength));
+        Assert.Throws<ArgumentException>(() => Guard.StringLengthWithinRange(value, minLength, maxLength));
     }
 
     [Fact]
     public void StrengthLength_InvalidMinMaxLength_ThrowsArgumentException()
     {
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => Guard.StrengthLength("test", 5, 4));
-        Assert.Throws<ArgumentException>(() => Guard.StrengthLength("test", 5, 3));
-        Assert.Throws<ArgumentException>(() => Guard.StrengthLength("test", 4, 3));
-        Assert.Throws<ArgumentException>(() => Guard.StrengthLength("test", 3, 3));
-        Assert.Throws<ArgumentException>(() => Guard.StrengthLength("test", 3, 2));
-        Assert.Throws<ArgumentException>(() => Guard.StrengthLength("test", 2, 2));
+        Assert.Throws<ArgumentException>(() => Guard.StringLengthWithinRange("test", 5, 4));
+        Assert.Throws<ArgumentException>(() => Guard.StringLengthWithinRange("test", 5, 3));
+        Assert.Throws<ArgumentException>(() => Guard.StringLengthWithinRange("test", 4, 3));
+        Assert.Throws<ArgumentException>(() => Guard.StringLengthWithinRange("test", 3, 3));
+        Assert.Throws<ArgumentException>(() => Guard.StringLengthWithinRange("test", 3, 2));
+        Assert.Throws<ArgumentException>(() => Guard.StringLengthWithinRange("test", 2, 2));
     }
 
     [Theory]
@@ -200,7 +200,7 @@ public class GuardTest
     public void Range_ValidInput_DoesNotThrowException(int value, int min, int max, string argName)
     {
         // Act
-        Guard.Range(value, min, max, argName);
+        Guard.WithinRange(value, min, max, argName);
     }
 
     [Theory]
@@ -209,7 +209,7 @@ public class GuardTest
     public void Range_InvalidInput_ThrowsArgumentException(int value, int min, int max, string argName)
     {
         // Act and Assert
-        Assert.Throws<ArgumentException>(() => Guard.Range(value, min, max, argName));
+        Assert.Throws<ArgumentException>(() => Guard.WithinRange(value, min, max, argName));
     }
 
     [Theory]
@@ -273,7 +273,7 @@ public class GuardTest
 
         // Act
         // Assert
-        Assert.Throws<ArgumentException>(() => Guard.Regex(value, pattern, exceptionMessage: exceptionMessage));
+        Assert.Throws<ArgumentException>(() => Guard.MatchesRegex(value, pattern, exceptionMessage: exceptionMessage));
     }
 
     [Theory]
@@ -284,7 +284,7 @@ public class GuardTest
         // Arrange
         // Act
         // Assert
-        Assert.Throws<ArgumentException>(() => Guard.Regex(value, pattern, exceptionMessage: exceptionMessage));
+        Assert.Throws<ArgumentException>(() => Guard.MatchesRegex(value, pattern, exceptionMessage: exceptionMessage));
     }
 
     [Theory]
@@ -293,7 +293,7 @@ public class GuardTest
     {
         // Arrange
         // Act
-        var result = Guard.Regex(value, pattern);
+        var result = Guard.MatchesRegex(value, pattern);
 
         // Assert
         Assert.Equal(value, result);

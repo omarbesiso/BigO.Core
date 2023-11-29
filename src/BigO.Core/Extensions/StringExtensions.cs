@@ -1,7 +1,5 @@
 ﻿using System.Net.Mail;
 using System.Text;
-using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 
 namespace BigO.Core.Extensions;
 
@@ -9,10 +7,42 @@ namespace BigO.Core.Extensions;
 ///     Provides a set of useful extension methods for working with <see cref="string" /> objects.
 /// </summary>
 [PublicAPI]
-public static partial class StringExtensions
+public static class StringExtensions
 {
-    [GeneratedRegex(@"\d+", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
-    private static partial Regex DigitsOnlyRegex();
+    /// <summary>
+    ///     Extracts all the digits from the given input string.
+    /// </summary>
+    /// <param name="input">The input string from which the digits are to be extracted.</param>
+    /// <returns>
+    ///     Returns a string containing only the digits from the input. If the input is <c>null</c>, empty, or consists
+    ///     only of white-space characters, an empty string is returned.
+    /// </returns>
+    /// <exception cref="System.ArgumentException">
+    ///     Thrown if the input string contains invalid characters that are not
+    ///     recognized by the internal regex.
+    /// </exception>
+    /// <example>
+    ///     <code><![CDATA[
+    /// string text = "Hello123World";
+    /// string result = text.ExtractDigitsOnly();
+    /// Console.WriteLine(result); // Outputs: "123"
+    /// ]]></code>
+    /// </example>
+    public static string ExtractDigitsOnly(this string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return input;
+        }
+
+        StringBuilder sb = new();
+        foreach (var character in input.Where(char.IsDigit))
+        {
+            sb.Append(character);
+        }
+
+        return sb.ToString();
+    }
 
     /// <summary>
     ///     Determines whether the specified string value is a valid GUID.
@@ -177,10 +207,16 @@ public static partial class StringExtensions
 
         var sb = new StringBuilder(input.Length);
         var capitalizeNext = true;
+        var index = 0;
 
         foreach (var currentChar in input)
         {
-            if (char.IsWhiteSpace(currentChar))
+            if (index == 0 && char.IsAsciiLetterLower(currentChar))
+            {
+                sb.Append(char.ToUpper(currentChar));
+                capitalizeNext = false;
+            }
+            else if (char.IsWhiteSpace(currentChar))
             {
                 capitalizeNext = true;
                 sb.Append(currentChar);
@@ -194,6 +230,8 @@ public static partial class StringExtensions
             {
                 sb.Append(currentChar);
             }
+
+            index++;
         }
 
         return sb.ToString();
@@ -396,36 +434,36 @@ public static partial class StringExtensions
     }
 
     /// <summary>
-    ///     Extracts all the digits from the given input string.
+    ///     Removes all whitespace characters from the specified string.
     /// </summary>
-    /// <param name="input">The input string from which the digits are to be extracted.</param>
-    /// <returns>
-    ///     Returns a string containing only the digits from the input. If the input is <c>null</c>, empty, or consists
-    ///     only of white-space characters, an empty string is returned.
-    /// </returns>
-    /// <exception cref="System.ArgumentException">
-    ///     Thrown if the input string contains invalid characters that are not
-    ///     recognized by the internal regex.
-    /// </exception>
+    /// <param name="input">The string from which to remove whitespace.</param>
+    /// <returns>A new string with all whitespace characters removed from the input string.</returns>
+    /// <remarks>
+    ///     This method iterates through each character in the input string and appends only non-whitespace characters to a new
+    ///     string.
+    ///     It's useful in scenarios where whitespace is not required or should be ignored, such as processing user input or
+    ///     preparing strings for comparison.
+    /// </remarks>
     /// <example>
     ///     <code><![CDATA[
-    /// string text = "Hello123World";
-    /// string result = text.ExtractDigitsOnly();
-    /// Console.WriteLine(result); // Outputs: "123"
-    /// ]]></code>
+    ///     string input = "  Hello  World  ";
+    ///     string result = RemoveWhitespace(input);
+    ///     // result is "HelloWorld"
+    ///     ]]></code>
     /// </example>
-    /// <remarks>
-    ///     The method utilizes the <see cref="DigitsOnlyRegex" /> to match and extract digits from the provided input string.
-    ///     It is designed to be an extension method for the <see cref="System.String" /> class, meaning it can be called
-    ///     directly on string instances. If the input string is <c>null</c>, empty or only white-space, the method will return
-    ///     an empty string without throwing an exception. It is essential to ensure that the regex pattern used in
-    ///     <see cref="DigitsOnlyRegex" /> is correct and valid for this method to work correctly. The method assumes that the
-    ///     regex will match valid strings and does not check for potential regex pattern mismatches. Hence, an
-    ///     <see cref="System.ArgumentException" /> could be thrown if the regex encounters unrecognized characters in the
-    ///     input string.
-    /// </remarks>
-    public static string ExtractDigitsOnly(this string input)
+    public static string? RemoveWhitespace(string? input)
     {
-        return string.IsNullOrWhiteSpace(input) ? string.Empty : DigitsOnlyRegex().Match(input).Value;
+        if (string.IsNullOrEmpty(input) || !input.Any(char.IsWhiteSpace))
+        {
+            return input;
+        }
+
+        var stringBuilder = new StringBuilder(input.Length);
+        foreach (var c in input.Where(c => !char.IsWhiteSpace(c)))
+        {
+            stringBuilder.Append(c);
+        }
+
+        return stringBuilder.ToString();
     }
 }

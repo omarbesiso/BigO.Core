@@ -1,6 +1,4 @@
 ﻿using System.Globalization;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 
 namespace BigO.Core.Extensions;
 
@@ -11,23 +9,45 @@ namespace BigO.Core.Extensions;
 public static class DateOnlyExtensions
 {
     /// <summary>
+    ///     Converts a <see cref="DateOnly" /> object to a <see cref="DateTime" /> object.
+    /// </summary>
+    /// <param name="dateOnly">The <see cref="DateOnly" /> object to convert.</param>
+    /// <returns>A <see cref="DateTime" /> object representing the date with the time set to midnight.</returns>
+    /// <remarks>
+    ///     This method creates a <see cref="DateTime" /> object from a <see cref="DateOnly" /> object.
+    ///     The resulting <see cref="DateTime" /> has the same year, month, and day as the <see cref="DateOnly" /> object,
+    ///     and the time component is set to 00:00:00 (midnight). It is useful for scenarios where a <see cref="DateOnly" />
+    ///     needs to be used in contexts that require a full <see cref="DateTime" /> object.
+    /// </remarks>
+    /// <example>
+    ///     <code><![CDATA[
+    ///     DateOnly dateOnly = new DateOnly(2023, 1, 15);
+    ///     DateTime dateTime = dateOnly.ToDateTime();
+    ///     // dateTime is January 15, 2023, at 00:00:00
+    ///     ]]></code>
+    /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static DateTime ToDateTime(this DateOnly dateOnly)
+    {
+        return new DateTime(dateOnly.Year, dateOnly.Month, dateOnly.Day);
+    }
+
+    /// <summary>
     ///     Calculates the age of a person based on their date of birth, an optional maturity date, and an optional time zone.
     /// </summary>
     /// <param name="dateOfBirth">The date of birth of the person.</param>
     /// <param name="maturityDate">
-    ///     An optional maturity date to calculate the age. If not provided, the current date will be
-    ///     used.
+    ///     An optional maturity date to calculate the age. If not provided, the current date will be used.
     /// </param>
     /// <param name="timeZoneInfo">
     ///     An optional time zone to determine the current date if <paramref name="maturityDate" /> is
-    ///     <c>null</c>. If not provided, UTC will be used.
+    ///     <c>null</c>. If not provided, local system time zone will be used.
     /// </param>
     /// <returns>The calculated age in years.</returns>
     /// <remarks>
-    ///     This method will calculate the age in years based on the <paramref name="dateOfBirth" /> and optional
-    ///     <paramref name="maturityDate" />. If the <paramref name="maturityDate" /> is null, the current date is used. If the
-    ///     <paramref name="timeZoneInfo" /> is null, UTC is used. The age is calculated based on the number of full
-    ///     years, rounding down if necessary.
+    ///     This method calculates the age in years based on the number of full years, rounding down if necessary.
+    ///     If the <paramref name="maturityDate" /> is null, the current date is used. If the
+    ///     <paramref name="timeZoneInfo" /> is null, the local system time zone is used.
     /// </remarks>
     /// <example>
     ///     The following code example calculates the age based on the date of birth:
@@ -43,35 +63,48 @@ public static class DateOnlyExtensions
     /// </example>
     public static int Age(this DateOnly dateOfBirth, DateOnly? maturityDate = null, TimeZoneInfo? timeZoneInfo = null)
     {
-        var today = maturityDate ?? (timeZoneInfo == null
-            ? DateTime.UtcNow.ToDateOnly()
-            : TimeZoneInfo.ConvertTime(DateTime.UtcNow, timeZoneInfo).ToDateOnly());
+        if (dateOfBirth > DateOnly.FromDateTime(DateTime.Now))
+        {
+            throw new ArgumentException("Date of birth cannot be in the future.");
+        }
+
+        timeZoneInfo ??= TimeZoneInfo.Local;
+        var today = maturityDate ?? TimeZoneInfo.ConvertTime(DateTime.UtcNow, timeZoneInfo).ToDateOnly();
 
         var age = today.Year - dateOfBirth.Year;
 
-        return dateOfBirth > today.AddYears(-age) ? age - 1 : age;
+        if (dateOfBirth > today.AddYears(-age))
+        {
+            age--;
+        }
+
+        return age;
     }
 
     /// <summary>
-    ///     Adds a specified number of weeks to the specified date.
+    ///     Adds a specified number of weeks to a <see cref="DateOnly" /> object.
     /// </summary>
-    /// <param name="date">The date to add weeks to.</param>
-    /// <param name="numberOfWeeks">The number of weeks to add to the <paramref name="date" />.</param>
+    /// <param name="date">The <see cref="DateOnly" /> object to which weeks will be added.</param>
+    /// <param name="numberOfWeeks">The number of weeks to add, which can be fractional.</param>
     /// <returns>
-    ///     The <see cref="DateOnly" /> value that is <paramref name="numberOfWeeks" /> weeks ahead of the
-    ///     <paramref name="date" />.
+    ///     A <see cref="DateOnly" /> object that is the result of adding the specified number of weeks to the original
+    ///     date.
     /// </returns>
     /// <remarks>
-    ///     This method adds a specified number of weeks to the specified <paramref name="date" />.
-    ///     The number of days to add is calculated as <paramref name="numberOfWeeks" /> times 7.
+    ///     This method allows for the addition of fractional weeks to a date by converting the weeks to days and using
+    ///     <see cref="DateOnly.AddDays" />.
+    ///     It employs <see cref="Math.Ceiling(decimal)" /> to round up to the nearest day, ensuring that partial weeks are
+    ///     counted as full days.
+    ///     The method is marked with the <see cref="MethodImplAttribute" /> and the
+    ///     <see cref="MethodImplOptions.AggressiveInlining" /> option, allowing the JIT compiler to inline the method's body
+    ///     at the call site for improved performance.
     /// </remarks>
     /// <example>
-    ///     The following code example adds 2 weeks to a date:
     ///     <code><![CDATA[
-    /// var date = new DateOnly(2022, 3, 27);
-    /// var newDate = date.AddWeeks(2);
-    /// Console.WriteLine(newDate); // 2022-04-10
-    /// ]]></code>
+    ///     DateOnly date = new DateOnly(2023, 1, 1);
+    ///     DateOnly newDate = date.AddWeeks(2.5);
+    ///     // newDate is January 18, 2023, as 2.5 weeks (17.5 days) rounds up to 18 days
+    ///     ]]></code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateOnly AddWeeks(this DateOnly date, double numberOfWeeks)
@@ -80,50 +113,72 @@ public static class DateOnlyExtensions
     }
 
     /// <summary>
-    ///     Gets the number of days in the month of the specified date.
+    ///     Gets the number of days in the month of the specified <see cref="DateOnly" />.
     /// </summary>
-    /// <param name="date">The date to get the number of days in the month for.</param>
-    /// <returns>The number of days in the month of the specified <paramref name="date" />.</returns>
+    /// <param name="date">The <see cref="DateOnly" /> object from which to extract the month and year.</param>
+    /// <returns>The number of days in the month of the given date.</returns>
     /// <remarks>
-    ///     This method will get the number of days in the month of the specified <paramref name="date" />.
+    ///     This extension method simplifies obtaining the number of days in a specific month and year by using the
+    ///     <see cref="DateTime.DaysInMonth" /> method.
+    ///     It is particularly useful for date-related calculations, such as generating calendars, planning monthly schedules,
+    ///     or validating date input.
+    ///     The method is marked with the <see cref="MethodImplAttribute" /> and the
+    ///     <see cref="MethodImplOptions.AggressiveInlining" /> option, allowing the JIT compiler to inline the method's body
+    ///     at the call site for improved performance.
     /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Thrown if:
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <description>The month component of <paramref name="date" /> is less than 1 or greater than 12.</description>
+    ///         </item>
+    ///         <item>
+    ///             <description>The year component of <paramref name="date" /> is less than 1 or greater than 9999.</description>
+    ///         </item>
+    ///     </list>
+    /// </exception>
     /// <example>
-    ///     The following code example gets the number of days in the current month:
     ///     <code><![CDATA[
-    /// var date = new DateOnly(2022, 3, 27);
-    /// int daysInMonth = date.DaysInMonth();
-    /// Console.WriteLine(daysInMonth); // 31
-    /// ]]></code>
+    ///     DateOnly date = new DateOnly(2023, 2, 15);
+    ///     int days = date.DaysInMonth();
+    ///     // days is 28, as February 2023 has 28 days
+    ///     ]]></code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int DaysInMonth(this DateOnly date)
     {
         return DateTime.DaysInMonth(date.Year, date.Month);
     }
 
     /// <summary>
-    ///     Gets the first date of the month for the specified date, optionally for the specified day of the week.
+    ///     Gets the first date of the month for the specified <see cref="DateOnly" />. Optionally, finds the first occurrence
+    ///     of a specific <see cref="DayOfWeek" />.
     /// </summary>
-    /// <param name="date">The date to get the first date of the month for.</param>
-    /// <param name="dayOfWeek">The optional day of the week to get the first date of the month for.</param>
-    /// <returns>The first date of the month for the specified <paramref name="date" />.</returns>
+    /// <param name="date">The <see cref="DateOnly" /> object from which to extract the month and year.</param>
+    /// <param name="dayOfWeek">
+    ///     Optional. The day of the week to find within the month. If null, the first day of the month is
+    ///     returned.
+    /// </param>
+    /// <returns>
+    ///     The first date of the month, or the first occurrence of the specified <see cref="DayOfWeek" /> within that month.
+    /// </returns>
     /// <remarks>
-    ///     This method will get the first date of the month for the specified <paramref name="date" />.
-    ///     If the optional <paramref name="dayOfWeek" /> is specified, this method will return the first date of the month
-    ///     that matches the specified <paramref name="dayOfWeek" />.
+    ///     This method calculates the first date of the specified month from the given date. If a <see cref="DayOfWeek" /> is
+    ///     provided,
+    ///     it iterates through the dates of the month until it finds the first date that matches the specified day of the
+    ///     week.
+    ///     This is useful for scheduling and calendar-related functionality where the first occurrence of a particular day is
+    ///     needed.
     /// </remarks>
     /// <example>
-    ///     The following code example gets the first date of the current month:
     ///     <code><![CDATA[
-    /// var date = new DateOnly(2022, 3, 27);
-    /// var firstDateOfMonth = date.GetFirstDateOfMonth();
-    /// Console.WriteLine(firstDateOfMonth); // 2022-03-01
-    /// ]]></code>
-    ///     The following code example gets the first Friday of the current month:
-    ///     <code><![CDATA[
-    /// var date = new DateOnly(2022, 3, 27);
-    /// var firstFridayOfMonth = date.GetFirstDateOfMonth(DayOfWeek.Friday);
-    /// Console.WriteLine(firstFridayOfMonth); // 2022-03-04
-    /// ]]></code>
+    ///     DateOnly date = new DateOnly(2023, 1, 15);
+    ///     DateOnly firstDate = date.GetFirstDateOfMonth();
+    ///     // firstDate is January 1, 2023
+    /// 
+    ///     DateOnly firstMonday = date.GetFirstDateOfMonth(DayOfWeek.Monday);
+    ///     // firstMonday is January 2, 2023
+    ///     ]]></code>
     /// </example>
     public static DateOnly GetFirstDateOfMonth(this DateOnly date, DayOfWeek? dayOfWeek = null)
     {
@@ -143,27 +198,36 @@ public static class DateOnlyExtensions
     }
 
     /// <summary>
-    ///     Gets the first date of the week for a given date, based on the week rules of an optional <see cref="CultureInfo" />
-    ///     .
+    ///     Gets the first date of the week for the specified <see cref="DateOnly" />, based on the specified or current
+    ///     culture's first day of the week.
     /// </summary>
-    /// <param name="date">The date for which to find the first date of the week.</param>
+    /// <param name="date">The <see cref="DateOnly" /> object from which to find the first date of the week.</param>
     /// <param name="cultureInfo">
-    ///     An optional <see cref="CultureInfo" /> to determine the first day of the week. If not
-    ///     provided, the current culture will be used.
+    ///     Optional. The <see cref="CultureInfo" /> to determine the first day of the week.
+    ///     If null, the current culture is used.
     /// </param>
-    /// <returns>The first date of the week for the given date.</returns>
+    /// <returns>
+    ///     A <see cref="DateOnly" /> object representing the first date of the week for the specified date.
+    /// </returns>
+    /// <remarks>
+    ///     This method calculates the first date of the week based on the specified or current culture's definition of the
+    ///     first day of the week.
+    ///     It iterates backwards from the given date until it reaches the defined first day of the week.
+    ///     This method is particularly useful in applications involving calendar and scheduling functionality where the start
+    ///     of the week varies depending on cultural settings.
+    /// </remarks>
     /// <example>
     ///     <code><![CDATA[
-    /// DateOnly date = new(2023, 3, 28);
-    /// DateOnly firstDateOfWeek = date.GetFirstDateOfWeek(); // firstDateOfWeek will be the first date of the week based on the current culture
-    /// ]]></code>
+    ///     DateOnly date = new DateOnly(2023, 1, 15); // Assuming this is a Wednesday
+    ///     DateOnly firstDateOfWeek = date.GetFirstDateOfWeek();
+    ///     // firstDateOfWeek is the previous Sunday, based on the current culture's first day of the week
+    /// 
+    ///     // Using a specific culture
+    ///     CultureInfo germanCulture = new CultureInfo("de-DE");
+    ///     firstDateOfWeek = date.GetFirstDateOfWeek(germanCulture);
+    ///     // firstDateOfWeek is the previous Monday, based on German culture's first day of the week
+    ///     ]]></code>
     /// </example>
-    /// <remarks>
-    ///     This extension method calculates the first date of the week for a given date based on the week rules of an optional
-    ///     <see cref="CultureInfo" />. If no <paramref name="cultureInfo" /> is provided, the current culture will be used.
-    ///     The method iterates through the days of the week, starting from the given date, moving backwards until it finds the
-    ///     first day of the week according to the specified culture.
-    /// </remarks>
     public static DateOnly GetFirstDateOfWeek(this DateOnly date, CultureInfo? cultureInfo = null)
     {
         var ci = cultureInfo ?? CultureInfo.CurrentCulture;
@@ -178,28 +242,35 @@ public static class DateOnlyExtensions
     }
 
     /// <summary>
-    ///     Gets the last date of the month for a given date, optionally filtered by a specific day of the week.
+    ///     Gets the last date of the month for the specified <see cref="DateOnly" />. Optionally, finds the last occurrence of
+    ///     a specific <see cref="DayOfWeek" />.
     /// </summary>
-    /// <param name="date">The date for which to find the last date of the month.</param>
+    /// <param name="date">The <see cref="DateOnly" /> object from which to find the last date of the month.</param>
     /// <param name="dayOfWeek">
-    ///     An optional <see cref="DayOfWeek" /> to filter the last date of the month. If not provided, the
-    ///     last day of the month will be returned.
+    ///     Optional. The day of the week to find within the month. If null, the last day of the month is
+    ///     returned.
     /// </param>
-    /// <returns>The last date of the month, optionally filtered by the specified day of the week.</returns>
+    /// <returns>
+    ///     The last date of the month, or the last occurrence of the specified <see cref="DayOfWeek" /> within that month.
+    /// </returns>
+    /// <remarks>
+    ///     This method calculates the last date of the specified month from the given date. If a <see cref="DayOfWeek" /> is
+    ///     provided,
+    ///     it iterates backwards from the last day of the month until it finds the last date that matches the specified day of
+    ///     the week.
+    ///     This method is useful for scheduling and calendar-related functionality, such as determining the end of a billing
+    ///     cycle or planning monthly events.
+    /// </remarks>
     /// <example>
     ///     <code><![CDATA[
-    /// DateOnly date = new(2023, 3, 28);
-    /// DateOnly lastDateOfMonth = date.GetLastDateOfMonth(); // lastDateOfMonth will be the last date of the month
-    /// DateOnly lastFridayOfMonth = date.GetLastDateOfMonth(DayOfWeek.Friday); // lastFridayOfMonth will be the last Friday of the month
-    /// ]]></code>
+    ///     DateOnly date = new DateOnly(2023, 1, 15);
+    ///     DateOnly lastDate = date.GetLastDateOfMonth();
+    ///     // lastDate is January 31, 2023
+    /// 
+    ///     DateOnly lastFriday = date.GetLastDateOfMonth(DayOfWeek.Friday);
+    ///     // lastFriday is January 27, 2023
+    ///     ]]></code>
     /// </example>
-    /// <remarks>
-    ///     This extension method calculates the last date of the month for a given date, optionally filtered by a specific day
-    ///     of the week.
-    ///     If no <paramref name="dayOfWeek" /> is provided, the last date of the month will be returned. Otherwise, the method
-    ///     iterates through the days of the month, starting from the last date, moving backwards until it finds the specified
-    ///     day of the week.
-    /// </remarks>
     public static DateOnly GetLastDateOfMonth(this DateOnly date, DayOfWeek? dayOfWeek = null)
     {
         var lastDateOfMonth = new DateOnly(date.Year, date.Month, DaysInMonth(date));

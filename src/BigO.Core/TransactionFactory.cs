@@ -1,5 +1,4 @@
 ﻿using System.Transactions;
-using JetBrains.Annotations;
 
 namespace BigO.Core;
 
@@ -46,7 +45,8 @@ public static class TransactionFactory
     ///     <see cref="TransactionScopeOption.Required" />, and <see cref="TransactionScopeAsyncFlowOption.Enabled" />. If no
     ///     timeout is provided, it uses the <see cref="TransactionManager.MaximumTimeout" /> value.
     /// </remarks>
-    public static TransactionScope CreateTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
+    public static TransactionScope CreateTransaction(
+        IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
         TransactionScopeOption transactionScopeOption = TransactionScopeOption.Required,
         TransactionScopeAsyncFlowOption transactionScopeAsyncFlowOption = TransactionScopeAsyncFlowOption.Enabled,
         TimeSpan? timeOut = null)

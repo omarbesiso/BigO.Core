@@ -1,6 +1,4 @@
 ﻿using System.Globalization;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 
 namespace BigO.Core.Extensions;
 
@@ -11,23 +9,70 @@ namespace BigO.Core.Extensions;
 public static class DateTimeExtensions
 {
     /// <summary>
+    ///     Converts a <see cref="DateTime" /> object to a <see cref="DateOnly" /> object.
+    /// </summary>
+    /// <param name="dateTime">The <see cref="DateTime" /> object to convert.</param>
+    /// <returns>A <see cref="DateOnly" /> object representing the date part of the provided <see cref="DateTime" />.</returns>
+    /// <remarks>
+    ///     This extension method is useful for scenarios where only the date part of a <see cref="DateTime" /> object is
+    ///     needed,
+    ///     and the time part can be disregarded. The resulting <see cref="DateOnly" /> object encapsulates the year, month,
+    ///     and day
+    ///     components of the original <see cref="DateTime" />.
+    /// </remarks>
+    /// <example>
+    ///     <code><![CDATA[
+    ///     DateTime dateTime = new DateTime(2023, 1, 15, 10, 30, 0);
+    ///     DateOnly dateOnly = dateTime.ToDateOnly();
+    ///     // dateOnly is { Year = 2023, Month = 1, Day = 15 }
+    ///     ]]></code>
+    /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static DateOnly ToDateOnly(this DateTime dateTime)
+    {
+        return new DateOnly(dateTime.Year, dateTime.Month, dateTime.Day);
+    }
+
+    /// <summary>
+    ///     Converts a <see cref="DateTime" /> object to a <see cref="TimeOnly" /> object.
+    /// </summary>
+    /// <param name="dateTime">The <see cref="DateTime" /> object to convert.</param>
+    /// <returns>A <see cref="TimeOnly" /> object representing the time part of the provided <see cref="DateTime" />.</returns>
+    /// <remarks>
+    ///     This extension method is useful for cases where only the time part of a <see cref="DateTime" /> object is needed,
+    ///     and the date part can be disregarded. The resulting <see cref="TimeOnly" /> object encapsulates the hour, minute,
+    ///     second,
+    ///     and millisecond components of the original <see cref="DateTime" />.
+    /// </remarks>
+    /// <example>
+    ///     <code><![CDATA[
+    ///     DateTime dateTime = new DateTime(2023, 1, 15, 10, 30, 0, 500);
+    ///     TimeOnly timeOnly = dateTime.ToTimeOnly();
+    ///     // timeOnly is { Hour = 10, Minute = 30, Second = 0, Millisecond = 500 }
+    ///     ]]></code>
+    /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static TimeOnly ToTimeOnly(this DateTime dateTime)
+    {
+        return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond);
+    }
+
+    /// <summary>
     ///     Calculates the age of a person based on their date of birth, an optional maturity date, and an optional time zone.
     /// </summary>
     /// <param name="dateOfBirth">The date of birth of the person.</param>
     /// <param name="maturityDate">
-    ///     An optional maturity date to calculate the age. If not provided, the current date will be
-    ///     used.
+    ///     An optional maturity date to calculate the age. If not provided, the current date will be used.
     /// </param>
     /// <param name="timeZoneInfo">
     ///     An optional time zone to determine the current date if <paramref name="maturityDate" /> is
-    ///     <c>null</c>. If not provided, UTC will be used.
+    ///     <c>null</c>. If not provided, local system time zone will be used.
     /// </param>
     /// <returns>The calculated age in years.</returns>
     /// <remarks>
-    ///     This method will calculate the age in years based on the <paramref name="dateOfBirth" /> and optional
-    ///     <paramref name="maturityDate" />. If the <paramref name="maturityDate" /> is null, the current date is used. If the
-    ///     <paramref name="timeZoneInfo" /> is null, UTC is used. The age is calculated based on the number of full
-    ///     years, rounding down if necessary.
+    ///     This method calculates the age in years based on the number of full years, rounding down if necessary.
+    ///     If the <paramref name="maturityDate" /> is null, the current date is used. If the
+    ///     <paramref name="timeZoneInfo" /> is null, the local system time zone is used.
     /// </remarks>
     /// <example>
     ///     The following code example calculates the age based on the date of birth:
@@ -43,35 +88,48 @@ public static class DateTimeExtensions
     /// </example>
     public static int Age(this DateTime dateOfBirth, DateTime? maturityDate = null, TimeZoneInfo? timeZoneInfo = null)
     {
-        var today = maturityDate ?? (timeZoneInfo == null
-            ? DateTime.UtcNow
-            : TimeZoneInfo.ConvertTime(DateTime.UtcNow, timeZoneInfo));
+        if (dateOfBirth > DateTime.Now)
+        {
+            throw new ArgumentException("Date of birth cannot be in the future.");
+        }
+
+        timeZoneInfo ??= TimeZoneInfo.Local;
+        var today = maturityDate ?? TimeZoneInfo.ConvertTime(DateTime.UtcNow, timeZoneInfo);
 
         var age = today.Year - dateOfBirth.Year;
 
-        return dateOfBirth > today.AddYears(-age) ? age - 1 : age;
+        if (dateOfBirth > today.AddYears(-age))
+        {
+            age--;
+        }
+
+        return age;
     }
 
     /// <summary>
-    ///     Adds a specified number of weeks to the specified date.
+    ///     Adds a specified number of weeks to a <see cref="DateTime" /> object.
     /// </summary>
-    /// <param name="date">The date to add weeks to.</param>
-    /// <param name="numberOfWeeks">The number of weeks to add to the <paramref name="date" />.</param>
+    /// <param name="date">The <see cref="DateTime" /> object to which weeks will be added.</param>
+    /// <param name="numberOfWeeks">The number of weeks to add, which can be fractional.</param>
     /// <returns>
-    ///     The <see cref="DateTime" /> value that is <paramref name="numberOfWeeks" /> weeks ahead of the
-    ///     <paramref name="date" />.
+    ///     A <see cref="DateTime" /> object that is the result of adding the specified number of weeks to the original
+    ///     date.
     /// </returns>
     /// <remarks>
-    ///     This method adds a specified number of weeks to the specified <paramref name="date" />.
-    ///     The number of days to add is calculated as <paramref name="numberOfWeeks" /> times 7.
+    ///     This method allows for the addition of fractional weeks to a date by converting the weeks to days and using
+    ///     <see cref="DateTime.AddDays" />.
+    ///     It employs <see cref="Math.Ceiling(decimal)" /> to round up to the nearest day, ensuring that partial weeks are
+    ///     counted as full days.
+    ///     The method is marked with the <see cref="MethodImplAttribute" /> and the
+    ///     <see cref="MethodImplOptions.AggressiveInlining" /> option, allowing the JIT compiler to inline the method's body
+    ///     at the call site for improved performance.
     /// </remarks>
     /// <example>
-    ///     The following code example adds 2 weeks to a date:
     ///     <code><![CDATA[
-    /// var date = new DateTime(2022, 3, 27);
-    /// var newDate = date.AddWeeks(2);
-    /// Console.WriteLine(newDate); // 2022-04-10
-    /// ]]></code>
+    ///     DateTime date = new DateTime(2023, 1, 1);
+    ///     DateTime newDate = date.AddWeeks(2.5);
+    ///     // newDate is January 18, 2023, as 2.5 weeks (17.5 days) rounds up to 18 days
+    ///     ]]></code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTime AddWeeks(this DateTime date, double numberOfWeeks)
@@ -80,20 +138,35 @@ public static class DateTimeExtensions
     }
 
     /// <summary>
-    ///     Gets the number of days in the month of the specified date.
+    ///     Gets the number of days in the month of the specified <see cref="DateTime" />.
     /// </summary>
-    /// <param name="date">The date to get the number of days in the month for.</param>
-    /// <returns>The number of days in the month of the specified <paramref name="date" />.</returns>
+    /// <param name="date">The <see cref="DateTime" /> object from which to extract the month and year.</param>
+    /// <returns>The number of days in the month of the given date.</returns>
     /// <remarks>
-    ///     This method will get the number of days in the month of the specified <paramref name="date" />.
+    ///     This extension method simplifies getting the number of days in a specific month and year by using the
+    ///     <see cref="DateTime.DaysInMonth" /> method.
+    ///     It is useful for calculations involving dates, such as generating calendars or validating date input.
+    ///     The method is marked with the <see cref="MethodImplAttribute" /> and the
+    ///     <see cref="MethodImplOptions.AggressiveInlining" /> option, allowing the JIT compiler to inline the method's body
+    ///     at the call site for improved performance.
     /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Thrown if:
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <description>The month component of <paramref name="date" /> is less than 1 or greater than 12.</description>
+    ///         </item>
+    ///         <item>
+    ///             <description>The year component of <paramref name="date" /> is less than 1 or greater than 9999.</description>
+    ///         </item>
+    ///     </list>
+    /// </exception>
     /// <example>
-    ///     The following code example gets the number of days in the current month:
     ///     <code><![CDATA[
-    /// var date = new DateTime(2022, 3, 27);
-    /// int daysInMonth = date.DaysInMonth();
-    /// Console.WriteLine(daysInMonth); // 31
-    /// ]]></code>
+    ///     DateTime date = new DateTime(2023, 2, 15);
+    ///     int days = date.DaysInMonth();
+    ///     // days is 28, as February 2023 has 28 days
+    ///     ]]></code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int DaysInMonth(this DateTime date)
@@ -102,29 +175,32 @@ public static class DateTimeExtensions
     }
 
     /// <summary>
-    ///     Gets the first date of the month for the specified date, optionally for the specified day of the week.
+    ///     Gets the first date of the month for the specified <see cref="DateTime" />. Optionally, finds the first occurrence
+    ///     of a specific <see cref="DayOfWeek" />.
     /// </summary>
-    /// <param name="date">The date to get the first date of the month for.</param>
-    /// <param name="dayOfWeek">The optional day of the week to get the first date of the month for.</param>
-    /// <returns>The first date of the month for the specified <paramref name="date" />.</returns>
+    /// <param name="date">The <see cref="DateTime" /> object from which to extract the month and year.</param>
+    /// <param name="dayOfWeek">
+    ///     Optional. The day of the week to find within the month. If null, the first day of the month is
+    ///     returned.
+    /// </param>
+    /// <returns>
+    ///     The first date of the month, or the first occurrence of the specified <see cref="DayOfWeek" /> within that month.
+    /// </returns>
     /// <remarks>
-    ///     This method will get the first date of the month for the specified <paramref name="date" />.
-    ///     If the optional <paramref name="dayOfWeek" /> is specified, this method will return the first date of the month
-    ///     that matches the specified <paramref name="dayOfWeek" />.
+    ///     This method calculates the first date of the specified month from the given date. If a <see cref="DayOfWeek" /> is
+    ///     provided,
+    ///     it iterates through the dates of the month until it finds the first date that matches the specified day of the
+    ///     week.
     /// </remarks>
     /// <example>
-    ///     The following code example gets the first date of the current month:
     ///     <code><![CDATA[
-    /// var date = new DateTime(2022, 3, 27);
-    /// var firstDateOfMonth = date.GetFirstDateOfMonth();
-    /// Console.WriteLine(firstDateOfMonth); // 2022-03-01
-    /// ]]></code>
-    ///     The following code example gets the first Friday of the current month:
-    ///     <code><![CDATA[
-    /// var date = new DateTime(2022, 3, 27);
-    /// var firstFridayOfMonth = date.GetFirstDateOfMonth(DayOfWeek.Friday);
-    /// Console.WriteLine(firstFridayOfMonth); // 2022-03-04
-    /// ]]></code>
+    ///     DateTime date = new DateTime(2023, 1, 15);
+    ///     DateTime firstDate = date.GetFirstDateOfMonth();
+    ///     // firstDate is January 1, 2023
+    /// 
+    ///     DateTime firstMonday = date.GetFirstDateOfMonth(DayOfWeek.Monday);
+    ///     // firstMonday is January 2, 2023
+    ///     ]]></code>
     /// </example>
     public static DateTime GetFirstDateOfMonth(this DateTime date, DayOfWeek? dayOfWeek = null)
     {
@@ -144,27 +220,36 @@ public static class DateTimeExtensions
     }
 
     /// <summary>
-    ///     Gets the first date of the week for a given date, based on the week rules of an optional <see cref="CultureInfo" />
-    ///     .
+    ///     Gets the first date of the week for the specified <see cref="DateTime" />, based on the specified or current
+    ///     culture's first day of the week.
     /// </summary>
-    /// <param name="date">The date for which to find the first date of the week.</param>
+    /// <param name="date">The <see cref="DateTime" /> object from which to find the first date of the week.</param>
     /// <param name="cultureInfo">
-    ///     An optional <see cref="CultureInfo" /> to determine the first day of the week. If not
-    ///     provided, the current culture will be used.
+    ///     Optional. The <see cref="CultureInfo" /> to determine the first day of the week.
+    ///     If null, the current culture is used.
     /// </param>
-    /// <returns>The first date of the week for the given date.</returns>
+    /// <returns>
+    ///     A <see cref="DateTime" /> object representing the first date of the week for the specified date.
+    /// </returns>
+    /// <remarks>
+    ///     This method calculates the first date of the week based on the specified or current culture's definition of the
+    ///     first day of the week.
+    ///     It iterates backwards from the given date until it reaches the defined first day of the week.
+    ///     This is particularly useful in applications involving calendar and scheduling functionality where the start of the
+    ///     week varies depending on culture.
+    /// </remarks>
     /// <example>
     ///     <code><![CDATA[
-    /// DateTime date = new(2023, 3, 28);
-    /// DateTime firstDateOfWeek = date.GetFirstDateOfWeek(); // firstDateOfWeek will be the first date of the week based on the current culture
-    /// ]]></code>
+    ///     DateTime date = new DateTime(2023, 1, 15); // Assuming this is a Wednesday
+    ///     DateTime firstDateOfWeek = date.GetFirstDateOfWeek();
+    ///     // firstDateOfWeek is the previous Sunday, based on the current culture's first day of the week
+    /// 
+    ///     // Using a specific culture
+    ///     CultureInfo germanCulture = new CultureInfo("de-DE");
+    ///     firstDateOfWeek = date.GetFirstDateOfWeek(germanCulture);
+    ///     // firstDateOfWeek is the previous Monday, based on German culture's first day of the week
+    ///     ]]></code>
     /// </example>
-    /// <remarks>
-    ///     This extension method calculates the first date of the week for a given date based on the week rules of an optional
-    ///     <see cref="CultureInfo" />. If no <paramref name="cultureInfo" /> is provided, the current culture will be used.
-    ///     The method iterates through the days of the week, starting from the given date, moving backwards until it finds the
-    ///     first day of the week according to the specified culture.
-    /// </remarks>
     public static DateTime GetFirstDateOfWeek(this DateTime date, CultureInfo? cultureInfo = null)
     {
         cultureInfo ??= CultureInfo.CurrentCulture;
@@ -178,30 +263,36 @@ public static class DateTimeExtensions
         return date;
     }
 
-
     /// <summary>
-    ///     Gets the last date of the month for a given date, optionally filtered by a specific day of the week.
+    ///     Gets the last date of the month for the specified <see cref="DateTime" />. Optionally, finds the last occurrence of
+    ///     a specific <see cref="DayOfWeek" />.
     /// </summary>
-    /// <param name="date">The date for which to find the last date of the month.</param>
+    /// <param name="date">The <see cref="DateTime" /> object from which to find the last date of the month.</param>
     /// <param name="dayOfWeek">
-    ///     An optional <see cref="DayOfWeek" /> to filter the last date of the month. If not provided, the
-    ///     last day of the month will be returned.
+    ///     Optional. The day of the week to find within the month. If null, the last day of the month is
+    ///     returned.
     /// </param>
-    /// <returns>The last date of the month, optionally filtered by the specified day of the week.</returns>
+    /// <returns>
+    ///     The last date of the month, or the last occurrence of the specified <see cref="DayOfWeek" /> within that month.
+    /// </returns>
+    /// <remarks>
+    ///     This method calculates the last date of the specified month from the given date. If a <see cref="DayOfWeek" /> is
+    ///     provided,
+    ///     it iterates backwards from the last day of the month until it finds the last date that matches the specified day of
+    ///     the week.
+    ///     This is useful for various calendar and scheduling calculations where the end of a time period needs to be
+    ///     determined.
+    /// </remarks>
     /// <example>
     ///     <code><![CDATA[
-    /// DateTime date = new(2023, 3, 28);
-    /// DateTime lastDateOfMonth = date.GetLastDateOfMonth(); // lastDateOfMonth will be the last date of the month
-    /// DateTime lastFridayOfMonth = date.GetLastDateOfMonth(DayOfWeek.Friday); // lastFridayOfMonth will be the last Friday of the month
-    /// ]]></code>
+    ///     DateTime date = new DateTime(2023, 1, 15);
+    ///     DateTime lastDate = date.GetLastDateOfMonth();
+    ///     // lastDate is January 31, 2023
+    /// 
+    ///     DateTime lastFriday = date.GetLastDateOfMonth(DayOfWeek.Friday);
+    ///     // lastFriday is January 27, 2023
+    ///     ]]></code>
     /// </example>
-    /// <remarks>
-    ///     This extension method calculates the last date of the month for a given date, optionally filtered by a specific day
-    ///     of the week.
-    ///     If no <paramref name="dayOfWeek" /> is provided, the last date of the month will be returned. Otherwise, the method
-    ///     iterates through the days of the month, starting from the last date, moving backwards until it finds the specified
-    ///     day of the week.
-    /// </remarks>
     public static DateTime GetLastDateOfMonth(this DateTime date, DayOfWeek? dayOfWeek = null)
     {
         var daysInMonth = DateTime.DaysInMonth(date.Year, date.Month);
@@ -753,54 +844,5 @@ public static class DateTimeExtensions
                 yield return dt;
             }
         }
-    }
-
-    /// <summary>
-    ///     Returns a new <see cref="DateOnly" /> object that has the same date as the specified DateTime object.
-    /// </summary>
-    /// <param name="dateTime">The <see cref="DateTime" /> object to convert.</param>
-    /// <returns>A new <see cref="DateOnly" /> object that has the same date as the specified DateTime object.</returns>
-    /// <remarks>
-    ///     This method returns a new <see cref="DateOnly" /> object that has the same date as the specified DateTime object.
-    /// </remarks>
-    /// <example>
-    ///     The following example shows how to use the ToDateOnly method to convert a DateTime object to a
-    ///     <see cref="DateOnly" /> object.
-    ///     <code><![CDATA[
-    /// DateTime dateTime = DateTime.Now;
-    /// DateOnly dateOnly = dateTime.ToDateOnly();
-    /// Console.WriteLine("DateOnly: {0}", dateOnly.ToShortDateString());
-    /// ]]></code>
-    /// </example>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateOnly ToDateOnly(this DateTime dateTime)
-    {
-        return new DateOnly(dateTime.Year, dateTime.Month, dateTime.Day);
-    }
-
-    /// <summary>
-    ///     Returns a new <see cref="TimeOnly" /> object that has the same time as the specified <see cref="DateTime" />
-    ///     object.
-    /// </summary>
-    /// <param name="dateTime">The <see cref="DateTime" /> object to convert.</param>
-    /// <returns>A new <see cref="TimeOnly" /> object that has the same time as the specified <see cref="DateTime" /> object.</returns>
-    /// <remarks>
-    ///     This method returns a new <see cref="TimeOnly" /> object that has the same time as the specified
-    ///     <see cref="DateTime" /> object.
-    /// </remarks>
-    /// <example>
-    ///     The following example shows how to use the <see cref="ToTimeOnly" /> method to convert a <see cref="DateTime" />
-    ///     object to a <see cref="TimeOnly" /> object.
-    ///     <code><![CDATA[
-    /// DateTime dateTime = DateTime.Now;
-    /// TimeOnly timeOnly = dateTime.ToTimeOnly();
-    /// Console.WriteLine("TimeOnly: {0}", timeOnly.ToString());
-    /// ]]></code>
-    /// </example>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TimeOnly ToTimeOnly(this DateTime dateTime)
-    {
-        return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond,
-            dateTime.Microsecond);
     }
 }

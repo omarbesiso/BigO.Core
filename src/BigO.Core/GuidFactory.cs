@@ -1,6 +1,4 @@
-﻿using JetBrains.Annotations;
-
-namespace BigO.Core;
+﻿namespace BigO.Core;
 
 /// <summary>
 ///     Contains utility methods for creating <see cref="Guid" /> instances.
@@ -31,12 +29,16 @@ public static class GuidFactory
     /// </example>
     public static Guid NewSequentialGuid()
     {
-        //var counter = Stopwatch.GetTimestamp();
-        //var guidBytes = Guid.NewGuid().ToByteArray();
-        //var counterBytes = BitConverter.GetBytes(Interlocked.Increment(ref counter));
-
         var counter = Interlocked.Increment(ref _counter);
-        var guidBytes = Guid.NewGuid().ToByteArray();
+
+        // Handle overflow. Reset to DateTime.UtcNow.Ticks if counter overflows.
+        if (counter < 0)
+        {
+            Interlocked.Exchange(ref _counter, DateTime.UtcNow.Ticks);
+            counter = Interlocked.Increment(ref _counter);
+        }
+
+        var randomBytes = Guid.NewGuid().ToByteArray();
         var counterBytes = BitConverter.GetBytes(counter);
 
         if (!BitConverter.IsLittleEndian)
@@ -44,15 +46,15 @@ public static class GuidFactory
             Array.Reverse(counterBytes);
         }
 
-        guidBytes[08] = counterBytes[1];
-        guidBytes[09] = counterBytes[0];
-        guidBytes[10] = counterBytes[7];
-        guidBytes[11] = counterBytes[6];
-        guidBytes[12] = counterBytes[5];
-        guidBytes[13] = counterBytes[4];
-        guidBytes[14] = counterBytes[3];
-        guidBytes[15] = counterBytes[2];
+        // Copy the counter bytes into the GUID. Avoid overwriting the GUID version and variant bits.
+        // Typically, the last 6 bytes of the GUID can be safely modified.
+        randomBytes[10] = counterBytes[1];
+        randomBytes[11] = counterBytes[0];
+        randomBytes[12] = counterBytes[7];
+        randomBytes[13] = counterBytes[6];
+        randomBytes[14] = counterBytes[5];
+        randomBytes[15] = counterBytes[4];
 
-        return new Guid(guidBytes);
+        return new Guid(randomBytes);
     }
 }

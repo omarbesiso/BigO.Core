@@ -7,11 +7,15 @@ namespace BigO.Core.Paging;
 ///     Represents a paged list of items.
 /// </summary>
 /// <typeparam name="T">The type of the items in the list.</typeparam>
+/// <typeparam name="TK">The concrete paged list.</typeparam>
+[PublicAPI]
 [DataContract]
-public abstract class PagedList<T> : IPagedList<T>
+public abstract class PagedList<T, TK> : IPagedList<T>
+    where T : class
+    where TK : PagedList<T, TK>
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="PagedList{T}" /> class.
+    ///     Initializes a new instance of the <see cref="PagedList{T, K}" /> class.
     /// </summary>
     /// <param name="items">The items for the current page.</param>
     /// <param name="totalCount">The total number of items across all pages.</param>
@@ -85,4 +89,13 @@ public abstract class PagedList<T> : IPagedList<T>
     [JsonPropertyName("hasNext")]
     [DataMember(Name = "hasNext", Order = 70)]
     public bool HasNext { get; private set; }
+
+    /// <summary>
+    ///     Returns an empty paged list.
+    /// </summary>
+    /// <returns>An empty paged list.</returns>
+    public static TK Empty()
+    {
+        return (TK)Activator.CreateInstance(typeof(TK), new List<T>(), 0, 0, 0)!;
+    }
 }
