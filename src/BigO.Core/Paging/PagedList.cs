@@ -39,7 +39,12 @@ public abstract class PagedList<T, TK> : IPagedList<T>
         TotalCount = totalCount;
         PageSize = pageSize;
         PageNumber = pageNumber;
-        TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+        TotalPages = 0;
+        
+        if (totalCount > 0 && pageSize > 0)
+        {
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+        }
 
         HasPrevious = PageNumber > 1;
         HasNext = PageNumber < TotalPages;
@@ -106,8 +111,5 @@ public abstract class PagedList<T, TK> : IPagedList<T>
     ///     Returns an empty paged list.
     /// </summary>
     /// <returns>An empty paged list.</returns>
-    public static TK Empty()
-    {
-        return (TK)Activator.CreateInstance(typeof(TK), new List<T>(), 0, 0, 0)!;
-    }
+    public static TK Empty => (TK)Activator.CreateInstance(typeof(TK), new List<T>(), 0, 0, 0)!;
 }

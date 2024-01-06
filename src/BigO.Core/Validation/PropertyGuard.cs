@@ -114,8 +114,7 @@ public static partial class PropertyGuard
     ///     default message is used.
     ///     The method relies on an internal 'IsValidEmail' function to determine email validity.
     /// </remarks>
-    public static string? Email(string? value, [CallerMemberName] string propertyName = "",
-        string? exceptionMessage = null)
+    public static string? Email(string? value, [CallerMemberName] string propertyName = "", string? exceptionMessage = null)
     {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract    
         if (value == null)
