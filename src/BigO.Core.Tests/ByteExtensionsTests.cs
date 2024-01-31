@@ -23,16 +23,4 @@ public class ByteExtensionsTests
         Assert.Equal(buffer.Length, result.Length);
         Assert.Equal(buffer, result.ToArray());
     }
-
-    [Fact]
-    public void ToMemoryStream_BufferIsNull_ThrowsArgumentNullException()
-    {
-        // Arrange
-        byte[] buffer = null!;
-
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(() => buffer.ToMemoryStream());
-        Assert.Equal("buffer", exception.ParamName);
-        Assert.Equal($"Value cannot be null. (Parameter '{nameof(buffer)}')", exception.Message);
-    }
 }

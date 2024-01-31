@@ -39,7 +39,6 @@ public readonly record struct DateRange : IComparable<DateRange>
     [JsonPropertyOrder(10)]
     [JsonPropertyName("startDate")]
     [DataMember(Name = "startDate", Order = 10)]
-    [JsonConverter(typeof(DateOnlyConverter))]
     public DateOnly StartDate { get; init; }
 
     /// <summary>
@@ -50,7 +49,6 @@ public readonly record struct DateRange : IComparable<DateRange>
     [JsonPropertyOrder(20)]
     [JsonPropertyName("endDate")]
     [DataMember(Name = "endDate", Order = 20)]
-    [JsonConverter(typeof(DateOnlyConverter))]
     public DateOnly EndDate { get; init; }
 
     /// <summary>

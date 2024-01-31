@@ -1,126 +1,80 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace BigO.Core.Extensions;
 
 /// <summary>
-///     Contains useful utility methods for working with enums.
+///     Provides extension methods for enumerations, including methods to convert enumerations to dictionaries
+///     and retrieve descriptions or display names of enumeration values.
 /// </summary>
 [PublicAPI]
 public static class EnumExtensions
 {
+    private static readonly ConcurrentDictionary<Type, Dictionary<string, string>> EnumDescriptionCache = new();
+    private static readonly ConcurrentDictionary<Type, Dictionary<string, string?>> EnumDisplayCache = new();
+
     /// <summary>
     ///     Creates a dictionary of the names and values of an enumeration with optional descriptions.
     /// </summary>
-    /// <typeparam name="T">
-    ///     The enumeration type to convert. Must be a <c>struct</c> that implements
-    ///     <see cref="IConvertible" />.
-    /// </typeparam>
+    /// <typeparam name="T">The enumeration type to convert.</typeparam>
     /// <returns>
-    ///     A <see cref="Dictionary{TKey, TValue}" /> with keys representing the enumeration descriptions (or names if no
-    ///     description is available) and values representing the enumeration values as strings.
+    ///     A dictionary with keys representing the enumeration descriptions (or names if no description is available)
+    ///     and values representing the enumeration values as strings.
     /// </returns>
-    /// <exception cref="System.ArgumentException">Thrown when the type of T is not an enum.</exception>
-    /// <example>
-    ///     <code><![CDATA[
-    /// public enum Colors
-    /// {
-    ///     [Description("Red Color")]
-    ///     Red,
-    ///     [Description("Green Color")]
-    ///     Green,
-    ///     [Description("Blue Color")]
-    ///     Blue
-    /// }
-    /// 
-    /// var colorList = ToDictionary<Colors>();
-    /// 
-    /// // colorList contains the following key-value pairs:
-    /// // "Red Color" => "Red", "Green Color" => "Green", "Blue Color" => "Blue"
-    /// ]]></code>
-    /// </example>
-    /// <remarks>
-    ///     This method creates a <see cref="Dictionary{TKey, TValue}" /> containing the names and values of the specified
-    ///     enumeration type <typeparamref name="T" />. If the enumeration members have a <see cref="DescriptionAttribute" />,
-    ///     the attribute's description is used as the key. If no description is provided, the enumeration name is used as the
-    ///     key. The values are the enumeration member names. The method is useful when creating a human-readable
-    ///     representation of the enumeration.
-    /// </remarks>
-    public static Dictionary<string, string> ToDictionary<T>() where T : struct, IConvertible
+    /// <exception cref="ArgumentException">Thrown when T is not an enum.</exception>
+    public static Dictionary<string, string> ToDictionary<T>() where T : Enum
     {
         var enumType = typeof(T);
-
         if (!enumType.IsEnum)
         {
-            throw new ArgumentException("The type of T must be an enum.");
+            throw new ArgumentException("T must be an enum type.", nameof(T));
+        }
+
+        if (EnumDescriptionCache.TryGetValue(enumType, out var cachedDict))
+        {
+            return cachedDict;
         }
 
         var result = new Dictionary<string, string>();
-        var names = Enum.GetNames(enumType);
-        var values = Enum.GetValues(enumType);
-
-        for (var i = 0; i < names.Length; i++)
+        foreach (var name in Enum.GetNames(enumType))
         {
-            var name = names[i];
-            var value = (Enum)values.GetValue(i)!;
-            var memInfo = enumType.GetMember(name);
+            var enumValue = (Enum)Enum.Parse(enumType, name);
+            var description = GetEnumDescription(enumValue);
 
-            var descriptionAttributes = memInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
-            var description = descriptionAttributes.Length > 0
-                ? ((DescriptionAttribute)descriptionAttributes.First()).Description
-                : name;
-
-            result.Add(description, value.ToString());
+            if (!result.TryAdd(description, name))
+            {
+                throw new InvalidOperationException(
+                    $"Duplicate description '{description}' found in enum '{enumType.Name}'.");
+            }
         }
 
+        EnumDescriptionCache[enumType] = result;
         return result;
     }
 
-
     /// <summary>
-    ///     Retrieves the description of an enumeration member from its <see cref="DescriptionAttribute" /> or returns the
-    ///     enumeration member's name if no description is available.
+    ///     Retrieves the description of an enumeration member from its <see cref="DescriptionAttribute" /> or
+    ///     returns the enumeration member's name if no description is available.
     /// </summary>
     /// <param name="value">The enumeration member whose description is to be retrieved.</param>
     /// <returns>
     ///     The description from the <see cref="DescriptionAttribute" /> or the enumeration member's name if no
     ///     description is available.
     /// </returns>
-    /// <example>
-    ///     <code><![CDATA[
-    /// public enum Colors
-    /// {
-    ///     [Description("Red Color")]
-    ///     Red,
-    ///     [Description("Green Color")]
-    ///     Green,
-    ///     [Description("Blue Color")]
-    ///     Blue
-    /// }
-    /// 
-    /// string redDescription = Colors.Red.GetEnumDescription();
-    /// 
-    /// // redDescription contains the string "Red Color".
-    /// ]]></code>
-    /// </example>
-    /// <remarks>
-    ///     This extension method is useful for retrieving human-readable descriptions of enumeration members if they have a
-    ///     <see cref="DescriptionAttribute" />. If no description is provided, the enumeration member's name is returned. This
-    ///     can be helpful when displaying the enumeration in a user interface or when generating reports.
-    /// </remarks>
     public static string GetEnumDescription(this Enum value)
     {
-        var fi = value.GetType().GetField(value.ToString());
+        var enumType = value.GetType();
+        return EnumDescriptionCache.GetOrAdd(enumType,
+            _ => Enum.GetValues(enumType).Cast<Enum>().ToDictionary(e => e.ToString(), GetEnumDescriptionInternal))[
+            value.ToString()];
+    }
 
-        if (fi == null)
-        {
-            return value.ToString();
-        }
-
-        var descriptionAttribute = fi.GetCustomAttribute(typeof(DescriptionAttribute)) as DescriptionAttribute;
-
-        return descriptionAttribute?.Description ?? value.ToString();
+    private static string GetEnumDescriptionInternal(Enum value)
+    {
+        var fieldInfo = value.GetType().GetField(value.ToString());
+        return fieldInfo?.GetCustomAttribute<DescriptionAttribute>()?.Description ?? value.ToString();
     }
 
     /// <summary>
@@ -130,40 +84,25 @@ public static class EnumExtensions
     /// <param name="value">The enumeration member whose display name is to be retrieved.</param>
     /// <returns>
     ///     The display name from the <see cref="DisplayAttribute" /> or an empty string if no display name is available.
-    ///     Returns <c>null</c> if the value is <c>null</c>.
     /// </returns>
-    /// <example>
-    ///     <code><![CDATA[
-    /// public enum Colors
-    /// {
-    ///     [Display(Name = "Red Color")]
-    ///     Red,
-    ///     [Display(Name = "Green Color")]
-    ///     Green,
-    ///     [Display(Name = "Blue Color")]
-    ///     Blue
-    /// }
-    /// 
-    /// string? redDisplayName = Colors.Red.GetEnumDisplay();
-    /// 
-    /// // redDisplayName contains the string "Red Color".
-    /// ]]></code>
-    /// </example>
-    /// <remarks>
-    ///     This extension method is useful for retrieving human-readable display names of enumeration members if they have a
-    ///     <see cref="DisplayAttribute" />. If no display name is provided, an empty string is returned. This can be helpful
-    ///     when displaying the enumeration in a user interface or when generating reports. If the input value is <c>null</c>,
-    ///     the method returns <c>null</c>.
-    /// </remarks>
-    public static string? GetEnumDisplay(this Enum? value)
+    public static string GetEnumDisplay(this Enum value)
     {
-        if (value == null)
+        var enumType = value.GetType();
+        if (EnumDisplayCache.TryGetValue(enumType, out var cachedDict) &&
+            cachedDict.TryGetValue(value.ToString(), out var cachedDisplay))
         {
-            return null;
+            return cachedDisplay ?? string.Empty;
         }
 
-        var memberInfo = value.GetType().GetMember(value.ToString()).FirstOrDefault();
+        var fieldInfo = enumType.GetField(value.ToString());
+        var display = fieldInfo?.GetCustomAttribute<DisplayAttribute>()?.GetName() ?? string.Empty;
 
-        return memberInfo?.GetCustomAttribute<DisplayAttribute>()?.GetName() ?? string.Empty;
+        if (!EnumDisplayCache.ContainsKey(enumType))
+        {
+            EnumDisplayCache[enumType] = new Dictionary<string, string?>();
+        }
+
+        EnumDisplayCache[enumType][value.ToString()] = display;
+        return display;
     }
 }

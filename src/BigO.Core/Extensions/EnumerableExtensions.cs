@@ -36,7 +36,17 @@ public static class EnumerableExtensions
         }
 
         var enumerator = collection.GetEnumerator();
-        return !enumerator.MoveNext();
+        try
+        {
+            return !enumerator.MoveNext();
+        }
+        finally
+        {
+            if (enumerator is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 
     /// <summary>
@@ -67,8 +77,18 @@ public static class EnumerableExtensions
             throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
         }
 
-        using var enumerator = collection.GetEnumerator();
-        return !enumerator.MoveNext();
+        var enumerator = collection.GetEnumerator();
+        try
+        {
+            return !enumerator.MoveNext();
+        }
+        finally
+        {
+            if (enumerator is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 
     /// <summary>
@@ -98,7 +118,17 @@ public static class EnumerableExtensions
         }
 
         var enumerator = collection.GetEnumerator();
-        return enumerator.MoveNext();
+        try
+        {
+            return enumerator.MoveNext();
+        }
+        finally
+        {
+            if (enumerator is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 
     /// <summary>
@@ -129,8 +159,18 @@ public static class EnumerableExtensions
             throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
         }
 
-        using var enumerator = collection.GetEnumerator();
-        return enumerator.MoveNext();
+        var enumerator = collection.GetEnumerator();
+        try
+        {
+            return enumerator.MoveNext();
+        }
+        finally
+        {
+            if (enumerator is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 
     /// <summary>
@@ -166,7 +206,17 @@ public static class EnumerableExtensions
         }
 
         var enumerator = collection.GetEnumerator();
-        return !enumerator.MoveNext();
+        try
+        {
+            return !enumerator.MoveNext();
+        }
+        finally
+        {
+            if (enumerator is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 
     /// <summary>
@@ -201,8 +251,18 @@ public static class EnumerableExtensions
             return true;
         }
 
-        using var enumerator = collection.GetEnumerator();
-        return !enumerator.MoveNext();
+        var enumerator = collection.GetEnumerator();
+        try
+        {
+            return !enumerator.MoveNext();
+        }
+        finally
+        {
+            if (enumerator is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 
     /// <summary>
@@ -238,7 +298,17 @@ public static class EnumerableExtensions
         }
 
         var enumerator = collection.GetEnumerator();
-        return enumerator.MoveNext();
+        try
+        {
+            return enumerator.MoveNext();
+        }
+        finally
+        {
+            if (enumerator is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 
     /// <summary>
@@ -273,8 +343,18 @@ public static class EnumerableExtensions
             return false;
         }
 
-        using var enumerator = collection.GetEnumerator();
-        return enumerator.MoveNext();
+        var enumerator = collection.GetEnumerator();
+        try
+        {
+            return enumerator.MoveNext();
+        }
+        finally
+        {
+            if (enumerator is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 
     /// <summary>

@@ -11,7 +11,7 @@ public class DayOfWeekExtensionsTests
         var input = DayOfWeek.Sunday;
 
         // Act
-        var result = input.Increment();
+        var result = input.AddDays();
 
         // Assert
         Assert.Equal(DayOfWeek.Monday, result);
@@ -24,7 +24,7 @@ public class DayOfWeekExtensionsTests
         var input = DayOfWeek.Monday;
 
         // Act
-        var result = input.Increment();
+        var result = input.AddDays();
 
         // Assert
         Assert.Equal(DayOfWeek.Tuesday, result);
@@ -37,7 +37,7 @@ public class DayOfWeekExtensionsTests
         var input = DayOfWeek.Tuesday;
 
         // Act
-        var result = input.Increment();
+        var result = input.AddDays();
 
         // Assert
         Assert.Equal(DayOfWeek.Wednesday, result);
@@ -50,7 +50,7 @@ public class DayOfWeekExtensionsTests
         var input = DayOfWeek.Wednesday;
 
         // Act
-        var result = input.Increment();
+        var result = input.AddDays();
 
         // Assert
         Assert.Equal(DayOfWeek.Thursday, result);
@@ -63,7 +63,7 @@ public class DayOfWeekExtensionsTests
         var input = DayOfWeek.Thursday;
 
         // Act
-        var result = input.Increment();
+        var result = input.AddDays();
 
         // Assert
         Assert.Equal(DayOfWeek.Friday, result);
@@ -76,7 +76,7 @@ public class DayOfWeekExtensionsTests
         var input = DayOfWeek.Friday;
 
         // Act
-        var result = input.Increment();
+        var result = input.AddDays();
 
         // Assert
         Assert.Equal(DayOfWeek.Saturday, result);
@@ -89,7 +89,7 @@ public class DayOfWeekExtensionsTests
         var input = DayOfWeek.Saturday;
 
         // Act
-        var result = input.Increment();
+        var result = input.AddDays();
 
         // Assert
         Assert.Equal(DayOfWeek.Sunday, result);
@@ -106,7 +106,7 @@ public class DayOfWeekExtensionsTests
     public void Increment_MultipleDays_ReturnsCorrectDay(DayOfWeek input, int numberOfDays, DayOfWeek expected)
     {
         // Act
-        var result = input.Increment(numberOfDays);
+        var result = input.AddDays(numberOfDays);
 
         // Assert
         Assert.Equal(expected, result);

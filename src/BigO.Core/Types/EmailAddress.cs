@@ -8,14 +8,8 @@ namespace BigO.Core.Types;
 ///     Represents a type to use when specifying an email address.
 /// </summary>
 [PublicAPI]
-public readonly record struct EmailAddress : IEquatable<string>, IComparable, IComparable<string>,
-    IComparable<EmailAddress>
+public readonly record struct EmailAddress : IComparable
 {
-    public const string EmailRegex = @"^[\w!#$%&'*+\-/=?\^_`{|}~]+(\.[\w!#$%&'*+\-/=?\^_`{|}~]+)*"
-                                     + "@"
-                                     + @"((([\w]+([-\w]*[\w]+)*\.)+[a-zA-Z]+)|"
-                                     + @"((([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5]).){3}[01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5]))\z";
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="EmailAddress" /> struct.
     /// </summary>
@@ -54,69 +48,17 @@ public readonly record struct EmailAddress : IEquatable<string>, IComparable, IC
     /// </exception>
     public int CompareTo(object? obj)
     {
-        return obj is EmailAddress other ? CompareTo(other) : 1;
-    }
+        if (obj == null)
+        {
+            return 1;
+        }
 
-    /// <summary>
-    ///     Compares this instance with a specified <see cref="EmailAddress" /> object and indicates whether this instance
-    ///     precedes, follows, or appears in the same position in the sort order.
-    /// </summary>
-    /// <param name="other">An <see cref="EmailAddress" /> to compare with this instance.</param>
-    /// <returns>
-    ///     A value that indicates the relative order of the objects being compared.
-    ///     The return value has these meanings: Less than zero: This instance precedes <paramref name="other" /> in the sort
-    ///     order.
-    ///     Zero: This instance occurs in the same position in the sort order as <paramref name="other" />.
-    ///     Greater than zero: This instance follows <paramref name="other" /> in the sort order.
-    /// </returns>
-    public int CompareTo(EmailAddress other)
-    {
+        if (obj is not EmailAddress other)
+        {
+            throw new ArgumentException("Object is not an Email Address");
+        }
+
         return string.CompareOrdinal(Value, other.Value);
-    }
-
-    /// <summary>
-    ///     Compares this instance with a specified string and indicates whether this instance precedes, follows, or appears in
-    ///     the same position in the sort order.
-    /// </summary>
-    /// <param name="other">A string to compare with this instance.</param>
-    /// <returns>
-    ///     A value that indicates the relative order of the objects being compared.
-    ///     The return value has these meanings: Less than zero: This instance precedes <paramref name="other" /> in the sort
-    ///     order.
-    ///     Zero: This instance occurs in the same position in the sort order as <paramref name="other" />.
-    ///     Greater than zero: This instance follows <paramref name="other" /> in the sort order, or <paramref name="other" />
-    ///     is null.
-    /// </returns>
-    public int CompareTo(string? other)
-    {
-        return string.CompareOrdinal(Value, other);
-    }
-
-    /// <summary>
-    ///     Determines whether the specified <see cref="EmailAddress" /> instance is equal to the current instance.
-    /// </summary>
-    /// <param name="other">The <see cref="EmailAddress" /> instance to compare with the current instance.</param>
-    /// <returns>
-    ///     <c>true</c> if the specified <see cref="EmailAddress" /> is equal to the current instance; otherwise,
-    ///     <c>false</c>.
-    /// </returns>
-    /// <remarks>
-    ///     Equality is based on the string value of the email address. This method compares the 'Value' property of the
-    ///     current instance
-    ///     with that of the specified instance, ignoring differences in case and leading/trailing whitespace.
-    /// </remarks>
-    public bool Equals(EmailAddress other)
-    {
-        return string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
-    ///     Indicates whether this instance and a specified string represent the same value.
-    /// </summary>
-    /// <param name="other">The string to compare to this instance.</param>
-    public bool Equals(string? other)
-    {
-        return string.Equals(Value, other, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

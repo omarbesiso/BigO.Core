@@ -7,30 +7,30 @@
 public static class DayOfWeekExtensions
 {
     /// <summary>
-    ///     Returns the DayOfWeek value resulting from adding a specified number of days to the current DayOfWeek.
+    ///     Adds a specified number of days to the current DayOfWeek value.
     /// </summary>
-    /// <param name="dayOfWeek">The DayOfWeek value to increment.</param>
-    /// <param name="numberOfDays">The number of days to add. The default value is 1.</param>
+    /// <param name="dayOfWeek">The DayOfWeek value to add days to.</param>
+    /// <param name="numberOfDays">The number of days to add. Can be negative to subtract days.</param>
     /// <returns>
-    ///     A DayOfWeek value that is <paramref name="numberOfDays" /> days after the <paramref name="dayOfWeek" />
-    ///     parameter.
+    ///     A DayOfWeek value that is <paramref name="numberOfDays" /> days from the <paramref name="dayOfWeek" /> parameter.
     /// </returns>
     /// <remarks>
-    ///     This method supports incrementing the <paramref name="dayOfWeek" /> parameter by any number of days.
+    ///     This method allows the addition of a positive or negative number of days to a DayOfWeek value.
+    ///     Be cautious with extreme values for <paramref name="numberOfDays" />, as they may lead to integer overflow.
     /// </remarks>
     /// <example>
-    ///     The following code demonstrates how to use the Increment method to get the DayOfWeek value for two days after
-    ///     Monday.
+    ///     The following code demonstrates how to use the AddDays method:
     ///     <code><![CDATA[
     /// DayOfWeek monday = DayOfWeek.Monday;
-    /// DayOfWeek wednesday = monday.Increment(2);
+    /// DayOfWeek wednesday = monday.AddDays(2); // Adding 2 days to Monday
+    /// DayOfWeek sunday = monday.AddDays(-1); // Subtracting 1 day from Monday
     /// Console.WriteLine(wednesday); // Output: Wednesday
+    /// Console.WriteLine(sunday); // Output: Sunday
     /// ]]></code>
     /// </example>
-    public static DayOfWeek Increment(this DayOfWeek dayOfWeek, int numberOfDays = 1)
+    public static DayOfWeek AddDays(this DayOfWeek dayOfWeek, int numberOfDays = 1)
     {
         var offset = (int)dayOfWeek + numberOfDays;
-        var result = (DayOfWeek)((offset % 7 + 7) % 7);
-        return result;
+        return (DayOfWeek)(offset % 7);
     }
 }

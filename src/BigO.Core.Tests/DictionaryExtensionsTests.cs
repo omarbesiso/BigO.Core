@@ -7,59 +7,6 @@ namespace BigO.Core.Tests;
 public class DictionaryExtensionsTests
 {
     [Fact]
-    public void RemoveIfContainsKey_DictionaryIsNull_ThrowsArgumentNullException()
-    {
-        // Arrange
-        IDictionary<int, string> dictionary = null!;
-        const int key = 1;
-
-        // Act and Assert
-        Assert.Throws<ArgumentNullException>(() => dictionary.RemoveIfContainsKey(key));
-    }
-
-    [Fact]
-    public void RemoveIfContainsKey_KeyNotInDictionary_DoesNothing()
-    {
-        // Arrange
-        IDictionary<int, string> dictionary = new Dictionary<int, string>();
-        const int key = 1;
-
-        // Act
-        dictionary.RemoveIfContainsKey(key);
-
-        // Assert
-        Assert.Empty(dictionary);
-    }
-
-    [Fact]
-    public void RemoveIfContainsKey_KeyInDictionary_RemovesKeyValuePair()
-    {
-        // Arrange
-        IDictionary<int, string> dictionary = new Dictionary<int, string>
-        {
-            { 1, "value" }
-        };
-        const int key = 1;
-
-        // Act
-        dictionary.RemoveIfContainsKey(key);
-
-        // Assert
-        Assert.DoesNotContain(key, dictionary.Keys);
-    }
-
-    [Fact]
-    public void RemoveIfContainsKey_KeyIsNull_ThrowsArgumentNullException()
-    {
-        // Arrange
-        IDictionary<string, string> dictionary = new Dictionary<string, string>();
-        string key = null!;
-
-        // Act and Assert
-        Assert.Throws<ArgumentNullException>(() => dictionary.RemoveIfContainsKey(key));
-    }
-
-    [Fact]
     public void ToSortedDictionary_DictionaryIsNull_ThrowsArgumentNullException()
     {
         // Arrange

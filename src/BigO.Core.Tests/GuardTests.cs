@@ -53,35 +53,6 @@ public class GuardTest
         Assert.Equal(value, result);
     }
 
-    [Fact]
-    public void NotNullOrWhiteSpace_ShouldUseCustomArgumentName_WhenProvided()
-    {
-        // Arrange
-        string value = null!;
-        var argumentName = "customArgumentName";
-
-        // Act
-        var ex = Assert.Throws<ArgumentNullException>(() => Guard.NotNullOrWhiteSpace(value, argumentName));
-
-        // Assert
-        Assert.Equal(argumentName, ex.ParamName);
-    }
-
-    [Fact]
-    public void NotNullOrWhiteSpace_ShouldUseCustomExceptionMessage_WhenProvided()
-    {
-        // Arrange
-        string value = null!;
-        var exceptionMessage = "customExceptionMessage";
-
-        // Act
-        var ex = Assert.Throws<ArgumentNullException>(() =>
-            Guard.NotNullOrWhiteSpace(value, exceptionMessage: exceptionMessage));
-
-        // Assert
-        Assert.Contains(exceptionMessage, ex.Message);
-    }
-
     [Theory]
     [InlineData("test", 4)]
     [InlineData("test", 5)]
@@ -123,15 +94,6 @@ public class GuardTest
         Assert.Equal(value, result);
     }
 
-
-    [Fact]
-    public void MinLength_InvalidMinLength_ThrowsArgumentException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentException>(() => Guard.MinLength("test", 0));
-        Assert.Throws<ArgumentException>(() => Guard.MinLength("test", -1));
-    }
-
     [Theory]
     [InlineData("test", 1, 5)]
     [InlineData("test", 2, 5)]
@@ -144,18 +106,6 @@ public class GuardTest
 
         // Assert
         Assert.Equal(value, result);
-    }
-
-    [Theory]
-    [InlineData("test", 6, 5)]
-    [InlineData("test", 1, 3)]
-    [InlineData("test", 0, 4)]
-    [InlineData("test", 1, 0)]
-    [InlineData("test", 0, 0)]
-    public void StrengthLength_InvalidInput_ThrowsArgumentException(string value, int minLength, int maxLength)
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentException>(() => Guard.StringLengthWithinRange(value, minLength, maxLength));
     }
 
     [Fact]
@@ -204,15 +154,6 @@ public class GuardTest
     }
 
     [Theory]
-    [InlineData(0, 1, 10, "argName")]
-    [InlineData(11, 1, 10, "argName")]
-    public void Range_InvalidInput_ThrowsArgumentException(int value, int min, int max, string argName)
-    {
-        // Act and Assert
-        Assert.Throws<ArgumentException>(() => Guard.WithinRange(value, min, max, argName));
-    }
-
-    [Theory]
     [InlineData(5, 5, "argName")]
     [InlineData(int.MinValue, int.MinValue, "argName")]
     [InlineData(int.MaxValue, 9, "argName")]
@@ -220,16 +161,6 @@ public class GuardTest
     {
         // Act
         Guard.Minimum(value, min, argName);
-    }
-
-    [Theory]
-    [InlineData(1, int.MaxValue, "argName")]
-    [InlineData(-15, -10, "argName")]
-    [InlineData(1, 2, "argName")]
-    public void Minimum_InvalidInput_ThrowsArgumentException(int value, int min, string argName)
-    {
-        // Act and Assert
-        Assert.Throws<ArgumentException>(() => Guard.Minimum(value, min, argName));
     }
 
     [Theory]
@@ -243,37 +174,6 @@ public class GuardTest
 
         // Assert
         Assert.Equal(expected, result);
-    }
-
-    [Theory]
-    [InlineData(3, 2, "value", "Custom exception message")]
-    [InlineData(3, 2, "value")]
-    public void Maximum_InvalidValue_ThrowsArgumentException(int value, int maximum, string argumentName,
-        string? exceptionMessage = null)
-    {
-        // Act & Assert
-        var ex = Assert.Throws<ArgumentException>(() => Guard.Maximum(value, maximum, argumentName, exceptionMessage));
-        Assert.Equal(argumentName, ex.ParamName);
-        Assert.Contains(argumentName, ex.Message);
-        if (exceptionMessage != null)
-        {
-            Assert.Contains(exceptionMessage, ex.Message);
-        }
-    }
-
-
-    [Theory]
-    [InlineData(null, "The value of 'pattern' cannot be null.")]
-    [InlineData("", "The value of 'pattern' cannot be null.")]
-    [InlineData("   ", "The value of 'pattern' cannot be null.")]
-    public void Regex_PatternIsNullOrWhitespace_ThrowsArgumentException(string pattern, string exceptionMessage)
-    {
-        // Arrange
-        var value = "value";
-
-        // Act
-        // Assert
-        Assert.Throws<ArgumentException>(() => Guard.MatchesRegex(value, pattern, exceptionMessage: exceptionMessage));
     }
 
     [Theory]

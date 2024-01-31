@@ -68,7 +68,9 @@ public static class CollectionExtensions
     /// <remarks>
     ///     This method iterates over the provided values and adds each one to the collection if it does not already exist.
     ///     For collections that implement <see cref="HashSet{T}" />, this operation is more efficient.
-    ///     For other types of collections, the method uses a temporary <see cref="HashSet{T}" /> to buffer the values,
+    ///     If the provided values are already a <see cref="HashSet{T}" />, the method uses it directly for better performance.
+    ///     Otherwise, for other types of collections, the method uses a temporary <see cref="HashSet{T}" /> to buffer the
+    ///     values,
     ///     which helps in avoiding duplicate entries.
     /// </remarks>
     /// <example>
@@ -76,9 +78,14 @@ public static class CollectionExtensions
     ///     ICollection<int> numbers = new List<int> { 1, 2 };
     ///     int addedCount = numbers.AddUniqueRange(new int[] { 2, 3, 4 });
     ///     // addedCount is 2, numbers now contains { 1, 2, 3, 4 }
+    /// 
+    ///     // Using HashSet<T>
+    ///     HashSet<int> moreNumbers = new HashSet<int> { 5, 6 };
+    ///     addedCount = numbers.AddUniqueRange(moreNumbers);
+    ///     // addedCount is 2, numbers now contains { 1, 2, 3, 4, 5, 6 }
     ///     ]]></code>
     /// </example>
-    public static int AddUniqueRange<T>([NoEnumeration] this ICollection<T> collection, IEnumerable<T>? values)
+    public static int AddUniqueRange<T>(this ICollection<T> collection, IEnumerable<T>? values)
     {
         if (collection == null)
         {
@@ -99,17 +106,29 @@ public static class CollectionExtensions
             return counter;
         }
 
-        // Buffer values for other collections
-        var valueSet = new HashSet<T>(values);
-
-        foreach (var value in valueSet.Where(value => !collection.Contains(value)))
+        // Check if values is already a HashSet<T>
+        if (values is HashSet<T> valueHashSet)
         {
-            collection.Add(value);
-            counter++;
+            foreach (var value in valueHashSet.Where(value => !collection.Contains(value)))
+            {
+                collection.Add(value);
+                counter++;
+            }
+        }
+        else
+        {
+            // Buffer values for other collections using a HashSet<T>
+            var valueSet = new HashSet<T>(values);
+            foreach (var value in valueSet.Where(value => !collection.Contains(value)))
+            {
+                collection.Add(value);
+                counter++;
+            }
         }
 
         return counter;
     }
+
 
     /// <summary>
     ///     Removes all the elements from a collection that match the conditions defined by the specified predicate.
@@ -237,7 +256,7 @@ public static class CollectionExtensions
     /// </exception>
     /// <remarks>
     ///     This method provides an efficient way to determine if a collection contains any elements from a given set.
-    ///     For small sets of values (less than or equal to 5), it directly iterates through the values to check for their
+    ///     For small sets of values (less than or equal to 10), it directly iterates through the values to check for their
     ///     presence.
     ///     For larger sets of values, it uses a <see cref="HashSet{T}" /> for more efficient lookups.
     /// </remarks>
@@ -259,7 +278,7 @@ public static class CollectionExtensions
         }
 
         // For small collections, direct check might be faster
-        if (values.Length <= 5)
+        if (values.Length <= 10)
         {
             return values.Any(collection.Contains);
         }

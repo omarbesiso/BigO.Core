@@ -1,9 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
-using System.Runtime.Serialization;
-
-// ReSharper disable InvalidXmlDocComment
-
 
 namespace BigO.Core.Extensions;
 
@@ -49,6 +45,10 @@ public static class TypeExtensions
         { typeof(Guid?), "Guid?" },
         { typeof(DateTime), "DateTime" },
         { typeof(DateTime?), "DateTime?" },
+        { typeof(DateOnly), "DateOnly" },
+        { typeof(DateOnly?), "DateOnly?" },
+        { typeof(TimeOnly), "TimeOnly" },
+        { typeof(TimeOnly?), "TimeOnly?" },
         { typeof(void), "void" }
     };
 
@@ -68,21 +68,31 @@ public static class TypeExtensions
     }
 
     /// <summary>
-    ///     Returns the default value for the specified type.
+    ///     Returns the default value for the specified type <paramref name="type" />.
     /// </summary>
     /// <param name="type">The type to get the default value for.</param>
-    /// <returns>The default value for the specified type.</returns>
+    /// <returns>
+    ///     The default value for the specified type. For reference types and nullable value types, this will be
+    ///     <c>null</c>. For non-nullable value types, this will be the value produced by the type's default constructor.
+    /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="type" /> is <c>null</c>.</exception>
     /// <remarks>
-    ///     This method uses a <see cref="ConcurrentDictionary{TKey,TValue}" /> to cache default values for each type,
-    ///     and uses the <see cref="Type.GetTypeInfo" /> method and a series of type checks and typecasts to determine the
-    ///     default value for the specified type.
-    ///     The default value for a reference type is <c>null</c>, and the default value for a value type is the value produced
-    ///     by the value type's default constructor.
-    ///     If the type is not one of the explicitly checked value types, the method uses the
-    ///     <see cref="FormatterServices.GetUninitializedObject(Type)" /> method to return an uninitialized object of the
-    ///     specified type.
+    ///     This method retrieves the default value of a given type at runtime. It uses a combination of generic method
+    ///     invocation and caching to efficiently provide these values.
+    ///     The first time a particular type is requested, it uses reflection to call a generic method that utilizes the
+    ///     <c>default</c> keyword to get the default value for that type.
+    ///     This value is then cached in a <see cref="ConcurrentDictionary{TKey, TValue}" /> for faster retrieval in subsequent
+    ///     requests.
+    ///     The method is particularly useful in scenarios where the type is only known at runtime, and you need to retrieve
+    ///     its default value, such as in generic programming or when working with dynamically loaded types.
     /// </remarks>
+    /// <example>
+    ///     Here is an example of using the <c>DefaultValue</c> method:
+    ///     <code>
+    /// var defaultInt = typeof(int).DefaultValue(); // 0
+    /// var defaultString = typeof(string).DefaultValue(); // null
+    /// </code>
+    /// </example>
     public static object? DefaultValue(this Type type)
     {
         ArgumentNullException.ThrowIfNull(type);
@@ -112,10 +122,7 @@ public static class TypeExtensions
     /// </remarks>
     public static string GetTypeAsString(this Type type)
     {
-        if (type == null)
-        {
-            throw new ArgumentNullException(nameof(type));
-        }
+        ArgumentNullException.ThrowIfNull(type);
 
         if (!TypeAlias.TryGetValue(type, out var result))
         {
@@ -142,54 +149,54 @@ public static class TypeExtensions
     /// </example>
     /// <remarks>
     ///     This method checks if the provided <paramref name="type" /> is a nullable value type. Reference types (except for
-    ///     Nullable
-    ///     <T>
-    ///         itself) are not considered nullable by this method. To check for a nullable value type, the method inspects
-    ///         whether the type is a generic instantiation of Nullable<T>.
+    ///     <see cref="Nullable{T}" /> itself) are not considered nullable by this method. To check for a nullable value type,
+    ///     the method inspects
+    ///     whether the type is a generic instantiation of <see cref="Nullable{T}" />.
     /// </remarks>
-    public static bool IsNullable(this Type? type)
+    public static bool IsNullable(this Type type)
     {
         ArgumentNullException.ThrowIfNull(type);
         return Nullable.GetUnderlyingType(type) != null;
     }
 
     /// <summary>
-    ///     Determines whether the specified source object is of a nullable type.
+    ///     Determines whether the type of the specified source object is a nullable type.
     /// </summary>
     /// <typeparam name="T">The type of the source object.</typeparam>
     /// <param name="source">The source object to check for nullability.</param>
-    /// <returns>True if the source object is of a nullable type, false otherwise.</returns>
-    /// <exception cref="System.ArgumentNullException">
-    ///     Thrown if the <paramref name="source" /> is <c>null</c> and the type <typeparamref name="T" /> is a value type.
+    /// <returns><c>true</c> if the type of the source object is a nullable type; otherwise, <c>false</c>.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown if <typeparamref name="T" /> is a value type and
+    ///     <paramref name="source" /> is <c>null</c>.
     /// </exception>
     public static bool IsOfNullableType<T>(this T source)
     {
-        var type = source != null ? source.GetType() : typeof(T);
-        return Nullable.GetUnderlyingType(type) != null;
+        // If source is null and T is a value type, throw ArgumentNullException.
+        if (source == null && typeof(T).IsValueType)
+        {
+            throw new ArgumentNullException(nameof(source), "Source cannot be null when T is a value type.");
+        }
+
+        return typeof(T).IsNullable();
     }
 
     /// <summary>
-    ///     Determines whether the specified source object is of a nullable type.
+    ///     Determines whether the specified type <typeparamref name="T" /> is a nullable type.
     /// </summary>
-    /// <typeparam name="T">The type of the source object.</typeparam>
-    /// <param name="source">The source object to check for nullability.</param>
-    /// <returns><c>true</c> if the specified source object is of a nullable type; otherwise, <c>false</c>.</returns>
-    /// <example>
-    ///     <code><![CDATA[
-    /// int? nullableInt = 5;
-    /// bool isNullableType = nullableInt.IsOfNullableType(); // true
-    /// 
-    /// int nonNullableInt = 5;
-    /// bool isNotNullableType = nonNullableInt.IsOfNullableType(); // false
-    /// ]]></code>
-    /// </example>
+    /// <typeparam name="T">The type to check for nullability.</typeparam>
+    /// <returns><c>true</c> if the specified type <typeparamref name="T" /> is a nullable type; otherwise, <c>false</c>.</returns>
     /// <remarks>
-    ///     This method checks if the provided <paramref name="source" /> object is of a nullable value type. If the
-    ///     <paramref name="source" /> object is <c>null</c>, the method checks the underlying type <typeparamref name="T" />
-    ///     instead. Reference types (except for Nullable
-    ///     <T>
-    ///         itself) are not considered nullable by this method. To check for a nullable value type, the method inspects
-    ///         whether the type is a generic instantiation of Nullable<T>.
+    ///     This method checks if the provided generic type parameter <typeparamref name="T" /> is a nullable value type.
+    ///     Nullable types are instances of the <see cref="Nullable{T}" /> struct. A nullable type can represent the normal
+    ///     range
+    ///     of values for its underlying value type, plus an additional null value. For example, <see cref="Nullable{Int32}" />
+    ///     ,
+    ///     commonly written as <c>int?</c>, can hold any 32-bit integer or the value <c>null</c>.
+    ///     The method works by determining if the <typeparamref name="T" /> has a underlying type associated with a Nullable
+    ///     type,
+    ///     which is achieved using the <see cref="Nullable.GetUnderlyingType" /> method.
+    ///     Reference types (except for the special case of <see cref="Nullable{T}" /> itself) are not considered nullable by
+    ///     this method since they are inherently nullable.
     /// </remarks>
     public static bool IsOfNullableType<T>()
     {
@@ -223,11 +230,16 @@ public static class TypeExtensions
     ///     method will also consider the nullable versions of these numeric types as valid numeric types. Otherwise, it will
     ///     exclude them from the check.
     /// </remarks>
-    public static bool IsNumeric(this Type? type, bool includeNullableTypes = true)
+    public static bool IsNumeric(this Type type, bool includeNullableTypes = true)
     {
         ArgumentNullException.ThrowIfNull(type);
 
         var typeCode = GetTypeCode(type, includeNullableTypes);
+
+        if (type.IsArray || type.IsEnum)
+        {
+            return false;
+        }
 
         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (typeCode)
@@ -335,7 +347,7 @@ public static class TypeExtensions
     /// <remarks>
     ///     The <see cref="HasAttribute{T}" /> method checks if the provided <paramref name="type" /> is decorated with an
     ///     attribute of type <typeparamref name="T" /> that satisfies the specified <paramref name="predicate" />. This is
-    ///     done by calling the <see cref="TypeInfo.GetCustomAttributes{T}(bool)" /> method
+    ///     done by calling the <see cref="MemberInfo.GetCustomAttributes(bool)" /> method
     ///     method.
     /// </remarks>
     public static bool HasAttribute<T>(this Type type, Func<T, bool> predicate) where T : Attribute

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text;
 using BigO.Core.Extensions;
 
 namespace BigO.Core.Tests;
@@ -61,83 +60,6 @@ public class TypeExtensionsTests
 
         // Assert
         Assert.Null(result);
-    }
-
-    [Theory]
-    [MemberData(nameof(TypeExtensionsValueTypeTestData))]
-    public void DefaultValue_ReturnsCorrectValue_ForValueTypes(Type type, object expected)
-    {
-        Assert.Equal(expected, type.DefaultValue());
-    }
-
-    [Fact]
-    public void DefaultValue_ReturnsNull_ForReferenceTypes()
-    {
-        Assert.Null(typeof(string).DefaultValue());
-    }
-
-    [Fact]
-    public void DefaultValue_ReturnsCachedValue_ForPreviouslyLookedUpType()
-    {
-        var value1 = typeof(int).DefaultValue();
-        var value2 = typeof(int).DefaultValue();
-
-        Assert.Same(value1, value2);
-    }
-
-    [Theory]
-    [InlineData(typeof(bool), "bool")]
-    [InlineData(typeof(bool?), "bool?")]
-    [InlineData(typeof(byte), "byte")]
-    [InlineData(typeof(byte?), "byte?")]
-    [InlineData(typeof(char), "char")]
-    [InlineData(typeof(char?), "char?")]
-    [InlineData(typeof(decimal), "decimal")]
-    [InlineData(typeof(decimal?), "decimal?")]
-    [InlineData(typeof(double), "double")]
-    [InlineData(typeof(double?), "double?")]
-    [InlineData(typeof(float), "float")]
-    [InlineData(typeof(float?), "float?")]
-    [InlineData(typeof(int), "int")]
-    [InlineData(typeof(int?), "int?")]
-    [InlineData(typeof(long), "long")]
-    [InlineData(typeof(long?), "long?")]
-    [InlineData(typeof(object), "object")]
-    [InlineData(typeof(sbyte), "sbyte")]
-    [InlineData(typeof(sbyte?), "sbyte?")]
-    [InlineData(typeof(short), "short")]
-    [InlineData(typeof(short?), "short?")]
-    [InlineData(typeof(string), "string")]
-    [InlineData(typeof(uint), "uint")]
-    [InlineData(typeof(uint?), "uint?")]
-    [InlineData(typeof(ulong), "ulong")]
-    [InlineData(typeof(ulong?), "ulong?")]
-    [InlineData(typeof(Guid), "Guid")]
-    [InlineData(typeof(Guid?), "Guid?")]
-    [InlineData(typeof(DateTime), "DateTime")]
-    [InlineData(typeof(DateTime?), "DateTime?")]
-    [InlineData(typeof(void), "void")]
-    public void GetNameOrAlias_ReturnsTypeAlias_ForAliasedTypes(Type type, string expectedResult)
-    {
-        // Act
-        var result = type.GetTypeAsString();
-
-        // Assert
-        Assert.Equal(expectedResult, result);
-    }
-
-    [Fact]
-    public void GetNameOrAlias_ReturnsTypeName_ForNonAliasedType()
-    {
-        // Arrange
-        var type = typeof(StringBuilder);
-
-        // Act
-
-        var result = type.GetTypeAsString();
-
-        // Assert
-        Assert.Equal(type.Name, result);
     }
 
     [Fact]

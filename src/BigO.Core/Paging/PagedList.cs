@@ -40,7 +40,7 @@ public abstract class PagedList<T, TK> : IPagedList<T>
         PageSize = pageSize;
         PageNumber = pageNumber;
         TotalPages = 0;
-        
+
         if (totalCount > 0 && pageSize > 0)
         {
             TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
@@ -49,6 +49,12 @@ public abstract class PagedList<T, TK> : IPagedList<T>
         HasPrevious = PageNumber > 1;
         HasNext = PageNumber < TotalPages;
     }
+
+    /// <summary>
+    ///     Returns an empty paged list.
+    /// </summary>
+    /// <returns>An empty paged list.</returns>
+    public static TK Empty => (TK)Activator.CreateInstance(typeof(TK), new List<T>(), 0, 0, 0)!;
 
     /// <summary>
     ///     Gets the items for the current page.
@@ -106,10 +112,4 @@ public abstract class PagedList<T, TK> : IPagedList<T>
     [JsonPropertyName("hasNext")]
     [DataMember(Name = "hasNext", Order = 70)]
     public bool HasNext { get; private set; }
-
-    /// <summary>
-    ///     Returns an empty paged list.
-    /// </summary>
-    /// <returns>An empty paged list.</returns>
-    public static TK Empty => (TK)Activator.CreateInstance(typeof(TK), new List<T>(), 0, 0, 0)!;
 }

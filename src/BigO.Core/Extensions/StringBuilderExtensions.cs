@@ -20,15 +20,14 @@ public static class StringBuilderExtensions
     /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="stringBuilder" /> is null.</exception>
     /// <remarks>
     ///     This extension method can be used to determine whether a <see cref="System.Text.StringBuilder" /> instance is
-    ///     empty.
-    ///     By default, only non-white-space characters are considered when checking for emptiness, but if the
-    ///     <paramref name="countWhiteSpace" /> parameter is set to true,
-    ///     white-space characters are also counted. The method returns true if the <see cref="System.Text.StringBuilder" /> is
-    ///     empty; otherwise, it returns false.
+    ///     empty. By default, it checks if the StringBuilder has a length of zero. If the <paramref name="countWhiteSpace" />
+    ///     parameter is set to true, the method iterates through each character in the StringBuilder to determine if
+    ///     all characters are whitespace. It is more efficient for large strings as it avoids converting the
+    ///     StringBuilder into a string.
     /// </remarks>
     /// <example>
     ///     The following code demonstrates how to use the <see cref="IsEmpty(StringBuilder, bool)" /> method to determine
-    ///     whether a StringBuilder instance is empty.
+    ///     whether a StringBuilder instance is empty:
     ///     <code><![CDATA[
     /// var sb = new StringBuilder("Hello, world!");
     /// bool isEmpty = sb.IsEmpty(); // false
@@ -46,14 +45,22 @@ public static class StringBuilderExtensions
             throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
         }
 
-        // Early return if stringBuilder is empty and whitespace should not be counted
-        if (stringBuilder.Length == 0 && !countWhiteSpace)
+        if (!countWhiteSpace)
         {
-            return true;
+            return stringBuilder.Length == 0;
         }
 
-        return countWhiteSpace ? string.IsNullOrWhiteSpace(stringBuilder.ToString()) : stringBuilder.Length == 0;
+        for (var i = 0; i < stringBuilder.Length; i++)
+        {
+            if (!char.IsWhiteSpace(stringBuilder[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
+
 
     /// <summary>
     ///     Appends a character to the StringBuilder until it reaches the specified target length.
@@ -136,22 +143,24 @@ public static class StringBuilderExtensions
             throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
         }
 
+        // ReSharper disable once ConvertIfStatementToSwitchStatement
         if (maxLength < 0)
         {
-            throw new ArgumentException("The maxlength cannot be less then 0.", nameof(maxLength));
+            throw new ArgumentException("The maxlength cannot be less than 0.", nameof(maxLength));
         }
 
         if (maxLength == 0)
         {
             stringBuilder.Clear();
         }
-        else
+        else if (maxLength < stringBuilder.Length)
         {
             stringBuilder.Length = maxLength;
         }
 
         return stringBuilder;
     }
+
 
     /// <summary>
     ///     Reverses the characters in the StringBuilder.
@@ -211,55 +220,23 @@ public static class StringBuilderExtensions
     ///     Thrown when either <paramref name="stringBuilder" /> or
     ///     <paramref name="prefix" /> is null or empty.
     /// </exception>
-    /// <remarks>
-    ///     This method checks if the <paramref name="stringBuilder" /> instance already starts with the specified prefix
-    ///     string. If it doesn't, the prefix string will be inserted at the beginning of the <paramref name="stringBuilder" />
-    ///     instance. The comparison between the prefix string and the <paramref name="stringBuilder" /> instance is performed
-    ///     using the specified comparison rules, which are set to <see cref="StringComparison.InvariantCulture" /> by default.
-    /// </remarks>
-    /// <example>
-    ///     The following example demonstrates how to use the <see cref="EnsureStartsWith" /> method to ensure that a
-    ///     <see cref="StringBuilder" /> instance starts with a specified prefix string:
-    ///     <code><![CDATA[
-    /// StringBuilder sb = new StringBuilder("fox jumps over the lazy dog");
-    /// sb.EnsureStartsWith("the ");
-    /// Console.WriteLine(sb.ToString()); // Output: "the fox jumps over the lazy dog"
-    /// ]]></code>
-    /// </example>
     public static StringBuilder EnsureStartsWith(this StringBuilder stringBuilder, string prefix,
         StringComparison stringComparison = StringComparison.InvariantCulture)
     {
         if (stringBuilder == null)
         {
-            throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
+            throw new ArgumentNullException(nameof(stringBuilder), "The stringBuilder cannot be null.");
         }
 
-        if (string.IsNullOrWhiteSpace(prefix))
+        if (string.IsNullOrEmpty(prefix))
         {
-            throw new ArgumentNullException(nameof(prefix), "The prefix cannot be null or whitespace.");
+            throw new ArgumentNullException(nameof(prefix), "The prefix cannot be null or empty.");
         }
 
-        var prefixLength = prefix.Length;
-        if (stringBuilder.Length < prefixLength)
+        if (stringBuilder.Length < prefix.Length ||
+            !stringBuilder.ToString(0, prefix.Length).Equals(prefix, stringComparison))
         {
             stringBuilder.Insert(0, prefix);
-        }
-        else
-        {
-            var mismatchFound = false;
-            for (var i = 0; i < prefixLength; i++)
-            {
-                if (!string.Equals(stringBuilder[i].ToString(), prefix[i].ToString(), stringComparison))
-                {
-                    mismatchFound = true;
-                    break;
-                }
-            }
-
-            if (mismatchFound)
-            {
-                stringBuilder.Insert(0, prefix);
-            }
         }
 
         return stringBuilder;
@@ -281,59 +258,28 @@ public static class StringBuilderExtensions
     ///     Thrown when either <paramref name="stringBuilder" /> or
     ///     <paramref name="suffix" /> is null or empty.
     /// </exception>
-    /// <remarks>
-    ///     This method checks if the <paramref name="stringBuilder" /> instance already ends with the specified suffix string.
-    ///     If it doesn't, the suffix string will be appended to the end of the <paramref name="stringBuilder" /> instance. The
-    ///     comparison between the suffix string and the <paramref name="stringBuilder" /> instance is performed using the
-    ///     specified comparison rules, which are set to <see cref="StringComparison.InvariantCulture" /> by default.
-    /// </remarks>
-    /// <example>
-    ///     The following example demonstrates how to use the <see cref="EnsureEndsWith" /> method to ensure that a
-    ///     <see cref="StringBuilder" /> instance ends with a specified suffix string:
-    ///     <code><![CDATA[
-    /// StringBuilder sb = new StringBuilder("the quick brown fox jumps over the lazy ");
-    /// sb.EnsureEndsWith("dog");
-    /// Console.WriteLine(sb.ToString()); // Output: "the quick brown fox jumps over the lazy dog"
-    /// ]]></code>
-    /// </example>
     public static StringBuilder EnsureEndsWith(this StringBuilder stringBuilder, string suffix,
         StringComparison stringComparison = StringComparison.InvariantCulture)
     {
         if (stringBuilder == null)
         {
-            throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
+            throw new ArgumentNullException(nameof(stringBuilder), "The stringBuilder cannot be null.");
         }
 
-        if (string.IsNullOrWhiteSpace(suffix))
+        if (string.IsNullOrEmpty(suffix))
         {
-            throw new ArgumentNullException(nameof(suffix),
-                $"The {nameof(stringBuilder)} cannot be null or whitespace.");
+            throw new ArgumentNullException(nameof(suffix), "The suffix cannot be null or empty.");
         }
 
-        var suffixLength = suffix.Length;
-        var startIndex = stringBuilder.Length - suffixLength;
-
-        if (startIndex >= 0)
+        if (stringBuilder.Length < suffix.Length || !stringBuilder
+                .ToString(stringBuilder.Length - suffix.Length, suffix.Length).Equals(suffix, stringComparison))
         {
-            var matchFound = true;
-            for (var i = 0; i < suffixLength; i++)
-            {
-                if (!string.Equals(stringBuilder[startIndex + i].ToString(), suffix[i].ToString(), stringComparison))
-                {
-                    matchFound = false;
-                    break;
-                }
-            }
-
-            if (matchFound)
-            {
-                return stringBuilder;
-            }
+            stringBuilder.Append(suffix);
         }
 
-        stringBuilder.Append(suffix);
         return stringBuilder;
     }
+
 
     /// <summary>
     ///     Appends multiple strings to the <see cref="StringBuilder" /> instance, optionally inserting a new line between each
@@ -476,30 +422,33 @@ public static class StringBuilderExtensions
     {
         if (stringBuilder == null)
         {
-            throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
+            throw new ArgumentNullException(nameof(stringBuilder), "The stringBuilder cannot be null.");
         }
 
-        var startIndex = 0;
-        var endIndex = stringBuilder.Length - 1;
-
-        while (startIndex <= endIndex && char.IsWhiteSpace(stringBuilder[startIndex]))
+        var start = 0;
+        while (start < stringBuilder.Length && char.IsWhiteSpace(stringBuilder[start]))
         {
-            startIndex++;
+            start++;
         }
 
-        while (endIndex >= startIndex && char.IsWhiteSpace(stringBuilder[endIndex]))
+        var end = stringBuilder.Length - 1;
+        while (end > start && char.IsWhiteSpace(stringBuilder[end]))
         {
-            endIndex--;
+            end--;
         }
 
-        if (startIndex > 0 || endIndex < stringBuilder.Length - 1)
+        if (start <= 0 && end >= stringBuilder.Length - 1)
         {
-            stringBuilder.Remove(endIndex + 1, stringBuilder.Length - endIndex - 1);
-            stringBuilder.Remove(0, startIndex);
+            return stringBuilder;
         }
+
+        var trimmedStringBuilder = new StringBuilder(stringBuilder.ToString(start, end - start + 1));
+        stringBuilder.Clear();
+        stringBuilder.Append(trimmedStringBuilder);
 
         return stringBuilder;
     }
+
 
     /// <summary>
     ///     Appends a formatted string, followed by a line terminator, to the end of the <see cref="StringBuilder" /> instance.

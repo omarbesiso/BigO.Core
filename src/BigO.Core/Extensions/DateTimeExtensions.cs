@@ -54,7 +54,8 @@ public static class DateTimeExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TimeOnly ToTimeOnly(this DateTime dateTime)
     {
-        return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond);
+        return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond,
+            dateTime.Microsecond);
     }
 
     /// <summary>

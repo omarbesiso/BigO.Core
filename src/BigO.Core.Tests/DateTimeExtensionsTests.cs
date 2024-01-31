@@ -301,7 +301,7 @@ public class DateTimeExtensionsTests
         var result = date.GetLastDateOfWeek();
 
         // Assert
-        Assert.Equal(firstDayOfWeek.Increment(6), result.DayOfWeek);
+        Assert.Equal(firstDayOfWeek.AddDays(6), result.DayOfWeek);
     }
 
     [Theory]
@@ -807,11 +807,10 @@ public class DateTimeExtensionsTests
     }
 
     [Theory]
-    [InlineData(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
-    [InlineData(23, 59, 59, 999, 999, 23, 59, 59, 999, 999)]
-    [InlineData(12, 34, 56, 789, 123, 12, 34, 56, 789, 123)]
-    public void ToTimeOnly_ReturnsExpectedTime(int hour, int minute, int second, int millisecond, int microsecond,
-        int expectedHour, int expectedMinute, int expectedSecond, int expectedMillisecond, int expectedMicrosecond)
+    [InlineData(0, 0, 0, 0, 0)]
+    [InlineData(23, 59, 59, 999, 999)]
+    [InlineData(12, 34, 56, 789, 123)]
+    public void ToTimeOnly_ReturnsExpectedTime(int hour, int minute, int second, int millisecond, int microsecond)
     {
         // Arrange
         var dateTime = new DateTime(2020, 1, 1, hour, minute, second, millisecond, microsecond);
@@ -820,10 +819,10 @@ public class DateTimeExtensionsTests
         var result = dateTime.ToTimeOnly();
 
         // Assert
-        Assert.Equal(expectedHour, result.Hour);
-        Assert.Equal(expectedMinute, result.Minute);
-        Assert.Equal(expectedSecond, result.Second);
-        Assert.Equal(expectedMillisecond, result.Millisecond);
-        Assert.Equal(expectedMicrosecond, result.Microsecond);
+        Assert.Equal(dateTime.Hour, result.Hour);
+        Assert.Equal(dateTime.Minute, result.Minute);
+        Assert.Equal(dateTime.Second, result.Second);
+        Assert.Equal(dateTime.Millisecond, result.Millisecond);
+        Assert.Equal(dateTime.Microsecond, result.Microsecond);
     }
 }
