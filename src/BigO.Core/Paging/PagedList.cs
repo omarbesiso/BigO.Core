@@ -127,7 +127,7 @@ public abstract record PagedList<T> : IPagedList<T>
     ///     long-running applications to prevent memory leaks or stale data. However, as each cached instance is empty and
     ///     immutable, the risk of stale data in this specific context is minimal.
     /// </remarks>
-    public static TPagedList CreateEmpty<TPagedList, TItem>() where TPagedList : PagedList<TItem>, new() where TItem : class
+    public static TPagedList CreateEmpty<TPagedList, TItem>() where TPagedList : PagedList<TItem> where TItem : class
     {
         return PagedListCache.CreateEmpty<TPagedList, TItem>();
     }
