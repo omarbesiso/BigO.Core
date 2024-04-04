@@ -91,12 +91,14 @@ public abstract record PagedList<T> : IPagedList<T>
     [JsonPropertyName("hasNext")]
     public bool HasNext { get; private set; }
 
+
     /// <summary>
-    ///     Creates an empty instance of a paged list for the specified type.
+    ///     Creates an empty instance of a paged list for the specified type, utilizing a cache to improve performance.
     /// </summary>
     /// <typeparam name="TPagedList">
     ///     The concrete type of the paged list to be instantiated. This type must inherit from
-    ///     <see cref="PagedList{TItem}" /> and have a constructor that matches the expected signature.
+    ///     <see cref="PagedList{TItem}" /> and have a constructor that matches the expected signature (
+    ///     <see cref="IEnumerable{TItem}" />, int, int, int).
     /// </typeparam>
     /// <typeparam name="TItem">The type of items contained in the paged list. Must be a class.</typeparam>
     /// <returns>An empty instance of <typeparamref name="TPagedList" />.</returns>
@@ -105,21 +107,28 @@ public abstract record PagedList<T> : IPagedList<T>
     ///     <typeparamref name="TPagedList" />.
     /// </exception>
     /// <exception cref="System.InvalidOperationException">
-    ///     Thrown if <typeparamref name="TPagedList" /> cannot be instantiated.
-    ///     This can occur if the type is abstract, an interface, or does not have an accessible constructor that matches the
-    ///     expected signature.
+    ///     Thrown if <typeparamref name="TPagedList" /> cannot be instantiated
+    ///     due to it being abstract, an interface, lacking an accessible constructor, or the type name being null.
     /// </exception>
     /// <remarks>
-    ///     This method utilizes reflection to dynamically instantiate a paged list of the specified type. It assumes the
-    ///     presence of a constructor in <typeparamref name="TPagedList" /> that accepts a <see cref="List{TItem}" />, total
-    ///     count, page number, and page size as parameters. This is particularly useful for creating return types for methods
-    ///     that need to provide an empty paged result set without knowing the specific implementation of
-    ///     <see cref="PagedList{T}" /> being used.
-    ///     The method simplifies the instantiation of paged list types, reducing boilerplate code and facilitating the
-    ///     consistent handling of empty result sets across different parts of an application.
+    ///     This method leverages a static cache (<see cref="PagedListCache" />) to store and reuse empty instances of paged
+    ///     lists, significantly reducing the overhead associated with dynamic instance creation via reflection for frequently
+    ///     requested types. It dynamically instantiates a paged list of the specified type with default parameters, assuming
+    ///     the presence of a constructor in <typeparamref name="TPagedList" /> that accepts parameters for a
+    ///     <see cref="List{TItem}" />, total count, page number, and page size. This approach is ideal for methods that need
+    ///     to return an empty paged result set without specific knowledge of the paged list's implementation being used.
+    ///     Due to the caching mechanism, subsequent requests for the same <typeparamref name="TPagedList" /> type will receive
+    ///     a cached instance, enhancing performance, especially in scenarios with frequent requests for empty paged lists.
+    ///     Usage example:
+    ///     <code>
+    /// var emptyPagedList = PagedList&lt;MyPagedList, MyItem&gt;.CreateEmpty&lt;MyPagedList, MyItem&gt;();
+    /// </code>
+    ///     It is important to ensure thread safety and manage the lifetime of objects within the cache properly, especially in
+    ///     long-running applications to prevent memory leaks or stale data. However, as each cached instance is empty and
+    ///     immutable, the risk of stale data in this specific context is minimal.
     /// </remarks>
-    public static TPagedList CreateEmpty<TPagedList, TItem>() where TPagedList : PagedList<TItem> where TItem : class
+    public static TPagedList CreateEmpty<TPagedList, TItem>() where TPagedList : PagedList<TItem>, new() where TItem : class
     {
-        return (TPagedList)Activator.CreateInstance(typeof(TPagedList), new List<TItem>(), 0, 1, 0)!;
+        return PagedListCache.CreateEmpty<TPagedList, TItem>();
     }
 }
