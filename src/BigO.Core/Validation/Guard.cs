@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using BigO.Core.Extensions;
 
 namespace BigO.Core.Validation;
@@ -34,7 +35,7 @@ public static partial class Guard
     ///     </code>
     /// </example>
     [ContractAnnotation("value:null => halt; value:notnull => notnull")]
-    public static T NotNull<T>([System.Diagnostics.CodeAnalysis.NotNull] T value,
+    public static T NotNull<T>([System.Diagnostics.CodeAnalysis.NotNull] [NotNullWhen(true)] T value,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null)

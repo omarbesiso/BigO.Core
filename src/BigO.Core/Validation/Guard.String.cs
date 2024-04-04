@@ -1,4 +1,5 @@
-﻿using System.Net.Mail;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net.Mail;
 using System.Text.RegularExpressions;
 
 namespace BigO.Core.Validation;
@@ -28,7 +29,7 @@ public static partial class Guard
     ///     </code>
     /// </example>
     [ContractAnnotation("value:null => halt")]
-    public static string NotNullOrEmpty(string? value,
+    public static string NotNullOrEmpty([NotNullWhen(true)]string? value,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null)
@@ -70,7 +71,7 @@ public static partial class Guard
     ///     </code>
     /// </example>
     [ContractAnnotation("value:null => halt")]
-    public static string NotNullOrWhiteSpace(string? value,
+    public static string NotNullOrWhiteSpace([NotNullWhen(true)]string? value,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null)
@@ -322,9 +323,7 @@ public static partial class Guard
 
         if (maxLength < minLength)
         {
-            throw new ArgumentException(
-                "The minimum length specified cannot be greater than the maximum length specified.",
-                nameof(minLength));
+            throw new ArgumentException("The minimum length specified cannot be greater than the maximum length specified.", nameof(minLength));
         }
 
         if (value.Length >= minLength && value.Length <= maxLength)
