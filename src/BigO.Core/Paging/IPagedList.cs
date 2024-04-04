@@ -4,6 +4,7 @@
 ///     Represents a paged list of items.
 /// </summary>
 /// <typeparam name="T">The type of the items in the list.</typeparam>
+[PublicAPI]
 public interface IPagedList<out T>
 {
     /// <summary>
