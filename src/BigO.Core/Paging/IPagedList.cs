@@ -4,12 +4,12 @@
 ///     Represents a paged list of items.
 /// </summary>
 /// <typeparam name="T">The type of the items in the list.</typeparam>
-public interface IPagedList<T>
+public interface IPagedList<out T>
 {
     /// <summary>
     ///     Gets the items for the current page.
     /// </summary>
-    List<T> Items { get; }
+    IReadOnlyList<T> Items { get; }
 
     /// <summary>
     ///     Gets the current page number.
