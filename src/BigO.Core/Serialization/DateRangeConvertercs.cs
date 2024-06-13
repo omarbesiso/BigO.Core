@@ -25,7 +25,7 @@ public class DateRangeConverter : JsonConverter<DateRange>
         var parts = reader.GetString()!.Split("-");
         var startDate = DateOnly.ParseExact(parts[0], Format, CultureInfo.InvariantCulture);
         var endDate = DateOnly.ParseExact(parts[1], Format, CultureInfo.InvariantCulture);
-        return new DateRange(startDate, endDate);
+        return DateRange.Create(startDate, endDate);
     }
 
     /// <summary>

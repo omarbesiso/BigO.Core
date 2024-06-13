@@ -34,17 +34,46 @@ public static partial class Guard
         string argumentName = "",
         string? exceptionMessage = null)
     {
-        // ReSharper disable once PossibleMultipleEnumeration
-        if (value != null && value.Any())
+        if (value == null)
         {
-            // ReSharper disable once PossibleMultipleEnumeration
-            return value;
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{argumentName}' cannot be null."
+                : exceptionMessage;
+
+            throw new ArgumentException(errorMessage, argumentName);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The value of '{argumentName}' cannot be null or empty."
-            : exceptionMessage;
+        // Use Count property if available to avoid multiple enumeration
+        switch (value)
+        {
+            case ICollection<T> { Count: 0 }:
+            case IReadOnlyCollection<T> { Count: 0 }:
+            {
+                var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                    ? $"The value of '{argumentName}' cannot be empty."
+                    : exceptionMessage;
 
-        throw new ArgumentException(errorMessage, argumentName);
+                throw new ArgumentException(errorMessage, argumentName);
+            }
+            case ICollection<T>:
+            case IReadOnlyCollection<T>:
+                return value;
+        }
+
+        // Fallback to manual enumeration to check for any elements
+        // ReSharper disable once PossibleMultipleEnumeration
+        using var enumerator = value.GetEnumerator();
+        // ReSharper disable once InvertIf
+        if (!enumerator.MoveNext())
+        {
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{argumentName}' cannot be empty."
+                : exceptionMessage;
+
+            throw new ArgumentException(errorMessage, argumentName);
+        }
+
+        // ReSharper disable once PossibleMultipleEnumeration
+        return value;
     }
 }

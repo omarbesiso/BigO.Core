@@ -6,23 +6,36 @@
 [PublicAPI]
 public abstract class DisposableObject : IDisposable
 {
+    private readonly object _disposeLock = new(); // lock object for thread safety
+    private bool _isDisposed; // backing field for the property
+
     /// <summary>
     ///     Gets a value indicating whether this instance is disposed.
     /// </summary>
     /// <value><c>true</c> if this instance is disposed; otherwise, <c>false</c>.</value>
-    public bool IsDisposed { get; private set; }
-
+    public bool IsDisposed
+    {
+        get
+        {
+            lock (_disposeLock)
+            {
+                return _isDisposed;
+            }
+        }
+        private set
+        {
+            lock (_disposeLock)
+            {
+                _isDisposed = value;
+            }
+        }
+    }
 
     /// <summary>
     ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
     public void Dispose()
     {
-        if (IsDisposed)
-        {
-            return;
-        }
-
         Dispose(true);
         GC.SuppressFinalize(this);
     }
@@ -34,19 +47,22 @@ public abstract class DisposableObject : IDisposable
     ///     <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
     ///     unmanaged resources.
     /// </param>
-    protected void Dispose(bool disposing)
+    protected virtual void Dispose(bool disposing)
     {
-        try
+        if (IsDisposed)
         {
-            if (disposing)
-            {
-                Disposing();
-            }
+            return;
         }
-        finally
+
+        if (disposing)
         {
-            IsDisposed = true;
+            // Free managed resources
+            Disposing();
         }
+
+        // Free unmanaged resources (if any) here
+
+        IsDisposed = true;
     }
 
     /// <summary>
