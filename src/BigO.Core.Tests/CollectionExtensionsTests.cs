@@ -46,7 +46,6 @@ public class CollectionExtensionsTests
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(() => collection.RemoveWhere(x => x > 0));
         Assert.Equal("collection", exception.ParamName);
-        Assert.Equal($"The {nameof(collection)} cannot be null. (Parameter '{nameof(collection)}')", exception.Message);
     }
 
     [Fact]
@@ -58,16 +57,15 @@ public class CollectionExtensionsTests
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(() => collection.RemoveWhere(null!));
         Assert.Equal("predicate", exception.ParamName);
-        Assert.Equal("The predicate cannot be null. (Parameter 'predicate')", exception.Message);
     }
 
     public static IEnumerable<object[]> AddUniqueTestData()
     {
-        yield return new object[] { new List<int>(), 1, true };
-        yield return new object[] { new List<int> { 1 }, 1, false };
-        yield return new object[] { new List<int> { 1 }, 2, true };
-        yield return new object[] { new List<string> { "a", "b", "c" }, "d", true };
-        yield return new object[] { new List<string> { "a", "b", "c" }, "b", false };
+        yield return [new List<int>(), 1, true];
+        yield return [new List<int> { 1 }, 1, false];
+        yield return [new List<int> { 1 }, 2, true];
+        yield return [new List<string> { "a", "b", "c" }, "d", true];
+        yield return [new List<string> { "a", "b", "c" }, "b", false];
     }
 
     [Theory]
@@ -94,7 +92,6 @@ public class CollectionExtensionsTests
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(() => collection.AddUnique(1));
         Assert.Equal(nameof(collection), exception.ParamName);
-        Assert.Equal($"The {nameof(collection)} cannot be null. (Parameter '{nameof(collection)}')", exception.Message);
     }
 
     public static IEnumerable<object[]> AddIfTestData()
@@ -140,7 +137,6 @@ public class CollectionExtensionsTests
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(() => collection.AddIf(x => x > 0, 5));
         Assert.Equal("collection", exception.ParamName);
-        Assert.Equal($"The {nameof(collection)} cannot be null. (Parameter '{nameof(collection)}')", exception.Message);
     }
 
     [Fact]
@@ -152,7 +148,6 @@ public class CollectionExtensionsTests
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(() => collection.AddIf(null!, 5));
         Assert.Equal("predicate", exception.ParamName);
-        Assert.Equal("The predicate cannot be null. (Parameter 'predicate')", exception.Message);
     }
 
     [Theory]

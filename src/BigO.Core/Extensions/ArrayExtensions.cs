@@ -1,4 +1,6 @@
-﻿namespace BigO.Core.Extensions;
+﻿using BigO.Core.Validation;
+
+namespace BigO.Core.Extensions;
 
 /// <summary>
 ///     Provides a set of useful extension methods for working with <see cref="Array" /> objects.
@@ -13,7 +15,7 @@ public static class ArrayExtensions
     /// <param name="array">The array to shuffle.</param>
     /// <param name="preserveOriginal">
     ///     Specifies whether to preserve the original array. If <c>true</c>, the shuffle is performed on a copy of the array;
-    ///     otherwise, the shuffle is performed on the original array.
+    ///     otherwise, the shuffle is performed on the original array. Defaults to <c>false</c>.
     /// </param>
     /// <returns>
     ///     A shuffled array. This can be either a new array if <paramref name="preserveOriginal" /> is true, or the
@@ -28,15 +30,18 @@ public static class ArrayExtensions
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
-    ///     int[] numbers = { 1, 2, 3, 4, 5 };
-    ///     int[] shuffledNumbers = numbers.Shuffle();
-    ///     ]]></code>
+    /// int[] numbers = { 1, 2, 3, 4, 5 };
+    /// int[] shuffledNumbers = numbers.Shuffle();
+    /// int[] originalPreservedShuffle = numbers.Shuffle(true);
+    /// ]]></code>
     /// </example>
     public static T[] Shuffle<T>(this T[] array, bool preserveOriginal = false)
     {
-        if (array == null)
+        Guard.NotNull(array);
+
+        if (array.Length <= 1)
         {
-            throw new ArgumentNullException(nameof(array), $"The {nameof(array)} cannot be null.");
+            return preserveOriginal ? (T[])array.Clone() : array;
         }
 
         var shuffledArray = preserveOriginal ? (T[])array.Clone() : array;
@@ -49,6 +54,7 @@ public static class ArrayExtensions
 
         return shuffledArray;
     }
+
 
     /// <summary>
     ///     Clears a range of elements in the array, setting each element within the range to its default value.
@@ -81,6 +87,7 @@ public static class ArrayExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Clear(this Array array, int index, int length)
     {
+        Guard.NotNull(array);
         Array.Clear(array, index, length);
     }
 }

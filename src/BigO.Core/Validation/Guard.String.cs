@@ -1,13 +1,16 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Net.Mail;
+﻿using System.Net.Mail;
 using System.Text.RegularExpressions;
+using BigO.Core.Extensions;
+
+// ReSharper disable InvertIf
 
 namespace BigO.Core.Validation;
 
 public static partial class Guard
 {
     /// <summary>
-    ///     Ensures that the given string is not <c>null</c> or empty. If the string is <c>null</c> or empty, an
+    ///     Ensures that the given string is not <c>null</c> or empty. If the string is <c>null</c>, an
+    ///     <see cref="ArgumentNullException" /> is thrown. If the string is empty, an
     ///     <see cref="ArgumentException" /> is thrown.
     /// </summary>
     /// <param name="value">The string to be checked for <c>null</c> or empty.</param>
@@ -18,7 +21,8 @@ public static partial class Guard
     ///     Custom exception message if the string is <c>null</c> or empty. If not provided, a default message is used.
     /// </param>
     /// <returns>The non-null and non-empty string.</returns>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="value" /> is <c>null</c> or empty.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="value" /> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="value" /> is empty.</exception>
     /// <remarks>
     ///     This method is useful for validating string arguments to ensure they are neither <c>null</c> nor empty,
     ///     thus avoiding common errors related to string handling.
@@ -29,41 +33,58 @@ public static partial class Guard
     ///     </code>
     /// </example>
     [ContractAnnotation("value:null => halt")]
-    public static string NotNullOrEmpty([NotNullWhen(true)] string? value,
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string NotNullOrEmpty([System.Diagnostics.CodeAnalysis.NotNull] string? value,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null)
     {
-        if (!string.IsNullOrEmpty(value))
+        if (value is null)
         {
-            return value;
+            var nullErrorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{argumentName}' cannot be null."
+                : exceptionMessage;
+
+            ThrowHelper.ThrowArgumentNullException(argumentName, nullErrorMessage);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The value of '{argumentName}' cannot be null or empty."
-            : exceptionMessage;
+        if (value.Length == 0)
+        {
+            var emptyErrorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{argumentName}' cannot be empty."
+                : exceptionMessage;
 
-        throw new ArgumentException(errorMessage, argumentName);
+            ThrowHelper.ThrowArgumentException(argumentName, emptyErrorMessage);
+        }
+
+        return value;
     }
 
     /// <summary>
-    ///     Ensures that the given string is not <c>null</c>, empty, or composed only of whitespace characters.
-    ///     If the string is <c>null</c>, empty, or whitespace, an <see cref="ArgumentException" /> is thrown.
+    ///     Ensures that the given string is not <c>null</c>, empty, or consists only of white-space characters. If the string
+    ///     is <c>null</c>, an
+    ///     <see cref="ArgumentNullException" /> is thrown. If the string is empty or consists only of white-space characters,
+    ///     an
+    ///     <see cref="ArgumentException" /> is thrown.
     /// </summary>
-    /// <param name="value">The string to be checked for <c>null</c>, empty, or whitespace.</param>
+    /// <param name="value">The string to be checked for <c>null</c>, empty, or white-space.</param>
     /// <param name="argumentName">
     ///     The name of the argument being checked, used in the exception message for clarity.
     /// </param>
     /// <param name="exceptionMessage">
-    ///     Custom exception message if the string is <c>null</c>, empty, or whitespace.
-    ///     If not provided, a default message is used.
+    ///     Custom exception message if the string is <c>null</c>, empty, or consists only of white-space. If not provided, a
+    ///     default message is used.
     /// </param>
-    /// <returns>The non-null, non-empty, and non-whitespace string.</returns>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="value" /> is <c>null</c>, empty, or whitespace.</exception>
+    /// <returns>The non-null and non-white-space string.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="value" /> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">
+    ///     Thrown if <paramref name="value" /> is empty or consists only of white-space
+    ///     characters.
+    /// </exception>
     /// <remarks>
-    ///     This method is useful for validating string arguments to ensure they are meaningful and not just empty or
-    ///     whitespace,
-    ///     thus ensuring more robust input validation.
+    ///     This method is useful for validating string arguments to ensure they are neither <c>null</c>, empty, nor consist
+    ///     only of white-space characters,
+    ///     thus avoiding common errors related to string handling.
     /// </remarks>
     /// <example>
     ///     <code>
@@ -71,21 +92,31 @@ public static partial class Guard
     ///     </code>
     /// </example>
     [ContractAnnotation("value:null => halt")]
-    public static string NotNullOrWhiteSpace([NotNullWhen(true)] string? value,
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string NotNullOrWhiteSpace([System.Diagnostics.CodeAnalysis.NotNull] string? value,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null)
     {
-        if (!string.IsNullOrWhiteSpace(value))
+        if (value is null)
         {
-            return value;
+            var nullErrorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{argumentName}' cannot be null."
+                : exceptionMessage;
+
+            ThrowHelper.ThrowArgumentNullException(argumentName, nullErrorMessage);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The value of '{argumentName}' cannot be null, empty, or composed only of whitespace."
-            : exceptionMessage;
+        if (value.IsWhiteSpace())
+        {
+            var whitespaceErrorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{argumentName}' cannot be empty or whitespace."
+                : exceptionMessage;
 
-        throw new ArgumentException(errorMessage, argumentName);
+            ThrowHelper.ThrowArgumentException(argumentName, whitespaceErrorMessage);
+        }
+
+        return value;
     }
 
     /// <summary>
@@ -118,28 +149,28 @@ public static partial class Guard
     ///     </code>
     /// </example>
     [ContractAnnotation("value:null => null")]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? MaxLength(string? value, int maxLength,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null)
     {
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        if (value == null)
+        if (value is null)
         {
             // Returns the value because if we need to check for null then we should use NotNull() instead.
             return value;
         }
 
-        if (value.Length <= maxLength)
+        if (value.Length > maxLength)
         {
-            return value;
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The length of '{argumentName}' cannot exceed {maxLength} characters."
+                : exceptionMessage;
+
+            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The length of '{argumentName}' cannot exceed {maxLength} characters."
-            : exceptionMessage;
-
-        throw new ArgumentException(errorMessage, argumentName);
+        return value;
     }
 
     /// <summary>
@@ -172,28 +203,28 @@ public static partial class Guard
     ///     </code>
     /// </example>
     [ContractAnnotation("value:null => null")]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? MinLength(string? value, int minLength,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null)
     {
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        if (value == null)
+        if (value is null)
         {
             // Returns the value because if we need to check for null then we should use NotNull() instead.
             return value;
         }
 
-        if (value.Length >= minLength)
+        if (value.Length < minLength)
         {
-            return value;
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The length of '{argumentName}' must be at least {minLength} characters."
+                : exceptionMessage;
+
+            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The length of '{argumentName}' must be at least {minLength} characters."
-            : exceptionMessage;
-
-        throw new ArgumentException(errorMessage, argumentName);
+        return value;
     }
 
     /// <summary>
@@ -226,28 +257,28 @@ public static partial class Guard
     ///     </code>
     /// </example>
     [ContractAnnotation("value:null => null")]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? ExactLength(string? value, int exactLength,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null)
     {
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        if (value == null)
+        if (value is null)
         {
             // Returns the value because if we need to check for null then we should use NotNull() instead.
             return value;
         }
 
-        if (value.Length == exactLength)
+        if (value.Length != exactLength)
         {
-            return value;
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The length of '{argumentName}' must be exactly {exactLength} characters."
+                : exceptionMessage;
+
+            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The length of '{argumentName}' must be exactly {exactLength} characters."
-            : exceptionMessage;
-
-        throw new ArgumentException(errorMessage, argumentName);
+        return value;
     }
 
     /// <summary>
@@ -299,44 +330,45 @@ public static partial class Guard
     ///     </code>
     /// </example>
     [ContractAnnotation("value:null => null")]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? StringLengthWithinRange(string? value, int minLength, int maxLength,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null)
     {
-        if (value == null)
+        if (value is null)
         {
             return value;
         }
 
         if (maxLength <= 0)
         {
-            throw new ArgumentException("The maximum length specified cannot be less than or equal to 0.",
-                nameof(maxLength));
+            ThrowHelper.ThrowArgumentException(nameof(maxLength),
+                "The maximum length specified cannot be less than or equal to 0.");
         }
 
         if (minLength < 0)
         {
-            throw new ArgumentException("The minimum length specified cannot be less than 0.",
-                nameof(minLength));
+            ThrowHelper.ThrowArgumentException(nameof(minLength),
+                "The minimum length specified cannot be less than 0.");
         }
 
-        if (maxLength < minLength)
+        if (minLength > maxLength)
         {
-            throw new ArgumentException(
-                "The minimum length specified cannot be greater than the maximum length specified.", nameof(minLength));
+            ThrowHelper.ThrowArgumentException(nameof(minLength),
+                "The minimum length specified cannot be greater than the maximum length specified.");
         }
 
-        if (value.Length >= minLength && value.Length <= maxLength)
+        if (value.Length < minLength || value.Length > maxLength)
         {
-            return value;
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The length of '{argumentName}' must be between {minLength} and {maxLength} characters."
+                : exceptionMessage;
+
+            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The length of '{argumentName}' must be between {minLength} and {maxLength} characters."
-            : exceptionMessage;
-
-        throw new ArgumentException(errorMessage, argumentName);
+        return value;
     }
 
     /// <summary>
@@ -365,26 +397,27 @@ public static partial class Guard
     ///     </code>
     /// </example>
     [ContractAnnotation("value:null => null")]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? MatchesRegex(string? value, string pattern,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null)
     {
-        if (value == null)
+        if (value is null)
         {
             return value;
         }
 
-        if (Regex.IsMatch(value, pattern))
+        if (!Regex.IsMatch(value, pattern))
         {
-            return value;
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{argumentName}' does not match the required pattern."
+                : exceptionMessage;
+
+            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The value of '{argumentName}' does not match the required pattern."
-            : exceptionMessage;
-
-        throw new ArgumentException(errorMessage, argumentName);
+        return value;
     }
 
     /// <summary>
@@ -407,30 +440,31 @@ public static partial class Guard
     /// </remarks>
     /// <example>
     ///     <code>
-    ///         Guard.IsValidEmail(myString, nameof(myString));
+    ///         Guard.EmailAddress(myString, nameof(myString));
     ///     </code>
     /// </example>
     [ContractAnnotation("value:null => null")]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? EmailAddress(string? value,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null)
     {
-        if (value == null)
+        if (value is null)
         {
             return value;
         }
 
-        if (MailAddress.TryCreate(value, out _))
+        if (!MailAddress.TryCreate(value, out _))
         {
-            return value;
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{argumentName}' is not a valid email address."
+                : exceptionMessage;
+
+            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The value of '{argumentName}' is not a valid email address."
-            : exceptionMessage;
-
-        throw new ArgumentException(errorMessage, argumentName);
+        return value;
     }
 
     /// <summary>
@@ -457,12 +491,13 @@ public static partial class Guard
     ///     </code>
     /// </example>
     [ContractAnnotation("value:null => null")]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? Url(string? value,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null)
     {
-        if (value == null)
+        if (value is null)
         {
             return value;
         }
@@ -470,15 +505,15 @@ public static partial class Guard
         var isValidUrl = Uri.TryCreate(value, UriKind.Absolute, out var uriResult)
                          && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
 
-        if (isValidUrl)
+        if (!isValidUrl)
         {
-            return value;
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{argumentName}' is not a valid URL."
+                : exceptionMessage;
+
+            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The value of '{argumentName}' is not a valid URL."
-            : exceptionMessage;
-
-        throw new ArgumentException(errorMessage, argumentName);
+        return value;
     }
 }

@@ -49,26 +49,40 @@ public abstract class DisposableObject : IDisposable
     /// </param>
     protected virtual void Dispose(bool disposing)
     {
-        if (IsDisposed)
+        lock (_disposeLock)
         {
-            return;
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Free managed resources
+                DisposeManagedResources();
+            }
+
+            // Free unmanaged resources (if any) here
+
+            _isDisposed = true;
         }
-
-        if (disposing)
-        {
-            // Free managed resources
-            Disposing();
-        }
-
-        // Free unmanaged resources (if any) here
-
-        IsDisposed = true;
     }
 
     /// <summary>
     ///     Overridden in implementing objects to perform actual clean-up.
     /// </summary>
-    protected virtual void Disposing()
+    protected virtual void DisposeManagedResources()
     {
+    }
+
+    /// <summary>
+    ///     Throws an <see cref="ObjectDisposedException" /> if the object is disposed.
+    /// </summary>
+    protected void ThrowIfDisposed()
+    {
+        if (IsDisposed)
+        {
+            throw new ObjectDisposedException(GetType().FullName);
+        }
     }
 }

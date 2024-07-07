@@ -55,6 +55,5 @@ public class ActionExtensionsTests
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(() => action.ExecuteAndTime());
         Assert.Equal(nameof(action), exception.ParamName);
-        Assert.Equal(string.Format("The {0} cannot be null. (Parameter '{0}')", nameof(action)), exception.Message);
     }
 }

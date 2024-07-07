@@ -7,92 +7,29 @@
 public static class TimeSpanExtensions
 {
     /// <summary>
-    ///     Rounds the TimeSpan to the nearest specified interval.
+    ///     Converts a <see cref="TimeSpan" /> to a <see cref="TimeOnly" /> instance, wrapping around if the duration exceeds
+    ///     24 hours.
     /// </summary>
-    /// <param name="timeSpan">The TimeSpan to round.</param>
-    /// <param name="roundTo">The interval to round to.</param>
-    /// <returns>A new TimeSpan rounded to the nearest interval.</returns>
-    public static TimeSpan RoundToNearestInterval(this TimeSpan timeSpan, TimeSpan roundTo)
-    {
-        var ticks = (long)(Math.Round(timeSpan.Ticks / (double)roundTo.Ticks) * roundTo.Ticks);
-        return new TimeSpan(ticks);
-    }
-
-    /// <summary>
-    ///     Adds a specified number of business days to a TimeSpan, assuming a 5-day business week.
-    /// </summary>
-    /// <param name="timeSpan">The original TimeSpan.</param>
-    /// <param name="businessDays">The number of business days to add.</param>
-    /// <returns>A new TimeSpan increased by the specified number of business days.</returns>
-    public static TimeSpan AddBusinessDays(this TimeSpan timeSpan, int businessDays)
-    {
-        const int daysPerWeek = 5;
-        var additionalWeeks = businessDays / daysPerWeek;
-        var extraDays = businessDays % daysPerWeek;
-
-        var totalDaysToAdd = TimeSpan.FromDays(additionalWeeks * 7 + extraDays);
-        return timeSpan.Add(totalDaysToAdd);
-    }
-
-    /// <summary>
-    ///     Determines whether the TimeSpan is zero or negative.
-    /// </summary>
-    /// <param name="timeSpan">The TimeSpan to check.</param>
-    /// <returns><c>true</c> if the TimeSpan is zero or negative; otherwise, <c>false</c>.</returns>
-    public static bool IsZeroOrNegative(this TimeSpan timeSpan)
-    {
-        return timeSpan <= TimeSpan.Zero;
-    }
-
-    /// <summary>
-    ///     Converts the TimeSpan to a readable string format, emphasizing the largest time unit.
-    /// </summary>
-    /// <param name="timeSpan">The TimeSpan to format.</param>
-    /// <returns>A string representing the formatted TimeSpan.</returns>
-    public static string ToReadableString(this TimeSpan timeSpan)
-    {
-        if (timeSpan.TotalDays >= 1)
-        {
-            return $"{timeSpan.Days} day{(timeSpan.Days == 1 ? "" : "s")}";
-        }
-
-        if (timeSpan.TotalHours >= 1)
-        {
-            return $"{timeSpan.Hours} hour{(timeSpan.Hours == 1 ? "" : "s")}";
-        }
-
-        // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (timeSpan.TotalMinutes >= 1)
-        {
-            return $"{timeSpan.Minutes} minute{(timeSpan.Minutes == 1 ? "" : "s")}";
-        }
-
-        return $"{timeSpan.Seconds} second{(timeSpan.Seconds == 1 ? "" : "s")}";
-    }
-
-    /// <summary>
-    ///     Negates the TimeSpan, returning a new TimeSpan that has the opposite duration.
-    /// </summary>
-    /// <param name="timeSpan">The TimeSpan to negate.</param>
-    /// <returns>A new TimeSpan that is the negation of the original.</returns>
-    public static TimeSpan Negate(this TimeSpan timeSpan)
-    {
-        return TimeSpan.FromTicks(-timeSpan.Ticks);
-    }
-
-    /// <summary>
-    ///     Converts a TimeSpan to a TimeOnly instance, wrapping around if the duration exceeds 24 hours.
-    /// </summary>
-    /// <param name="timeSpan">The TimeSpan to convert.</param>
-    /// <returns>A TimeOnly instance representing the time of day equivalent to the TimeSpan modulo 24 hours.</returns>
+    /// <param name="timeSpan">The <see cref="TimeSpan" /> to convert.</param>
+    /// <returns>
+    ///     A <see cref="TimeOnly" /> instance representing the time of day equivalent to the <paramref name="timeSpan" />
+    ///     modulo 24 hours.
+    /// </returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the <paramref name="timeSpan" /> is out of range.</exception>
+    /// <remarks>
+    ///     This method normalizes the <see cref="TimeSpan" /> to ensure it is within a day's duration.
+    ///     If the <paramref name="timeSpan" /> is negative, it will wrap around to a positive time of day.
+    /// </remarks>
+    [System.Diagnostics.Contracts.Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TimeOnly ToTimeOnly(this TimeSpan timeSpan)
     {
-        // Normalize the TimeSpan to ensure it is within a day's duration
         const long ticksInADay = TimeSpan.TicksPerDay;
+
+        // Normalize the ticks within a 24-hour period
         var normalizedTicks = timeSpan.Ticks % ticksInADay;
         if (normalizedTicks < 0)
         {
-            // Ensure positive ticks by adding one day's worth of ticks if the result is negative
             normalizedTicks += ticksInADay;
         }
 
@@ -100,12 +37,13 @@ public static class TimeSpanExtensions
     }
 
     /// <summary>
-    ///     Converts a nullable TimeSpan to a nullable TimeOnly instance, wrapping around if the duration exceeds 24 hours.
+    ///     Converts a nullable <see cref="TimeSpan" /> to a nullable <see cref="TimeOnly" /> instance,
+    ///     wrapping around if the duration exceeds 24 hours.
     /// </summary>
-    /// <param name="timeSpan">The nullable TimeSpan to convert.</param>
+    /// <param name="timeSpan">The nullable <see cref="TimeSpan" /> to convert.</param>
     /// <returns>
-    ///     A nullable TimeOnly instance representing the time of day equivalent to the TimeSpan modulo 24 hours,
-    ///     or null if the TimeSpan is null.
+    ///     A nullable <see cref="TimeOnly" /> instance representing the time of day equivalent to the
+    ///     <paramref name="timeSpan" /> modulo 24 hours, or <c>null</c> if the <paramref name="timeSpan" /> is <c>null</c>.
     /// </returns>
     public static TimeOnly? ToTimeOnly(this TimeSpan? timeSpan)
     {

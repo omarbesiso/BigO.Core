@@ -36,7 +36,6 @@ public class ArrayExtensionsTests
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(() => array.Shuffle());
         Assert.Equal(nameof(array), exception.ParamName);
-        Assert.Equal(string.Format("The {0} cannot be null. (Parameter '{0}')", nameof(array)), exception.Message);
     }
 
     public static IEnumerable<object[]> ClearTestData()

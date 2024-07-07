@@ -1,4 +1,6 @@
-﻿namespace BigO.Core.Extensions;
+﻿using BigO.Core.Validation;
+
+namespace BigO.Core.Extensions;
 
 /// <summary>
 ///     Provides a set of useful extension methods for working with <see cref="byte" /> objects.
@@ -17,26 +19,22 @@ public static class ByteExtensions
     ///     It initializes a new instance of the <see cref="MemoryStream" /> class with the specified byte array
     ///     and sets the stream's position to zero, making it ready for reading operations.
     ///     The method is marked with the <see cref="MethodImplAttribute" /> and the
-    ///     <see cref="MethodImplOptions.AggressiveInlining" /> option, allowing the JIT compiler to inline the method's body
-    ///     at the call site for improved performance.
+    ///     <see cref="MethodImplOptions.AggressiveInlining" /> option,
+    ///     allowing the JIT compiler to inline the method's body at the call site for improved performance.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
-    ///     byte[] data = { 0x1, 0x2, 0x3, 0x4 };
-    ///     using (MemoryStream stream = data.ToMemoryStream())
-    ///     {
-    ///         // Use the MemoryStream instance.
-    ///     }
-    ///     ]]></code>
+    /// byte[] data = { 0x1, 0x2, 0x3, 0x4 };
+    /// using (MemoryStream stream = data.ToMemoryStream())
+    /// {
+    ///     // Use the MemoryStream instance.
+    /// }
+    /// ]]></code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static MemoryStream ToMemoryStream(this byte[] buffer)
     {
-        if (buffer == null)
-        {
-            throw new ArgumentNullException(nameof(buffer), "The buffer cannot be null.");
-        }
-
-        return new MemoryStream(buffer) { Position = 0 };
+        Guard.NotNull(buffer);
+        return new MemoryStream(buffer, false) { Position = 0 };
     }
 }

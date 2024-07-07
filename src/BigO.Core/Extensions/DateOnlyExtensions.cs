@@ -65,7 +65,7 @@ public static class DateOnlyExtensions
     {
         if (dateOfBirth > DateOnly.FromDateTime(DateTime.Now))
         {
-            throw new ArgumentException("Date of birth cannot be in the future.");
+            ThrowHelper.ThrowArgumentException(nameof(dateOfBirth), "Date of birth cannot be in the future.");
         }
 
         timeZoneInfo ??= TimeZoneInfo.Local;
@@ -109,7 +109,8 @@ public static class DateOnlyExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateOnly AddWeeks(this DateOnly date, double numberOfWeeks)
     {
-        return date.AddDays((int)Math.Ceiling(numberOfWeeks * 7));
+        var numberOfDaysToAdd = (int)Math.Ceiling(numberOfWeeks * 7);
+        return date.AddDays(numberOfDaysToAdd);
     }
 
     /// <summary>

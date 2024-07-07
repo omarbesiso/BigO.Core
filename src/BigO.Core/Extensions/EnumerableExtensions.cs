@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using BigO.Core.Validation;
 
 namespace BigO.Core.Extensions;
 
@@ -27,24 +28,33 @@ public static class EnumerableExtensions
     /// Console.WriteLine(isEmpty); // Output: True
     /// ]]></code>
     /// </example>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [System.Diagnostics.Contracts.Pure]
     public static bool IsEmpty([NoEnumeration] this IEnumerable collection)
     {
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
-        }
+        ArgumentNullException.ThrowIfNull(collection);
 
-        var enumerator = collection.GetEnumerator();
-        try
+        switch (collection)
         {
-            return !enumerator.MoveNext();
-        }
-        finally
-        {
-            if (enumerator is IDisposable disposable)
+            case Array a:
+                return a.Length == 0;
+            case ICollection c:
+                return c.Count == 0;
+            case IReadOnlyCollection<object> rc:
+                return rc.Count == 0;
+            default:
             {
-                disposable.Dispose();
+                var enumerator = collection.GetEnumerator();
+                try
+                {
+                    return !enumerator.MoveNext();
+                }
+                finally
+                {
+                    if (enumerator is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
+                }
             }
         }
     }
@@ -69,26 +79,12 @@ public static class EnumerableExtensions
     /// Console.WriteLine(isEmpty); // Output: True
     /// ]]></code>
     /// </example>
+    [System.Diagnostics.Contracts.Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsEmpty<T>([NoEnumeration] this IEnumerable<T> collection)
     {
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
-        }
-
-        var enumerator = collection.GetEnumerator();
-        try
-        {
-            return !enumerator.MoveNext();
-        }
-        finally
-        {
-            if (enumerator is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
+        Guard.NotNull(collection);
+        return !collection.Any();
     }
 
     /// <summary>
@@ -109,26 +105,12 @@ public static class EnumerableExtensions
     /// Console.WriteLine(isNotEmpty); // Output: True
     /// ]]></code>
     /// </example>
+    [System.Diagnostics.Contracts.Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNotEmpty([NoEnumeration] this IEnumerable collection)
     {
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
-        }
-
-        var enumerator = collection.GetEnumerator();
-        try
-        {
-            return enumerator.MoveNext();
-        }
-        finally
-        {
-            if (enumerator is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
+        Guard.NotNull(collection);
+        return !collection.IsEmpty();
     }
 
     /// <summary>
@@ -151,26 +133,12 @@ public static class EnumerableExtensions
     /// Console.WriteLine(isNotEmpty); // Output: True
     /// ]]></code>
     /// </example>
+    [System.Diagnostics.Contracts.Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNotEmpty<T>([NoEnumeration] this IEnumerable<T> collection)
     {
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
-        }
-
-        var enumerator = collection.GetEnumerator();
-        try
-        {
-            return enumerator.MoveNext();
-        }
-        finally
-        {
-            if (enumerator is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
+        Guard.NotNull(collection);
+        return !collection.IsEmpty();
     }
 
     /// <summary>
@@ -197,26 +165,11 @@ public static class EnumerableExtensions
     /// Console.WriteLine(isNullOrEmpty2); // Output: True
     /// ]]></code>
     /// </example>
+    [System.Diagnostics.Contracts.Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNullOrEmpty([NotNullWhen(false)] [NoEnumeration] this IEnumerable? collection)
     {
-        if (collection == null)
-        {
-            return true;
-        }
-
-        var enumerator = collection.GetEnumerator();
-        try
-        {
-            return !enumerator.MoveNext();
-        }
-        finally
-        {
-            if (enumerator is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
+        return collection == null || collection.IsEmpty();
     }
 
     /// <summary>
@@ -244,25 +197,11 @@ public static class EnumerableExtensions
     /// Console.WriteLine(isNullOrEmpty2); // Output: True
     /// ]]></code>
     /// </example>
+    [System.Diagnostics.Contracts.Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNullOrEmpty<T>([NotNullWhen(false)] [NoEnumeration] this IEnumerable<T>? collection)
     {
-        if (collection == null)
-        {
-            return true;
-        }
-
-        var enumerator = collection.GetEnumerator();
-        try
-        {
-            return !enumerator.MoveNext();
-        }
-        finally
-        {
-            if (enumerator is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
+        return collection == null || collection.IsEmpty();
     }
 
     /// <summary>
@@ -289,26 +228,11 @@ public static class EnumerableExtensions
     /// Console.WriteLine(isNotNullOrEmpty2); // Output: False
     /// ]]></code>
     /// </example>
+    [System.Diagnostics.Contracts.Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNotNullOrEmpty([NotNullWhen(true)] [NoEnumeration] this IEnumerable? collection)
     {
-        if (collection == null)
-        {
-            return false;
-        }
-
-        var enumerator = collection.GetEnumerator();
-        try
-        {
-            return enumerator.MoveNext();
-        }
-        finally
-        {
-            if (enumerator is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
+        return collection != null && collection.IsNotEmpty();
     }
 
     /// <summary>
@@ -336,39 +260,25 @@ public static class EnumerableExtensions
     /// Console.WriteLine(isNotNullOrEmpty2); // Output: False
     /// ]]></code>
     /// </example>
+    [System.Diagnostics.Contracts.Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNotNullOrEmpty<T>([NotNullWhen(true)] [NoEnumeration] this IEnumerable<T>? collection)
     {
-        if (collection == null)
-        {
-            return false;
-        }
-
-        var enumerator = collection.GetEnumerator();
-        try
-        {
-            return enumerator.MoveNext();
-        }
-        finally
-        {
-            if (enumerator is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
+        return collection != null && collection.IsNotEmpty();
     }
 
     /// <summary>
-    ///     Splits the input list into smaller chunks of the specified size.
+    ///     Splits the input collection into smaller chunks of the specified size.
     /// </summary>
-    /// <typeparam name="T">The type of elements in the list.</typeparam>
-    /// <param name="list">The list to be split into chunks.</param>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
+    /// <param name="collection">The collection to be split into chunks.</param>
     /// <param name="chunkSize">The size of each chunk.</param>
     /// <returns>
     ///     An <see cref="IEnumerable{T}" /> of chunks, where each chunk is an <see cref="IEnumerable{T}" /> of elements
-    ///     from the input list.
+    ///     from the input collection.
     /// </returns>
-    /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="list" /> is <c>null</c>.</exception>
-    /// <exception cref="System.ArgumentException">Thrown when <paramref name="chunkSize" /> is less than or equal to 0.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="collection" /> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="chunkSize" /> is less than or equal to 0.</exception>
     /// <example>
     ///     <code><![CDATA[
     /// var inputList = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -380,34 +290,39 @@ public static class EnumerableExtensions
     /// ]]></code>
     /// </example>
     /// <remarks>
-    ///     This method can be used to divide a large list into smaller chunks of the specified size. The last chunk may
-    ///     contain fewer elements if the input list's size is not evenly divisible by the specified chunk size. Note that the
-    ///     input list remains unchanged and the returned chunks are new <see cref="IEnumerable{T}" /> instances.
+    ///     This method can be used to divide a large collection into smaller chunks of the specified size. The last chunk may
+    ///     contain fewer elements if the input collection's size is not evenly divisible by the specified chunk size. Note
+    ///     that the
+    ///     input collection remains unchanged and the returned chunks are new <see cref="IEnumerable{T}" /> instances.
     /// </remarks>
-    public static IEnumerable<IEnumerable<T>> Chunk<T>(IEnumerable<T> list, int chunkSize)
+    [System.Diagnostics.Contracts.Pure]
+    public static IEnumerable<IEnumerable<T>> Chunk<T>(IEnumerable<T> collection, int chunkSize)
     {
-        if (list == null)
-        {
-            throw new ArgumentNullException(nameof(list), $"The {list} cannot be null.");
-        }
+        // Validate parameters
+        Guard.NotNull(collection);
 
         if (chunkSize <= 0)
         {
-            throw new ArgumentException($"The {chunkSize} has to be greater than 0.");
+            throw new ArgumentException($"The chunk size must be greater than 0. Provided value: {chunkSize}",
+                nameof(chunkSize));
         }
 
-        using var enumerator = list.GetEnumerator();
+        // Use an enumerator to yield chunks
+        using var enumerator = collection.GetEnumerator();
         while (enumerator.MoveNext())
         {
             yield return GetChunk(enumerator, chunkSize);
         }
-    }
 
-    private static IEnumerable<T> GetChunk<T>(IEnumerator<T> enumerator, int chunkSize)
-    {
-        do
+        yield break;
+
+        // Local static method to create a chunk
+        static IEnumerable<TK> GetChunk<TK>(IEnumerator<TK> enumerator, int chunkSize)
         {
-            yield return enumerator.Current;
-        } while (--chunkSize > 0 && enumerator.MoveNext());
+            do
+            {
+                yield return enumerator.Current;
+            } while (--chunkSize > 0 && enumerator.MoveNext());
+        }
     }
 }

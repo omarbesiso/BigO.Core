@@ -20,7 +20,7 @@ public readonly record struct EmailAddress : IComparable
     public EmailAddress(string email)
     {
         Guard.NotNullOrWhiteSpace(email);
-        Guard.Email(email);
+        Guard.EmailAddress(email);
 
         Value = SanitizeEmailAddress(email);
     }
@@ -55,7 +55,7 @@ public readonly record struct EmailAddress : IComparable
 
         if (obj is not EmailAddress other)
         {
-            throw new ArgumentException("Object is not an Email Address");
+            throw new ArgumentException("Object is not an ValidEmail Address");
         }
 
         return string.CompareOrdinal(Value, other.Value);

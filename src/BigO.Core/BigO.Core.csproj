@@ -1,38 +1,40 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <GenerateDocumentationFile>False</GenerateDocumentationFile>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>BigO Library Core</Title>
-    <Product>BigO Library</Product>
-    <Description>BigO.Core contains base utilities and extensions for the BigO .NET library.</Description>
-    <Copyright>Copyright © Omar Besiso 2022</Copyright>
-    <PackageProjectUrl>https://github.com/omarbesiso/BigO.Core</PackageProjectUrl>
-    <PackageIcon>bigo.png</PackageIcon>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/omarbesiso/BigO.Core.git</RepositoryUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <Authors>Omar Besiso</Authors>
-    <Version>2.2.0.0</Version>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Resources\bigo.png" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GenerateDocumentationFile>False</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>BigO Library Core</Title>
+		<Product>BigO Library</Product>
+		<Description>BigO.Core contains base utilities and extensions for the BigO .NET library.</Description>
+		<Copyright>Copyright © Omar Besiso 2022</Copyright>
+		<PackageProjectUrl>https://github.com/omarbesiso/BigO.Core</PackageProjectUrl>
+		<PackageIcon>bigo.png</PackageIcon>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/omarbesiso/BigO.Core.git</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<Authors>Omar Besiso</Authors>
+		<Version>2.3.0.0</Version>
+		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Resource Include="Resources\bigo.png">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </Resource>
+		<Resource Include="Docs\Readme.md">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</Resource>
+		<Resource Include="Resources\bigo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</Resource>
 	</ItemGroup>
 
 </Project>

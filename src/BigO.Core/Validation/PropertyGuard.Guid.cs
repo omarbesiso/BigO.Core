@@ -3,10 +3,10 @@
 public static partial class PropertyGuard
 {
     /// <summary>
-    ///     Ensures that the given Guid property is not empty.
+    ///     Ensures that the given property Guid is not empty.
     ///     If the Guid is empty, an <see cref="ArgumentException" /> is thrown.
     /// </summary>
-    /// <param name="value">The Guid property to be checked.</param>
+    /// <param name="value">The Guid to be checked.</param>
     /// <param name="propertyName">
     ///     The name of the property being checked, used in the exception message for clarity.
     ///     This is automatically captured from the caller member name.
@@ -20,19 +20,17 @@ public static partial class PropertyGuard
     /// <remarks>
     ///     This method is useful for validating Guid properties to ensure they are not empty.
     /// </remarks>
+    /// <example>
+    ///     <code>
+    ///         Guid myGuid = Guid.NewGuid();
+    ///         PropertyGuard.NotEmpty(myGuid, nameof(myGuid));
+    ///     </code>
+    /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Guid NotEmpty(Guid value,
         [CallerMemberName] string propertyName = "",
         string? exceptionMessage = null)
     {
-        if (value != Guid.Empty)
-        {
-            return value;
-        }
-
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The Guid '{propertyName}' cannot be empty."
-            : exceptionMessage;
-
-        throw new ArgumentException(errorMessage, propertyName);
+        return Guard.NotEmpty(value, propertyName, exceptionMessage);
     }
 }

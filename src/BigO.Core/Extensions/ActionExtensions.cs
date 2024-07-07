@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using BigO.Core.Validation;
 
 namespace BigO.Core.Extensions;
 
@@ -9,14 +10,19 @@ namespace BigO.Core.Extensions;
 public static class ActionExtensions
 {
     /// <summary>
-    ///     Executes the specified <see cref="Action" /> asynchronously using a <see cref="Task" />.
+    ///     Executes the specified <see cref="Action" /> asynchronously using a <see cref="Task" />, and supports cancellation.
     /// </summary>
     /// <param name="action">The <see cref="Action" /> to be executed asynchronously.</param>
+    /// <param name="cancellationToken">
+    ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
+    ///     The default is <see cref="CancellationToken.None" />.
+    /// </param>
     /// <remarks>
-    ///     This extension method is designed to run a given <see cref="Action" /> asynchronously using aggressive inlining,
-    ///     which means that the method is optimized for performance.
+    ///     This extension method is designed to run a given <see cref="Action" /> asynchronously with support for
+    ///     cancellation.
     ///     Keep in mind that this method is most suitable for use cases where you need to run small or simple actions
-    ///     asynchronously. For more complex scenarios, consider using <see cref="Task.Run(Action)" /> directly, or create
+    ///     asynchronously. For more complex scenarios, consider using <see cref="Task.Run(Action, CancellationToken)" />
+    ///     directly, or create
     ///     a dedicated <see cref="Task" />-based method.
     /// </remarks>
     /// <example>
@@ -24,37 +30,38 @@ public static class ActionExtensions
     ///     <code>
     /// <![CDATA[
     /// using System;
+    /// using System.Threading;
     /// using System.Threading.Tasks;
     /// 
     /// public class Program
     /// {
     ///     public static async Task Main()
     ///     {
+    ///         var cancellationTokenSource = new CancellationTokenSource();
     ///         Action printHelloWorld = () => Console.WriteLine("Hello, World!");
-    ///         await printHelloWorld.RunAsynchronously();
+    ///         
+    ///         // Cancel the task after 1 second
+    ///         cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(1));
+    ///         
+    ///         try
+    ///         {
+    ///             await printHelloWorld.RunAsynchronously(cancellationTokenSource.Token);
+    ///         }
+    ///         catch (OperationCanceledException)
+    ///         {
+    ///             Console.WriteLine("The operation was canceled.");
+    ///         }
     ///     }
     /// }
     /// ]]>
     /// </code>
     /// </example>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="action" /> parameter is <c>null</c>.</exception>
-    /// <exception cref="TaskSchedulerException">
-    ///     Thrown when the <see cref="Task" /> is not able to be queued to the default
-    ///     scheduler. This typically occurs when a <see cref="TaskScheduler" /> is unable to queue a <see cref="Task" />.
-    /// </exception>
-    /// <exception cref="ObjectDisposedException">
-    ///     Thrown when the <see cref="Task" /> has been disposed or the
-    ///     <see cref="TaskScheduler" /> is unavailable.
-    /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task RunAsynchronously(this Action action)
+    public static async Task RunAsynchronously(this Action action, CancellationToken cancellationToken = default)
     {
-        if (action == null)
-        {
-            throw new ArgumentNullException(nameof(action), $"The {nameof(action)} cannot be null.");
-        }
-
-        await Task.Run(action);
+        Guard.NotNull(action);
+        await Task.Run(action, cancellationToken);
     }
 
     /// <summary>
@@ -63,9 +70,7 @@ public static class ActionExtensions
     /// <param name="action">The <see cref="Action" /> to be executed.</param>
     /// <returns>A <see cref="TimeSpan" /> representing the elapsed time for the execution of the <paramref name="action" />.</returns>
     /// <remarks>
-    ///     This extension method is designed to execute a given <see cref="Action" /> and measure its execution time using
-    ///     aggressive inlining,
-    ///     which means that the method is optimized for performance.
+    ///     This extension method is designed to execute a given <see cref="Action" /> and measure its execution time.
     ///     Keep in mind that this method is most suitable for use cases where you need to measure the time it takes to execute
     ///     small or simple actions.
     ///     For more complex scenarios, consider using the <see cref="Stopwatch" /> class directly.
@@ -90,21 +95,40 @@ public static class ActionExtensions
     /// </code>
     /// </example>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="action" /> parameter is <c>null</c>.</exception>
-    /// <exception cref="InvalidOperationException">
-    ///     Thrown when the <see cref="Stopwatch" /> methods are called in an incorrect
-    ///     order, such as calling <see cref="Stopwatch.GetElapsedTime(long)" /> before <see cref="Stopwatch.GetTimestamp" />.
-    /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TimeSpan ExecuteAndTime(this Action action)
     {
-        if (action == null)
-        {
-            throw new ArgumentNullException(nameof(action), $"The {nameof(action)} cannot be null.");
-        }
+        Guard.NotNull(action);
 
         var startTime = Stopwatch.GetTimestamp();
 
         action.Invoke();
+
+        return Stopwatch.GetElapsedTime(startTime);
+    }
+
+    /// <summary>
+    ///     Executes the specified <see cref="Action" /> asynchronously, and measures the elapsed time it takes to complete.
+    /// </summary>
+    /// <param name="action">The <see cref="Action" /> to be executed asynchronously.</param>
+    /// <param name="cancellationToken">
+    ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
+    ///     The default is <see cref="CancellationToken.None" />.
+    /// </param>
+    /// <returns>
+    ///     A <see cref="Task{TimeSpan}" /> representing the elapsed time for the execution of the
+    ///     <paramref name="action" />.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="action" /> parameter is <c>null</c>.</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static async Task<TimeSpan> ExecuteAndTimeAsync(this Action action,
+        CancellationToken cancellationToken = default)
+    {
+        Guard.NotNull(action);
+
+        var startTime = Stopwatch.GetTimestamp();
+
+        await Task.Run(action, cancellationToken);
 
         return Stopwatch.GetElapsedTime(startTime);
     }

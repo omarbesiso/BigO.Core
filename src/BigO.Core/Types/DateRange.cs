@@ -164,6 +164,11 @@ public readonly record struct DateRange : IComparable<DateRange>
     public static bool TryParse(string input, out DateRange range)
     {
         range = new DateRange();
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return false;
+        }
+
         var parts = input.Trim().Split(Separator);
         if (parts.Length != 2)
         {
@@ -171,6 +176,11 @@ public readonly record struct DateRange : IComparable<DateRange>
         }
 
         if (!DateOnly.TryParse(parts[0], out var startDate) || !DateOnly.TryParse(parts[1], out var endDate))
+        {
+            return false;
+        }
+
+        if (startDate == default)
         {
             return false;
         }
@@ -197,6 +207,29 @@ public readonly record struct DateRange : IComparable<DateRange>
         for (var date = StartDate; date <= EndDate; date = date.AddDays(1))
         {
             yield return date;
+        }
+    }
+
+    /// <summary>
+    ///     Splits the date range into multiple date ranges, each representing a week.
+    /// </summary>
+    /// <returns>A collection of <see cref="DateRange" /> objects, each representing a week within the original date range.</returns>
+    public IEnumerable<DateRange> WeeksInRange()
+    {
+        var currentStart = StartDate;
+        var currentEnd = StartDate.AddDays(6 - (int)StartDate.DayOfWeek); // End of the first week
+
+        while (currentStart <= EndDate)
+        {
+            if (currentEnd > EndDate)
+            {
+                currentEnd = EndDate; // Adjust the last week to the end date
+            }
+
+            yield return new DateRange(currentStart, currentEnd);
+
+            currentStart = currentEnd.AddDays(1); // Start of the next week
+            currentEnd = currentStart.AddDays(6); // End of the next week
         }
     }
 

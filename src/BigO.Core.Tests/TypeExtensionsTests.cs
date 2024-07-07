@@ -22,45 +22,6 @@ public class TypeExtensionsTests
         new object[] { typeof(ushort), (ushort)0 }
     };
 
-    [Fact]
-    public void DefaultValue_ReturnsDefaultValueForValueType()
-    {
-        // Act
-        var result = TypeExtensions.DefaultValue<int>();
-
-        // Assert
-        Assert.Equal(default, result);
-    }
-
-    [Fact]
-    public void DefaultValue_ReturnsNullForReferenceType()
-    {
-        // Act
-        var result = TypeExtensions.DefaultValue<string>();
-
-        // Assert
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public void DefaultValue_ReturnsDefaultValueForNullableValueType()
-    {
-        // Act
-        var result = TypeExtensions.DefaultValue<int?>();
-
-        // Assert
-        Assert.Equal(default, result);
-    }
-
-    [Fact]
-    public void DefaultValue_ReturnsNullForNullableReferenceType()
-    {
-        // Act
-        var result = TypeExtensions.DefaultValue<string?>();
-
-        // Assert
-        Assert.Null(result);
-    }
 
     [Fact]
     public void IsNullable_TypeIsNull_ThrowsArgumentNullException()

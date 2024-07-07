@@ -1,4 +1,6 @@
-﻿namespace BigO.Core.Extensions;
+﻿using BigO.Core.Validation;
+
+namespace BigO.Core.Extensions;
 
 /// <summary>
 ///     Provides a set of useful extension methods for working with <see cref="ICollection{T}" /> objects.
@@ -34,13 +36,11 @@ public static class CollectionExtensions
     /// </example>
     public static bool AddUnique<T>([NoEnumeration] this ICollection<T> collection, T value)
     {
-        switch (collection)
+        Guard.NotNull(collection);
+
+        if (collection is HashSet<T> hashSet)
         {
-            case null:
-                throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
-            // If collection is a HashSet<T>, this will be more efficient.
-            case HashSet<T> hashSet:
-                return hashSet.Add(value);
+            return hashSet.Add(value);
         }
 
         if (collection.Contains(value))
@@ -87,10 +87,7 @@ public static class CollectionExtensions
     /// </example>
     public static int AddUniqueRange<T>(this ICollection<T> collection, IEnumerable<T>? values)
     {
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
-        }
+        Guard.NotNull(collection);
 
         if (values == null)
         {
@@ -155,15 +152,8 @@ public static class CollectionExtensions
     /// </example>
     public static int RemoveWhere<T>([NoEnumeration] this ICollection<T> collection, Predicate<T> predicate)
     {
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
-        }
-
-        if (predicate == null)
-        {
-            throw new ArgumentNullException(nameof(predicate), $"The {nameof(predicate)} cannot be null.");
-        }
+        Guard.NotNull(collection);
+        Guard.NotNull(predicate);
 
         if (collection.Count == 0)
         {
@@ -222,15 +212,8 @@ public static class CollectionExtensions
     /// </example>
     public static bool AddIf<T>(this ICollection<T> collection, Func<T, bool> predicate, T value)
     {
-        if (collection is null)
-        {
-            throw new ArgumentNullException(nameof(collection), $"The {nameof(collection)} cannot be null.");
-        }
-
-        if (predicate is null)
-        {
-            throw new ArgumentNullException(nameof(predicate), $"The {nameof(predicate)} cannot be null.");
-        }
+        Guard.NotNull(collection);
+        Guard.NotNull(predicate);
 
         if (!predicate(value))
         {
@@ -272,10 +255,7 @@ public static class CollectionExtensions
     /// </example>
     public static bool ContainsAny<T>([NoEnumeration] this ICollection<T> collection, params T[] values)
     {
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection));
-        }
+        Guard.NotNull(collection);
 
         // For small collections, direct check might be faster
         if (values.Length <= 10)

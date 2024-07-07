@@ -44,15 +44,8 @@ public static class ComparableExtensions
     public static bool IsBetween<T>(this T? value, T lowerBoundary, T upperBoundary, bool isBoundaryInclusive = true)
         where T : IComparable<T>
     {
-        if (lowerBoundary == null)
-        {
-            throw new ArgumentNullException(nameof(lowerBoundary), $"The {nameof(lowerBoundary)} cannot be null.");
-        }
-
-        if (upperBoundary == null)
-        {
-            throw new ArgumentNullException(nameof(upperBoundary), $"The {nameof(upperBoundary)} cannot be null.");
-        }
+        Guard.NotNull(lowerBoundary);
+        Guard.NotNull(upperBoundary);
 
         if (value == null)
         {
@@ -98,15 +91,8 @@ public static class ComparableExtensions
     /// </example>
     public static T Limit<T>(this T value, T maximum) where T : IComparable<T>
     {
-        if (value == null)
-        {
-            throw new ArgumentNullException(nameof(value), $"The {nameof(value)} cannot be null.");
-        }
-
-        if (maximum == null)
-        {
-            throw new ArgumentNullException(nameof(maximum), $"The {nameof(maximum)} cannot be null.");
-        }
+        Guard.NotNull(value);
+        Guard.NotNull(maximum);
 
         return value.CompareTo(maximum) < 1 ? value : maximum;
     }

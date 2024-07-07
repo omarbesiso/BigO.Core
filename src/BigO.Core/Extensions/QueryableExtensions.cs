@@ -1,4 +1,6 @@
-﻿namespace BigO.Core.Extensions;
+﻿using BigO.Core.Validation;
+
+namespace BigO.Core.Extensions;
 
 /// <summary>
 ///     Provides a set of useful extension methods for working with <see cref="Queryable" /> objects.
@@ -50,22 +52,9 @@ public static class QueryableExtensions
     /// </example>
     public static IQueryable<T> Page<T>(this IQueryable<T> source, int pageNumber, int pageSize)
     {
-        if (source == null)
-        {
-            throw new ArgumentNullException(nameof(source), $"The {nameof(source)} list to be paged cannot be null.");
-        }
-
-        if (pageNumber <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(pageNumber),
-                $"The {nameof(pageNumber)} cannot be less than or equal to 0.");
-        }
-
-        if (pageSize <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(pageSize),
-                $"The {nameof(pageSize)} cannot be less than or equal to 0.");
-        }
+        Guard.NotNull(source, exceptionMessage: $"The {nameof(source)} list to be paged cannot be null.");
+        Guard.Minimum(pageNumber, 1);
+        Guard.Minimum(pageSize, 1);
 
         var skipCount = (pageNumber - 1) * pageSize;
         source = source.Skip(skipCount).Take(pageSize);
@@ -122,22 +111,9 @@ public static class QueryableExtensions
     /// </example>
     public static IQueryable<T> Page<T>(this IQueryable<T> source, int pageNumber, int pageSize, out int totalItemCount)
     {
-        if (source == null)
-        {
-            throw new ArgumentNullException(nameof(source), $"The {nameof(source)} list to be paged cannot be null.");
-        }
-
-        if (pageNumber <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(pageNumber),
-                $"The {nameof(pageNumber)} cannot be less than or equal to 0.");
-        }
-
-        if (pageSize <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(pageSize),
-                $"The {nameof(pageSize)} cannot be less than or equal to 0.");
-        }
+        Guard.NotNull(source, exceptionMessage: $"The {nameof(source)} list to be paged cannot be null.");
+        Guard.Minimum(pageNumber, 1);
+        Guard.Minimum(pageSize, 1);
 
         totalItemCount = source.Count();
 

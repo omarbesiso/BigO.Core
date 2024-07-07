@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace BigO.Core.Validation;
+namespace BigO.Core;
 
 internal static class ThrowHelper
 {
     [DoesNotReturn]
     [ContractAnnotation("=> halt")]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void ThrowArgumentNullException(string argumentName, string? exceptionMessage)
+    public static void ThrowArgumentNullException(string argumentName, string? exceptionMessage = null)
     {
         var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
             ? $"The value of '{argumentName}' cannot be null."
@@ -19,7 +19,7 @@ internal static class ThrowHelper
     [DoesNotReturn]
     [ContractAnnotation("=> halt")]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void ThrowArgumentException(string argumentName, string? exceptionMessage)
+    public static void ThrowArgumentException(string argumentName, string? exceptionMessage = null)
     {
         var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
             ? $"The value of '{argumentName}' is invalid."
@@ -31,8 +31,12 @@ internal static class ThrowHelper
     [DoesNotReturn]
     [ContractAnnotation("=> halt")]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void ThrowArgumentException(string exceptionMessage)
+    public static void ThrowArgumentOutOfRangeException(string argumentName, string? exceptionMessage = null)
     {
-        throw new ArgumentException(exceptionMessage);
+        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+            ? $"The value of '{argumentName}' is invalid."
+            : exceptionMessage;
+
+        throw new ArgumentOutOfRangeException(errorMessage, argumentName);
     }
 }

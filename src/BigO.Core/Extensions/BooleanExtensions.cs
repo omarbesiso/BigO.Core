@@ -1,4 +1,6 @@
-﻿namespace BigO.Core.Extensions;
+﻿using BigO.Core.Validation;
+
+namespace BigO.Core.Extensions;
 
 /// <summary>
 ///     Provides a set of useful extension methods for working with <see cref="bool" /> objects.
@@ -33,6 +35,9 @@ public static class BooleanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ToString(this bool source, string trueValue, string falseValue)
     {
+        Guard.NotNull(trueValue);
+        Guard.NotNull(falseValue);
+
         return source ? trueValue : falseValue;
     }
 

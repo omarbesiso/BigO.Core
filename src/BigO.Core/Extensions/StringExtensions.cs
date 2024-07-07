@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Net.Mail;
 using System.Text;
+using BigO.Core.Validation;
 
 namespace BigO.Core.Extensions;
 
@@ -21,11 +22,11 @@ public static class StringExtensions
     /// <example>
     ///     <code><![CDATA[
     /// string text = "Hello123World";
-    /// string result = text.ExtractDigitsOnly();
+    /// string result = text.ExtractDigits();
     /// Console.WriteLine(result); // Outputs: "123"
     /// ]]></code>
     /// </example>
-    public static string ExtractDigitsOnly(this string input)
+    public static string ExtractDigits(this string input)
     {
         if (string.IsNullOrWhiteSpace(input))
         {
@@ -86,13 +87,12 @@ public static class StringExtensions
     /// </summary>
     /// <param name="value">The string to validate.</param>
     /// <returns>True if the specified string is a valid email address, otherwise false.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="value" /> is null.</exception>
     /// <remarks>
     ///     This method uses the <see cref="MailAddress" /> class to validate whether the specified string is a valid email
     ///     address.
     /// </remarks>
     /// <example>
-    ///     The following code demonstrates how to use <see cref="IsValidEmail(string)" /> method.
+    ///     The following code demonstrates how to use the <see cref="IsValidEmail(string)" /> method.
     ///     <code><![CDATA[
     /// string email = "test@example.com";
     /// bool isValidEmail = email.IsValidEmail(); // returns true
@@ -154,9 +154,11 @@ public static class StringExtensions
     /// bool result2 = str2.IsWhiteSpace(); // False
     /// </code>
     /// </example>
+    [ContractAnnotation("value:null => halt")]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsWhiteSpace(this string value)
     {
-        ArgumentNullException.ThrowIfNull(value);
+        Guard.NotNull(value);
         return value.All(char.IsWhiteSpace);
     }
 

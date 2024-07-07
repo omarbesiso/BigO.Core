@@ -1,4 +1,6 @@
-﻿namespace BigO.Core.Extensions;
+﻿using BigO.Core.Validation;
+
+namespace BigO.Core.Extensions;
 
 /// <summary>
 ///     Provides a set of useful extension methods for working with <see cref="DayOfWeek" /> enums.
@@ -32,5 +34,18 @@ public static class DayOfWeekExtensions
     {
         var offset = (int)dayOfWeek + numberOfDays;
         return (DayOfWeek)(offset % 7);
+    }
+
+    /// <summary>
+    ///     Gets the next specified number of days of the week starting from the specified day.
+    /// </summary>
+    /// <param name="startDay">The day of the week to start from.</param>
+    /// <param name="count">The number of days to generate. Defaults to 7.</param>
+    /// <returns>An <see cref="IEnumerable{DayOfWeek}" /> representing the next specified number of days of the week.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if count is less than or equal to 0.</exception>
+    public static IEnumerable<DayOfWeek> GetNextDays(this DayOfWeek startDay, int count = 7)
+    {
+        Guard.Minimum(count, 1);
+        return Enumerable.Range(0, count).Select(i => (DayOfWeek)(((int)startDay + i) % 7));
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using BigO.Core.Validation;
 
 // ReSharper disable InvalidXmlDocComment
 
@@ -16,14 +17,15 @@ public static class StringBuilderExtensions
     /// </summary>
     /// <param name="stringBuilder">The <see cref="System.Text.StringBuilder" /> to check for emptiness.</param>
     /// <param name="countWhiteSpace">True to count white-space characters; otherwise, false. Default is false.</param>
-    /// <returns>true if the <see cref="System.Text.StringBuilder" /> is empty; otherwise, false.</returns>
+    /// <returns>True if the <see cref="System.Text.StringBuilder" /> is empty; otherwise, false.</returns>
     /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="stringBuilder" /> is null.</exception>
     /// <remarks>
     ///     This extension method can be used to determine whether a <see cref="System.Text.StringBuilder" /> instance is
-    ///     empty. By default, it checks if the StringBuilder has a length of zero. If the <paramref name="countWhiteSpace" />
-    ///     parameter is set to true, the method iterates through each character in the StringBuilder to determine if
-    ///     all characters are whitespace. It is more efficient for large strings as it avoids converting the
-    ///     StringBuilder into a string.
+    ///     empty.
+    ///     By default, it checks if the StringBuilder has a length of zero. If the <paramref name="countWhiteSpace" />
+    ///     parameter
+    ///     is set to true, the method iterates through each character in the StringBuilder to determine if all characters are
+    ///     whitespace. It is more efficient for large strings as it avoids converting the StringBuilder into a string.
     /// </remarks>
     /// <example>
     ///     The following code demonstrates how to use the <see cref="IsEmpty(StringBuilder, bool)" /> method to determine
@@ -40,10 +42,7 @@ public static class StringBuilderExtensions
     /// </example>
     public static bool IsEmpty(this StringBuilder stringBuilder, bool countWhiteSpace = false)
     {
-        if (stringBuilder == null)
-        {
-            throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
-        }
+        Guard.NotNull(stringBuilder);
 
         if (!countWhiteSpace)
         {
@@ -93,10 +92,7 @@ public static class StringBuilderExtensions
     public static StringBuilder AppendCharToLength(this StringBuilder stringBuilder, int targetLength,
         char charToAppend)
     {
-        if (stringBuilder == null)
-        {
-            throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
-        }
+        Guard.NotNull(stringBuilder);
 
         var repeatCount = targetLength - stringBuilder.Length;
         if (repeatCount > 0)
@@ -138,16 +134,8 @@ public static class StringBuilderExtensions
     /// </example>
     public static StringBuilder ReduceToLength(this StringBuilder stringBuilder, int maxLength)
     {
-        if (stringBuilder == null)
-        {
-            throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
-        }
-
-        // ReSharper disable once ConvertIfStatementToSwitchStatement
-        if (maxLength < 0)
-        {
-            throw new ArgumentException("The maxlength cannot be less than 0.", nameof(maxLength));
-        }
+        Guard.NotNull(stringBuilder);
+        Guard.Minimum(maxLength, 0);
 
         if (maxLength == 0)
         {
@@ -185,10 +173,7 @@ public static class StringBuilderExtensions
     /// </example>
     public static StringBuilder Reverse(this StringBuilder stringBuilder)
     {
-        if (stringBuilder == null)
-        {
-            throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
-        }
+        Guard.NotNull(stringBuilder);
 
         var length = stringBuilder.Length;
         if (length == 0)
@@ -223,15 +208,8 @@ public static class StringBuilderExtensions
     public static StringBuilder EnsureStartsWith(this StringBuilder stringBuilder, string prefix,
         StringComparison stringComparison = StringComparison.InvariantCulture)
     {
-        if (stringBuilder == null)
-        {
-            throw new ArgumentNullException(nameof(stringBuilder), "The stringBuilder cannot be null.");
-        }
-
-        if (string.IsNullOrEmpty(prefix))
-        {
-            throw new ArgumentNullException(nameof(prefix), "The prefix cannot be null or empty.");
-        }
+        Guard.NotNull(stringBuilder);
+        Guard.NotNullOrEmpty(prefix);
 
         if (stringBuilder.Length < prefix.Length ||
             !stringBuilder.ToString(0, prefix.Length).Equals(prefix, stringComparison))
@@ -261,15 +239,8 @@ public static class StringBuilderExtensions
     public static StringBuilder EnsureEndsWith(this StringBuilder stringBuilder, string suffix,
         StringComparison stringComparison = StringComparison.InvariantCulture)
     {
-        if (stringBuilder == null)
-        {
-            throw new ArgumentNullException(nameof(stringBuilder), "The stringBuilder cannot be null.");
-        }
-
-        if (string.IsNullOrEmpty(suffix))
-        {
-            throw new ArgumentNullException(nameof(suffix), "The suffix cannot be null or empty.");
-        }
+        Guard.NotNull(stringBuilder);
+        Guard.NotNullOrEmpty(suffix);
 
         if (stringBuilder.Length < suffix.Length || !stringBuilder
                 .ToString(stringBuilder.Length - suffix.Length, suffix.Length).Equals(suffix, stringComparison))
@@ -317,10 +288,7 @@ public static class StringBuilderExtensions
     public static StringBuilder AppendMultiple(this StringBuilder stringBuilder, bool withNewLine = false,
         params string[]? items)
     {
-        if (stringBuilder == null)
-        {
-            throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
-        }
+        Guard.NotNull(stringBuilder);
 
         if (items == null || items.Length == 0)
         {
@@ -376,10 +344,7 @@ public static class StringBuilderExtensions
     /// </example>
     public static StringBuilder RemoveAllOccurrences(this StringBuilder stringBuilder, char characterToBeRemoved)
     {
-        if (stringBuilder == null)
-        {
-            throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
-        }
+        Guard.NotNull(stringBuilder);
 
         var length = stringBuilder.Length;
         var newIndex = 0;
@@ -420,10 +385,7 @@ public static class StringBuilderExtensions
     /// </example>
     public static StringBuilder Trim(this StringBuilder stringBuilder)
     {
-        if (stringBuilder == null)
-        {
-            throw new ArgumentNullException(nameof(stringBuilder), "The stringBuilder cannot be null.");
-        }
+        Guard.NotNull(stringBuilder);
 
         var start = 0;
         while (start < stringBuilder.Length && char.IsWhiteSpace(stringBuilder[start]))
@@ -477,15 +439,8 @@ public static class StringBuilderExtensions
     /// </example>
     public static void AppendFormatLine(this StringBuilder stringBuilder, string format, params object[] items)
     {
-        if (stringBuilder == null)
-        {
-            throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
-        }
-
-        if (string.IsNullOrWhiteSpace(format))
-        {
-            throw new ArgumentNullException(nameof(format), $"The {nameof(format)} cannot be null or whitespace.");
-        }
+        Guard.NotNull(stringBuilder);
+        Guard.NotNullOrWhiteSpace(format);
 
         stringBuilder.AppendFormat(format, items);
         stringBuilder.AppendLine();
@@ -516,15 +471,8 @@ public static class StringBuilderExtensions
     /// </example>
     public static void AppendMultipleLines(this StringBuilder stringBuilder, int numberOfLines)
     {
-        if (stringBuilder == null)
-        {
-            throw new ArgumentNullException(nameof(stringBuilder), $"The {nameof(stringBuilder)} cannot be null.");
-        }
-
-        if (numberOfLines < 1)
-        {
-            throw new ArgumentException("The number of lines cannot be less than 1.", nameof(numberOfLines));
-        }
+        Guard.NotNull(stringBuilder);
+        Guard.Minimum(numberOfLines, 1);
 
         for (var i = 0; i < numberOfLines; i++)
         {

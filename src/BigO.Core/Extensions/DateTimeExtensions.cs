@@ -91,7 +91,7 @@ public static class DateTimeExtensions
     {
         if (dateOfBirth > DateTime.Now)
         {
-            throw new ArgumentException("Date of birth cannot be in the future.");
+            ThrowHelper.ThrowArgumentException(nameof(dateOfBirth), "Date of birth cannot be in the future.");
         }
 
         timeZoneInfo ??= TimeZoneInfo.Local;

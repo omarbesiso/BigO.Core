@@ -1,4 +1,6 @@
-﻿namespace BigO.Core.Extensions;
+﻿using BigO.Core.Validation;
+
+namespace BigO.Core.Extensions;
 
 /// <summary>
 ///     Provides a set of useful extension methods for working with <see cref="Stream" /> objects.
@@ -6,6 +8,8 @@
 [PublicAPI]
 public static class StreamExtensions
 {
+    private const int DefaultBufferSize = 81920; // 80 KB
+
     /// <summary>
     ///     Converts a <see cref="Stream" /> to a byte array.
     /// </summary>
@@ -24,86 +28,94 @@ public static class StreamExtensions
     ///     This method is useful for converting a <see cref="Stream" /> to a byte array. If the input
     ///     <paramref name="stream" /> is already a <see cref="MemoryStream" />, it directly calls the
     ///     <see cref="MemoryStream.ToArray" /> method for efficiency. If the input <paramref name="stream" /> is not a
-    ///     <see cref="MemoryStream" />, the method creates a new <see cref="MemoryStream" /> with an initial capacity matching
-    ///     the length of the input <paramref name="stream" /> or a default size of 8192 bytes if the length is unknown or 0.
-    ///     The method copies the contents of the input <paramref name="stream" /> to the new <see cref="MemoryStream" /> using
-    ///     the <see cref="Stream.CopyTo(System.IO.Stream)" /> method. Finally, the method calls
-    ///     <see cref="MemoryStream.ToArray" /> on the new <see cref="MemoryStream" /> to obtain the byte array representation
-    ///     of the input <paramref name="stream" />.
+    ///     <see cref="MemoryStream" />, the method uses a buffer to copy the contents to a byte array.
     ///     Note that this method can throw an <see cref="ArgumentNullException" /> if the provided <paramref name="stream" />
     ///     is <c>null</c>. It is the responsibility of the caller to handle this exception as appropriate.
     /// </remarks>
     public static byte[] ToByteArray(this Stream stream)
     {
-        if (stream == null)
-        {
-            throw new ArgumentNullException(nameof(stream), $"The {nameof(stream)} cannot be null.");
-        }
+        Guard.NotNull(stream);
 
         if (stream is MemoryStream memoryStream)
         {
             return memoryStream.ToArray();
         }
 
-        using (memoryStream = new MemoryStream((int)(stream.Length == 0 ? 8192 : stream.Length)))
+        if (stream.CanSeek)
         {
-            stream.CopyTo(memoryStream);
+            stream.Seek(0, SeekOrigin.Begin);
+            var buffer = new byte[stream.Length];
+            // ReSharper disable once MustUseReturnValue
+            stream.Read(buffer, 0, buffer.Length);
+            return buffer;
+        }
+
+        using (memoryStream = new MemoryStream())
+        {
+            var buffer = new byte[DefaultBufferSize]; // 80KB buffer
+            int bytesRead;
+            while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                memoryStream.Write(buffer, 0, bytesRead);
+            }
+
             return memoryStream.ToArray();
         }
     }
 
     /// <summary>
-    ///     Asynchronously reads the bytes from the current stream and returns them as a byte array. If the stream is a
-    ///     <see cref="MemoryStream" />, it returns the underlying buffer.
+    ///     Asynchronously converts a <see cref="Stream" /> to a byte array.
     /// </summary>
-    /// <param name="stream">The stream to read from.</param>
-    /// <returns>A byte array containing the contents of the stream.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream" /> is <c>null</c>.</exception>
-    /// <remarks>
-    ///     If <paramref name="stream" /> is a <see cref="MemoryStream" />, the underlying buffer is returned as a byte array.
-    ///     If <paramref name="stream" /> is not a <see cref="MemoryStream" />, the contents of the stream are read
-    ///     asynchronously into a new <see cref="MemoryStream" /> with an initial capacity of either 8192 or the length of
-    ///     <paramref name="stream" />, whichever is greater, and returned as a byte array.
-    /// </remarks>
+    /// <param name="stream">The <see cref="Stream" /> to be converted to a byte array.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains a byte array representing the
+    ///     contents of the given <paramref name="stream" />.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="stream" /> is <c>null</c>.</exception>
     /// <example>
-    ///     The following example shows how to use the ToByteArrayAsync method to read a stream and return its contents as a
-    ///     byte array.
     ///     <code><![CDATA[
-    /// using System.IO;
-    /// using System.Text;
+    /// using var stream = new MemoryStream(Encoding.UTF8.GetBytes("Hello, World!"));
+    /// byte[] byteArray = await stream.ToByteArrayAsync();
     /// 
-    /// class Example
-    /// {
-    ///     static async Task Main()
-    ///     {
-    ///         string text = "This is a test string.";
-    ///         byte[] bytes = Encoding.UTF8.GetBytes(text);
-    ///         using (MemoryStream stream = new MemoryStream(bytes))
-    ///         {
-    ///             byte[] result = await stream.ToByteArrayAsync();
-    ///             Console.WriteLine(Encoding.UTF8.GetString(result));
-    ///         }
-    ///     }
-    /// }
+    /// // byteArray now contains the binary representation of "Hello, World!".
     /// ]]></code>
     /// </example>
+    /// <remarks>
+    ///     This method is useful for converting a <see cref="Stream" /> to a byte array. If the input
+    ///     <paramref name="stream" /> is already a <see cref="MemoryStream" />, it directly calls the
+    ///     <see cref="MemoryStream.ToArray" /> method for efficiency. If the input <paramref name="stream" /> is not a
+    ///     <see cref="MemoryStream" />, the method uses a buffer to copy the contents to a byte array asynchronously.
+    ///     Note that this method can throw an <see cref="ArgumentNullException" /> if the provided <paramref name="stream" />
+    ///     is <c>null</c>. It is the responsibility of the caller to handle this exception as appropriate.
+    /// </remarks>
     public static async Task<byte[]> ToByteArrayAsync(this Stream stream)
     {
-        if (stream == null)
-        {
-            throw new ArgumentNullException(nameof(stream), $"The {nameof(stream)} cannot be null.");
-        }
+        Guard.NotNull(stream);
 
         if (stream is MemoryStream memoryStream)
         {
             return memoryStream.ToArray();
         }
 
-        using (memoryStream = new MemoryStream((int)(stream.Length == 0 ? 8192 : stream.Length)))
+        if (stream.CanSeek)
         {
-            await stream.CopyToAsync(memoryStream);
-            // ReSharper disable once MethodHasAsyncOverload
-            return memoryStream.ToByteArray();
+            stream.Seek(0, SeekOrigin.Begin);
+            var buffer = new byte[stream.Length];
+            // ReSharper disable once MustUseReturnValue
+            await stream.ReadAsync(buffer);
+            return buffer;
+        }
+
+        using (memoryStream = new MemoryStream())
+        {
+            var buffer = new byte[DefaultBufferSize]; // 80KB buffer
+            int bytesRead;
+            while ((bytesRead = await stream.ReadAsync(buffer)) > 0)
+            {
+                await memoryStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+            }
+
+            return memoryStream.ToArray();
         }
     }
 }

@@ -1,13 +1,15 @@
-﻿namespace BigO.Core.Validation;
+﻿// ReSharper disable InvertIf
+
+namespace BigO.Core.Validation;
 
 public static partial class Guard
 {
     /// <summary>
     ///     Ensures that the given value does not exceed a specified maximum value.
     ///     If the value exceeds the maximum, an <see cref="ArgumentOutOfRangeException" /> is thrown.
-    ///     This method is applicable for types implementing IComparable.
+    ///     This method is applicable for types implementing <see cref="IComparable" />.
     /// </summary>
-    /// <typeparam name="T">The type of the value being checked. Must implement IComparable.</typeparam>
+    /// <typeparam name="T">The type of the value being checked. Must implement <see cref="IComparable" />.</typeparam>
     /// <param name="value">The value to be checked.</param>
     /// <param name="maxValue">The maximum allowable value.</param>
     /// <param name="argumentName">
@@ -24,32 +26,33 @@ public static partial class Guard
     /// </remarks>
     /// <example>
     ///     <code>
-    ///         Guard.NotExceed(myValue, 100, nameof(myValue));
+    ///         Guard.Maximum(myValue, 100, nameof(myValue));
     ///     </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Maximum<T>(T value, T maxValue,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null) where T : IComparable
     {
-        if (value.CompareTo(maxValue) <= 0)
+        if (value.CompareTo(maxValue) > 0)
         {
-            return value;
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{argumentName}' cannot exceed {maxValue}."
+                : exceptionMessage;
+
+            ThrowHelper.ThrowArgumentOutOfRangeException(argumentName, errorMessage);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The value of '{argumentName}' cannot exceed {maxValue}."
-            : exceptionMessage;
-
-        throw new ArgumentOutOfRangeException(argumentName, errorMessage);
+        return value;
     }
 
     /// <summary>
     ///     Ensures that the given value does not fall below a specified minimum value.
     ///     If the value is less than the minimum, an <see cref="ArgumentOutOfRangeException" /> is thrown.
-    ///     This method is applicable for types implementing IComparable.
+    ///     This method is applicable for types implementing <see cref="IComparable" />.
     /// </summary>
-    /// <typeparam name="T">The type of the value being checked. Must implement IComparable.</typeparam>
+    /// <typeparam name="T">The type of the value being checked. Must implement <see cref="IComparable" />.</typeparam>
     /// <param name="value">The value to be checked.</param>
     /// <param name="minValue">The minimum allowable value.</param>
     /// <param name="argumentName">
@@ -69,21 +72,22 @@ public static partial class Guard
     ///         Guard.Minimum(myValue, 10, nameof(myValue));
     ///     </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Minimum<T>(T value, T minValue,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null) where T : IComparable
     {
-        if (value.CompareTo(minValue) >= 0)
+        if (value.CompareTo(minValue) < 0)
         {
-            return value;
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{argumentName}' cannot be less than {minValue}."
+                : exceptionMessage;
+
+            ThrowHelper.ThrowArgumentOutOfRangeException(argumentName, errorMessage);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The value of '{argumentName}' cannot be less than {minValue}."
-            : exceptionMessage;
-
-        throw new ArgumentOutOfRangeException(argumentName, errorMessage);
+        return value;
     }
 
     /// <summary>
@@ -91,9 +95,9 @@ public static partial class Guard
     ///     Validates that the minimum and maximum range parameters are logically consistent.
     ///     If the value is outside the specified minimum and maximum range, an <see cref="ArgumentOutOfRangeException" /> is
     ///     thrown.
-    ///     This method is applicable for types implementing IComparable.
+    ///     This method is applicable for types implementing <see cref="IComparable" />.
     /// </summary>
-    /// <typeparam name="T">The type of the value being checked. Must implement IComparable.</typeparam>
+    /// <typeparam name="T">The type of the value being checked. Must implement <see cref="IComparable" />.</typeparam>
     /// <param name="value">The value to be checked.</param>
     /// <param name="minValue">The minimum allowable value.</param>
     /// <param name="maxValue">The maximum allowable value.</param>
@@ -119,6 +123,7 @@ public static partial class Guard
     ///         Guard.WithinRange(myValue, 10, 20, nameof(myValue));
     ///     </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T WithinRange<T>(T value, T minValue, T maxValue,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
@@ -126,20 +131,19 @@ public static partial class Guard
     {
         if (minValue.CompareTo(maxValue) > 0)
         {
-            throw new ArgumentException(
-                "The minimum value specified cannot be greater than the maximum value specified.",
-                nameof(minValue));
+            ThrowHelper.ThrowArgumentException(nameof(minValue),
+                "The minimum value specified cannot be greater than the maximum value specified.");
         }
 
-        if (value.CompareTo(minValue) >= 0 && value.CompareTo(maxValue) <= 0)
+        if (value.CompareTo(minValue) < 0 || value.CompareTo(maxValue) > 0)
         {
-            return value;
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The value of '{argumentName}' must be between '{minValue}' and '{maxValue}'."
+                : exceptionMessage;
+
+            ThrowHelper.ThrowArgumentOutOfRangeException(argumentName, errorMessage);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The value of '{argumentName}' must be between {minValue} and {maxValue}."
-            : exceptionMessage;
-
-        throw new ArgumentOutOfRangeException(argumentName, errorMessage);
+        return value;
     }
 }

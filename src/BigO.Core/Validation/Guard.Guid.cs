@@ -1,4 +1,6 @@
-﻿namespace BigO.Core.Validation;
+﻿// ReSharper disable InvertIf
+
+namespace BigO.Core.Validation;
 
 public static partial class Guard
 {
@@ -25,20 +27,25 @@ public static partial class Guard
     ///         Guard.NotEmpty(myGuid, nameof(myGuid));
     ///     </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Guid NotEmpty(Guid value,
         [CallerArgumentExpression(nameof(value))]
         string argumentName = "",
         string? exceptionMessage = null)
     {
-        if (value != Guid.Empty)
+        // Check if the Guid is empty
+        if (value == Guid.Empty)
         {
-            return value;
+            // Determine the error message to use
+            var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
+                ? $"The Guid '{argumentName}' cannot be empty."
+                : exceptionMessage;
+
+            // Throw the ArgumentException with the appropriate message
+            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
         }
 
-        var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-            ? $"The Guid '{argumentName}' cannot be empty."
-            : exceptionMessage;
-
-        throw new ArgumentException(errorMessage, argumentName);
+        // Return the original Guid if it is not empty
+        return value;
     }
 }

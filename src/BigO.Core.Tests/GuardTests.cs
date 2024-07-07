@@ -127,7 +127,7 @@ public class GuardTest
     public void Email_ValidEmail_DoesNotThrowException(string email)
     {
         // Act
-        Guard.Email(email);
+        Guard.EmailAddress(email);
     }
 
     [Theory]
@@ -137,7 +137,7 @@ public class GuardTest
         string exceptionMessage)
     {
         // Act
-        var ex = Assert.Throws<ArgumentException>(() => Guard.Email(email, exceptionMessage: exceptionMessage));
+        var ex = Assert.Throws<ArgumentException>(() => Guard.EmailAddress(email, exceptionMessage: exceptionMessage));
 
         // Assert
         Assert.Contains(exceptionMessage, ex.Message);

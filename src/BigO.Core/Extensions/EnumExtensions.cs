@@ -23,35 +23,27 @@ public static class EnumExtensions
     ///     A dictionary with keys representing the enumeration descriptions (or names if no description is available)
     ///     and values representing the enumeration values as strings.
     /// </returns>
-    /// <exception cref="ArgumentException">Thrown when T is not an enum.</exception>
     public static Dictionary<string, string> ToDictionary<T>() where T : Enum
     {
         var enumType = typeof(T);
-        if (!enumType.IsEnum)
-        {
-            throw new ArgumentException("T must be an enum type.", nameof(T));
-        }
 
-        if (EnumDescriptionCache.TryGetValue(enumType, out var cachedDict))
+        return EnumDescriptionCache.GetOrAdd(enumType, _ =>
         {
-            return cachedDict;
-        }
-
-        var result = new Dictionary<string, string>();
-        foreach (var name in Enum.GetNames(enumType))
-        {
-            var enumValue = (Enum)Enum.Parse(enumType, name);
-            var description = GetEnumDescription(enumValue);
-
-            if (!result.TryAdd(description, name))
+            var result = new Dictionary<string, string>();
+            foreach (var name in Enum.GetNames(enumType))
             {
-                throw new InvalidOperationException(
-                    $"Duplicate description '{description}' found in enum '{enumType.Name}'.");
-            }
-        }
+                var enumValue = (Enum)Enum.Parse(enumType, name);
+                var description = GetEnumDescription(enumValue);
 
-        EnumDescriptionCache[enumType] = result;
-        return result;
+                if (!result.TryAdd(description, name))
+                {
+                    throw new InvalidOperationException(
+                        $"Duplicate description '{description}' found in enum '{enumType.Name}'.");
+                }
+            }
+
+            return result;
+        });
     }
 
     /// <summary>
@@ -66,9 +58,13 @@ public static class EnumExtensions
     public static string GetEnumDescription(this Enum value)
     {
         var enumType = value.GetType();
-        return EnumDescriptionCache.GetOrAdd(enumType,
-            _ => Enum.GetValues(enumType).Cast<Enum>().ToDictionary(e => e.ToString(), GetEnumDescriptionInternal))[
-            value.ToString()];
+        var enumName = value.ToString();
+
+        return EnumDescriptionCache.GetOrAdd(enumType, _ =>
+            Enum.GetValues(enumType)
+                .Cast<Enum>()
+                .ToDictionary(e => e.ToString(), GetEnumDescriptionInternal)
+        )[enumName];
     }
 
     private static string GetEnumDescriptionInternal(Enum value)
@@ -88,21 +84,18 @@ public static class EnumExtensions
     public static string GetEnumDisplay(this Enum value)
     {
         var enumType = value.GetType();
-        if (EnumDisplayCache.TryGetValue(enumType, out var cachedDict) &&
-            cachedDict.TryGetValue(value.ToString(), out var cachedDisplay))
-        {
-            return cachedDisplay ?? string.Empty;
-        }
+        var enumName = value.ToString();
 
-        var fieldInfo = enumType.GetField(value.ToString());
+        return EnumDisplayCache.GetOrAdd(enumType, _ => [])[enumName] ??
+               InitializeEnumDisplay(enumType, value, enumName);
+    }
+
+    private static string InitializeEnumDisplay(Type enumType, Enum value, string enumName)
+    {
+        var fieldInfo = enumType.GetField(enumName);
         var display = fieldInfo?.GetCustomAttribute<DisplayAttribute>()?.GetName() ?? string.Empty;
 
-        if (!EnumDisplayCache.ContainsKey(enumType))
-        {
-            EnumDisplayCache[enumType] = new Dictionary<string, string?>();
-        }
-
-        EnumDisplayCache[enumType][value.ToString()] = display;
+        EnumDisplayCache[enumType][enumName] = display;
         return display;
     }
 }
