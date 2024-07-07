@@ -25,6 +25,7 @@ public static class GuidExtensions
     ///     <see cref="MethodImplOptions.AggressiveInlining" /> option, allowing the JIT compiler to inline the method's body
     ///     at the call site for improved performance.
     /// </remarks>
+    [System.Diagnostics.Contracts.Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsEmpty(this Guid value)
     {
@@ -50,6 +51,7 @@ public static class GuidExtensions
     ///     <see cref="MethodImplOptions.AggressiveInlining" /> option, allowing the JIT compiler to inline the method's body
     ///     at the call site for improved performance.
     /// </remarks>
+    [System.Diagnostics.Contracts.Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNotEmpty(this Guid value)
     {

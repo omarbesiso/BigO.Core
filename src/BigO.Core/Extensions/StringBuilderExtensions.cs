@@ -40,6 +40,7 @@ public static class StringBuilderExtensions
     /// isWhiteSpace = sb.IsEmpty(true); // true
     /// ]]></code>
     /// </example>
+    [ContractAnnotation("stringBuilder:null => halt")]
     public static bool IsEmpty(this StringBuilder stringBuilder, bool countWhiteSpace = false)
     {
         Guard.NotNull(stringBuilder);
@@ -89,6 +90,7 @@ public static class StringBuilderExtensions
     /// Console.WriteLine(sb.ToString()); // Output: "Helloooooo   "
     /// ]]></code>
     /// </example>
+    [ContractAnnotation("stringBuilder:null => halt")]
     public static StringBuilder AppendCharToLength(this StringBuilder stringBuilder, int targetLength,
         char charToAppend)
     {
@@ -132,6 +134,7 @@ public static class StringBuilderExtensions
     /// Console.WriteLine(sb.ToString()); // Output: ""
     /// ]]></code>
     /// </example>
+    [ContractAnnotation("stringBuilder:null => halt")]
     public static StringBuilder ReduceToLength(this StringBuilder stringBuilder, int maxLength)
     {
         Guard.NotNull(stringBuilder);
@@ -171,6 +174,7 @@ public static class StringBuilderExtensions
     /// Console.WriteLine(sb.ToString()); // Output: "Hello World!"
     /// ]]></code>
     /// </example>
+    [ContractAnnotation("stringBuilder:null => halt")]
     public static StringBuilder Reverse(this StringBuilder stringBuilder)
     {
         Guard.NotNull(stringBuilder);
@@ -205,6 +209,8 @@ public static class StringBuilderExtensions
     ///     Thrown when either <paramref name="stringBuilder" /> or
     ///     <paramref name="prefix" /> is null or empty.
     /// </exception>
+    [ContractAnnotation("stringBuilder:null => halt")]
+    [ContractAnnotation("prefix:null => halt")]
     public static StringBuilder EnsureStartsWith(this StringBuilder stringBuilder, string prefix,
         StringComparison stringComparison = StringComparison.InvariantCulture)
     {
@@ -236,6 +242,8 @@ public static class StringBuilderExtensions
     ///     Thrown when either <paramref name="stringBuilder" /> or
     ///     <paramref name="suffix" /> is null or empty.
     /// </exception>
+    [ContractAnnotation("stringBuilder:null => halt")]
+    [ContractAnnotation("suffix:null => halt")]
     public static StringBuilder EnsureEndsWith(this StringBuilder stringBuilder, string suffix,
         StringComparison stringComparison = StringComparison.InvariantCulture)
     {
@@ -285,6 +293,7 @@ public static class StringBuilderExtensions
     /// // dog
     /// ]]></code>
     /// </example>
+    [ContractAnnotation("stringBuilder:null => halt")]
     public static StringBuilder AppendMultiple(this StringBuilder stringBuilder, bool withNewLine = false,
         params string[]? items)
     {
@@ -342,6 +351,7 @@ public static class StringBuilderExtensions
     /// Console.WriteLine(sb.ToString()); // Output: "The quick brwn fx jumps ver the lazy dg"
     /// ]]></code>
     /// </example>
+    [ContractAnnotation("stringBuilder:null => halt")]
     public static StringBuilder RemoveAllOccurrences(this StringBuilder stringBuilder, char characterToBeRemoved)
     {
         Guard.NotNull(stringBuilder);
@@ -383,6 +393,7 @@ public static class StringBuilderExtensions
     /// Console.WriteLine(sb.ToString()); // Output: "The quick brown fox jumps over the lazy dog"
     /// ]]></code>
     /// </example>
+    [ContractAnnotation("stringBuilder:null => halt")]
     public static StringBuilder Trim(this StringBuilder stringBuilder)
     {
         Guard.NotNull(stringBuilder);
@@ -437,6 +448,8 @@ public static class StringBuilderExtensions
     /// Console.WriteLine(sb.ToString()); // Output: "The value of pi is approximately 3.14\n"
     /// ]]></code>
     /// </example>
+    [ContractAnnotation("stringBuilder:null => halt")]
+    [ContractAnnotation("format:null => halt")]
     public static void AppendFormatLine(this StringBuilder stringBuilder, string format, params object[] items)
     {
         Guard.NotNull(stringBuilder);
@@ -469,6 +482,7 @@ public static class StringBuilderExtensions
     /// Console.WriteLine(sb.ToString()); // Output: "Hello\n\nWorld"
     /// ]]></code>
     /// </example>
+    [ContractAnnotation("stringBuilder:null => halt")]
     public static void AppendMultipleLines(this StringBuilder stringBuilder, int numberOfLines)
     {
         Guard.NotNull(stringBuilder);

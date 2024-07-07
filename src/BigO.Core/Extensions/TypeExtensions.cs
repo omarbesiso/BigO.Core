@@ -74,9 +74,10 @@ public static class TypeExtensions
     ///     <c>null</c>. For non-nullable value types, this will be the value produced by the type's default constructor.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="type" /> is <c>null</c>.</exception>
+    [ContractAnnotation("type:null => halt")]
     public static object? DefaultValue(this Type type)
     {
-        ArgumentNullException.ThrowIfNull(type);
+        Guard.NotNull(type);
 
         if (DefaultValues.TryGetValue(type, out var value))
         {
@@ -104,10 +105,10 @@ public static class TypeExtensions
     ///     <c>null</c>. For non-nullable value types, this will be the value produced by the type's default constructor.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="type" /> is <c>null</c>.</exception>
+    [ContractAnnotation("type:null => halt")]
     public static async Task<object?> DefaultValueAsync(this Type type)
     {
-        ArgumentNullException.ThrowIfNull(type);
-
+        Guard.NotNull(type);
         return await Task.Run(() => DefaultValue(type));
     }
 
@@ -117,11 +118,11 @@ public static class TypeExtensions
     /// <param name="type">The type to get the name or alias for.</param>
     /// <returns>The name or alias for the specified type.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="type" /> is <c>null</c>.</exception>
+    [ContractAnnotation("type:null => halt")]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string GetTypeAsString(this Type type)
     {
-        ArgumentNullException.ThrowIfNull(type);
-
+        Guard.NotNull(type);
         return TypeAlias.TryGetValue(type, out var result) ? result : type.Name;
     }
 
@@ -131,11 +132,12 @@ public static class TypeExtensions
     /// <param name="type">The type to check for nullability.</param>
     /// <returns><c>true</c> if the specified type is nullable; otherwise, <c>false</c>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the <paramref name="type" /> is <c>null</c>.</exception>
+    [ContractAnnotation("type:null => halt")]
     [System.Diagnostics.Contracts.Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNullable(this Type type)
     {
-        ArgumentNullException.ThrowIfNull(type);
+        Guard.NotNull(type);
         return Nullable.GetUnderlyingType(type) != null;
     }
 
@@ -183,6 +185,7 @@ public static class TypeExtensions
     /// </param>
     /// <returns><c>true</c> if the <paramref name="type" /> is a numeric type, <c>false</c> otherwise.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="type" /> is <c>null</c>.</exception>
+    [ContractAnnotation("type:null => halt")]
     [System.Diagnostics.Contracts.Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNumeric(this Type type, bool includeNullableTypes = true)
@@ -210,6 +213,7 @@ public static class TypeExtensions
     /// <param name="type">The type to check for being an open generic type.</param>
     /// <returns><c>true</c> if the specified type is an open generic type; otherwise, <c>false</c>.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="type" /> is <c>null</c>.</exception>
+    [ContractAnnotation("type:null => halt")]
     [System.Diagnostics.Contracts.Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsOpenGeneric(this Type type)
@@ -228,6 +232,8 @@ public static class TypeExtensions
     ///     Thrown when <paramref name="type" /> or <paramref name="attributeType" /> is
     ///     <c>null</c>.
     /// </exception>
+    [ContractAnnotation("type:null => halt")]
+    [ContractAnnotation("attributeType:null => halt")]
     [System.Diagnostics.Contracts.Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasAttribute(this Type type, Type attributeType)
@@ -252,6 +258,8 @@ public static class TypeExtensions
     ///     Thrown when <paramref name="type" /> or <paramref name="predicate" /> is
     ///     <c>null</c>.
     /// </exception>
+    [ContractAnnotation("type:null => halt")]
+    [ContractAnnotation("predicate:null => halt")]
     [System.Diagnostics.Contracts.Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasAttribute<T>(this Type type, Func<T, bool> predicate) where T : Attribute
@@ -271,10 +279,12 @@ public static class TypeExtensions
     ///     type. If this flag is set to false, the type code for a nullable type will be <see cref="TypeCode.Object" />.
     /// </param>
     /// <returns>The <see cref="TypeCode" /> of the specified type.</returns>
+    [ContractAnnotation("type:null => halt")]
     [System.Diagnostics.Contracts.Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static TypeCode GetTypeCode(Type type, bool includeNullableTypes)
     {
+        Guard.NotNull(type);
         var typeToCheck = includeNullableTypes && type.IsNullable() ? Nullable.GetUnderlyingType(type) : type;
         return Type.GetTypeCode(typeToCheck);
     }

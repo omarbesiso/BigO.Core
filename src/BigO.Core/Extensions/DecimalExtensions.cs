@@ -77,12 +77,15 @@ public static class DecimalExtensions
 
         var words = new StringBuilder();
         words.Append(NumberToWords(integerPart));
-        if (fractionalPart > 0)
+
+        if (fractionalPart <= 0)
         {
-            words.Append(" and ");
-            words.Append(NumberToWords(fractionalPart));
-            words.Append(" cents");
+            return words.ToString();
         }
+
+        words.Append(" and ");
+        words.Append(NumberToWords(fractionalPart));
+        words.Append(" cents");
 
         return words.ToString();
     }

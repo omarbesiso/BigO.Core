@@ -35,6 +35,6 @@ public static class DoubleExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static decimal? ToDecimal(this double? value)
     {
-        return value.HasValue ? (decimal?)value.Value : null;
+        return value.HasValue ? (decimal)value.Value : null;
     }
 }

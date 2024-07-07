@@ -188,6 +188,7 @@ public static class StringExtensions
     /// string nullResult = nullInput.CapitalizeFirstLetterOfWords(); // Returns null
     /// </code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? CapitalizeFirstLetterOfWords(string? input)
     {
         if (string.IsNullOrWhiteSpace(input))
@@ -217,6 +218,7 @@ public static class StringExtensions
     ///     the specified <see cref="string" />. If the input <paramref name="value" /> is <c>null</c>, the resulting
     ///     <see cref="StringBuilder" /> will be empty.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static StringBuilder ToStringBuilder(this string? value)
     {
         return new StringBuilder(value);
@@ -242,6 +244,7 @@ public static class StringExtensions
     ///     <paramref name="targetLength" />. If the <paramref name="value" /> is already longer than or equal to the
     ///     <paramref name="targetLength" />, the method returns the original <paramref name="value" /> without any changes.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string AppendCharToLength(this string? value, int targetLength,
         char charToAppend)
     {
@@ -269,6 +272,7 @@ public static class StringExtensions
     ///     <paramref name="maxLength" />. If the <paramref name="value" /> is already shorter than or equal to the
     ///     <paramref name="maxLength" />, the method returns the original <paramref name="value" /> without any changes.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ReduceToLength(this string value, int maxLength)
     {
         var stringBuilder = new StringBuilder(value);
@@ -298,6 +302,7 @@ public static class StringExtensions
     ///     <paramref name="value" />. If the <paramref name="value" /> already starts with the <paramref name="prefix" />, the
     ///     method returns the original <paramref name="value" /> without any changes.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string EnsureStartsWith(this string value, string prefix,
         StringComparison stringComparison = StringComparison.InvariantCulture)
     {
@@ -328,6 +333,7 @@ public static class StringExtensions
     ///     <paramref name="value" />. If the <paramref name="value" /> already ends with the <paramref name="suffix" />, the
     ///     method returns the original <paramref name="value" /> without any changes.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string EnsureEndsWith(this string value, string suffix,
         StringComparison stringComparison = StringComparison.InvariantCulture)
     {
@@ -357,6 +363,7 @@ public static class StringExtensions
     ///     <see cref="DateTime.TryParse(string, out DateTime)" /> method.
     ///     Note that this method returns <c>false</c> if the input is <c>null</c> or an empty string.
     /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsDateTime(this string? input)
     {
         return !string.IsNullOrEmpty(input) && DateTime.TryParse(input, out _);
@@ -382,10 +389,7 @@ public static class StringExtensions
     /// </exception>
     public static string? LimitLength(this string? source, int maxLength)
     {
-        if (maxLength < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxLength), "Maximum length should be non-negative.");
-        }
+        Guard.Minimum(maxLength, 0);
 
         if (source is null || source.Length <= maxLength)
         {

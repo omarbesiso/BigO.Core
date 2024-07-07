@@ -31,7 +31,8 @@ public static class EnumerableExtensions
     [System.Diagnostics.Contracts.Pure]
     public static bool IsEmpty([NoEnumeration] this IEnumerable collection)
     {
-        ArgumentNullException.ThrowIfNull(collection);
+        // ReSharper disable once PossibleMultipleEnumeration
+        Guard.NotNull(collection);
 
         switch (collection)
         {
@@ -43,6 +44,7 @@ public static class EnumerableExtensions
                 return rc.Count == 0;
             default:
             {
+                // ReSharper disable once PossibleMultipleEnumeration
                 var enumerator = collection.GetEnumerator();
                 try
                 {

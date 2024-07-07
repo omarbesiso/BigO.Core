@@ -1,4 +1,6 @@
-﻿namespace BigO.Core.Extensions;
+﻿using BigO.Core.Validation;
+
+namespace BigO.Core.Extensions;
 
 /// <summary>
 ///     Provides a set of useful extension methods for working with <see cref="IDictionary{TKey,TValue}" /> objects.
@@ -91,8 +93,8 @@ public static class DictionaryExtensions
     public static SortedDictionary<TKey, TValue> ToSortedDictionary<TKey, TValue>(
         this IDictionary<TKey, TValue> dictionary, IComparer<TKey> comparer) where TKey : notnull
     {
-        ArgumentNullException.ThrowIfNull(dictionary);
-        ArgumentNullException.ThrowIfNull(comparer);
+        Guard.NotNull(dictionary);
+        Guard.NotNull(comparer);
 
         return new SortedDictionary<TKey, TValue>(dictionary, comparer);
     }
@@ -110,7 +112,7 @@ public static class DictionaryExtensions
     public static TValue? GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key,
         TValue? defaultValue = default)
     {
-        ArgumentNullException.ThrowIfNull(dictionary);
+        Guard.NotNull(dictionary);
 
         return dictionary.TryGetValue(key, out var value) ? value : defaultValue;
     }
@@ -125,8 +127,8 @@ public static class DictionaryExtensions
     public static void RemoveWhere<TKey, TValue>(
         this IDictionary<TKey, TValue> dictionary, Func<KeyValuePair<TKey, TValue>, bool> predicate)
     {
-        ArgumentNullException.ThrowIfNull(dictionary);
-        ArgumentNullException.ThrowIfNull(predicate);
+        Guard.NotNull(dictionary);
+        Guard.NotNull(predicate);
 
         var filteredList = dictionary.Keys.Where(k => predicate(new KeyValuePair<TKey, TValue>(k, dictionary[k])))
             .ToList();
@@ -147,8 +149,8 @@ public static class DictionaryExtensions
     public static void Merge<TKey, TValue>(this IDictionary<TKey, TValue> dictionary,
         IDictionary<TKey, TValue> otherDictionary)
     {
-        ArgumentNullException.ThrowIfNull(dictionary);
-        ArgumentNullException.ThrowIfNull(dictionary);
+        Guard.NotNull(dictionary);
+        Guard.NotNull(otherDictionary);
 
         foreach (var kvp in otherDictionary)
         {
