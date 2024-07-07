@@ -10,7 +10,19 @@ BigO.Core contains base utilities and extensions for the BigO .NET library.
 
 ## Installation
 
-You can install BigO.Core via NuGet:
+Install via NuGet Package Manager Console:
+
+```bash
+Install-Package BigO.Core
+```
+
+Or via .NET CLI:
 
 ```bash
 dotnet add package BigO.Core
+```
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
