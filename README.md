@@ -1,5 +1,7 @@
 # BigO.Core
 
+[![NuGet version](https://badge.fury.io/nu/BigO.Core.svg)](https://badge.fury.io/nu/BigO.Core)
+
 BigO.Core contains base utilities and extensions for the BigO .NET library.
 
 ## Features
