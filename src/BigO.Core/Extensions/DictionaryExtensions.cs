@@ -100,24 +100,6 @@ public static class DictionaryExtensions
     }
 
     /// <summary>
-    ///     Retrieves the value associated with the specified key or returns a default value if the key is not found.
-    /// </summary>
-    /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
-    /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
-    /// <param name="dictionary">The dictionary to retrieve the value from.</param>
-    /// <param name="key">The key of the value to retrieve.</param>
-    /// <param name="defaultValue">The default value to return if the key is not found.</param>
-    /// <returns>The value associated with the specified key, or the default value if the key is not found.</returns>
-    [System.Diagnostics.Contracts.Pure]
-    public static TValue? GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key,
-        TValue? defaultValue = default)
-    {
-        Guard.NotNull(dictionary);
-
-        return dictionary.TryGetValue(key, out var value) ? value : defaultValue;
-    }
-
-    /// <summary>
     ///     Removes all elements that match the conditions defined by the specified predicate.
     /// </summary>
     /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
