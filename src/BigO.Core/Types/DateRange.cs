@@ -209,7 +209,7 @@ public readonly record struct DateRange : IComparable<DateRange>
             yield return date;
         }
     }
-
+    
     /// <summary>
     ///     Splits the date range into multiple date ranges, each representing a week.
     /// </summary>
@@ -217,19 +217,22 @@ public readonly record struct DateRange : IComparable<DateRange>
     public IEnumerable<DateRange> WeeksInRange()
     {
         var currentStart = StartDate;
-        var currentEnd = StartDate.AddDays(6 - (int)StartDate.DayOfWeek); // End of the first week
 
         while (currentStart <= EndDate)
         {
+            // Calculate the end of the current week, or the end date if it's earlier
+            var currentEnd = currentStart.AddDays(6 - (int)currentStart.DayOfWeek);
+        
+            // Ensure the current end does not go beyond the end date
             if (currentEnd > EndDate)
             {
-                currentEnd = EndDate; // Adjust the last week to the end date
+                currentEnd = EndDate;
             }
 
             yield return new DateRange(currentStart, currentEnd);
 
-            currentStart = currentEnd.AddDays(1); // Start of the next week
-            currentEnd = currentStart.AddDays(6); // End of the next week
+            // Move to the start of the next week
+            currentStart = currentEnd.AddDays(1);
         }
     }
 
