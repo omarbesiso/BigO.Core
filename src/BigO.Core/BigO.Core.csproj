@@ -4,7 +4,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<GenerateDocumentationFile>False</GenerateDocumentationFile>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>BigO Library Core</Title>
 		<Product>BigO Library</Product>
@@ -17,12 +17,16 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<Authors>Omar Besiso</Authors>
-		<Version>2.3.1.3</Version>
+		<Version>2.3.1.4</Version>
 		<PackageReadmeFile>Readme.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="bin\$(Configuration)\$(TargetFramework)\*.xml" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 	<ItemGroup>
