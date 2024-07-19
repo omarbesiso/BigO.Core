@@ -149,16 +149,41 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
         var parts = s.Split(" - ");
         culture ??= CultureInfo.CurrentCulture;
 
-        if (parts.Length == 2 && TimeOnly.TryParse(parts[0], culture, out var start) &&
-            TimeOnly.TryParse(parts[1], culture, out var end))
+        if (parts.Length == 2)
         {
-            timeRange = new TimeRange(start, end);
-            return true;
+#if NET6_0
+            if (TryParseTimeOnlyNet6(parts[0], culture, out var start) &&
+                TryParseTimeOnlyNet6(parts[1], culture, out var end))
+            {
+                timeRange = new TimeRange(start, end);
+                return true;
+            }
+#else
+            if (TimeOnly.TryParse(parts[0], culture, out var start) &&
+                TimeOnly.TryParse(parts[1], culture, out var end))
+            {
+                timeRange = new TimeRange(start, end);
+                return true;
+            }
+#endif
         }
 
         timeRange = default;
         return false;
     }
+
+#if NET6_0
+    private static bool TryParseTimeOnlyNet6(string s, CultureInfo culture, out TimeOnly result)
+    {
+        if (DateTime.TryParse(s, culture, DateTimeStyles.NoCurrentDateDefault, out var dateTime))
+        {
+            result = TimeOnly.FromDateTime(dateTime);
+            return true;
+        }
+        result = default;
+        return false;
+    }
+#endif
 
     /// <summary>
     ///     Creates a new <see cref="TimeRange" /> object from a start time and a duration.

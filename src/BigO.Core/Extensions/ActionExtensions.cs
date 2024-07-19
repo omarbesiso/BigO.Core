@@ -100,36 +100,46 @@ public static class ActionExtensions
     {
         Guard.NotNull(action);
 
-        var startTime = Stopwatch.GetTimestamp();
-
+#if NET6_0
+        var stopwatch = Stopwatch.StartNew();
         action.Invoke();
-
+        stopwatch.Stop();
+        return stopwatch.Elapsed;
+#else
+        var startTime = Stopwatch.GetTimestamp();
+        action.Invoke();
         return Stopwatch.GetElapsedTime(startTime);
+#endif
     }
 
     /// <summary>
-    ///     Executes the specified <see cref="Action" /> asynchronously, and measures the elapsed time it takes to complete.
+    ///     Executes the specified <see cref="Action" /> asynchronously and measures the elapsed time it takes to complete.
     /// </summary>
     /// <param name="action">The <see cref="Action" /> to be executed asynchronously.</param>
-    /// <param name="cancellationToken">
-    ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-    ///     The default is <see cref="CancellationToken.None" />.
-    /// </param>
-    /// <returns>
-    ///     A <see cref="Task{TimeSpan}" /> representing the elapsed time for the execution of the
-    ///     <paramref name="action" />.
-    /// </returns>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A <see cref="Task{TResult}" /> representing the asynchronous operation, with the result being a <see cref="TimeSpan" /> representing the elapsed time for the execution of the <paramref name="action" />.</returns>
+    /// <remarks>
+    ///     This extension method is designed to execute a given <see cref="Action" /> asynchronously and measure its execution time.
+    ///     The action is run on a separate thread using Task.Run.
+    ///     Keep in mind that this method is most suitable for use cases where you need to measure the time it takes to execute
+    ///     actions that may take some time to complete.
+    ///     For more complex scenarios or very short-running actions, consider using other profiling techniques.
+    /// </remarks>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="action" /> parameter is <c>null</c>.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<TimeSpan> ExecuteAndTimeAsync(this Action action,
-        CancellationToken cancellationToken = default)
+    public static async Task<TimeSpan> ExecuteAndTimeAsync(this Action action, CancellationToken cancellationToken = default)
     {
         Guard.NotNull(action);
 
-        var startTime = Stopwatch.GetTimestamp();
-
+#if NET6_0
+        var stopwatch = Stopwatch.StartNew();
         await Task.Run(action, cancellationToken);
-
+        stopwatch.Stop();
+        return stopwatch.Elapsed;
+#else
+        var startTime = Stopwatch.GetTimestamp();
+        await Task.Run(action, cancellationToken);
         return Stopwatch.GetElapsedTime(startTime);
+#endif
     }
 }
