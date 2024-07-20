@@ -17,17 +17,14 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<Authors>Omar Besiso</Authors>
-		<Version>2.4</Version>
+		<Version>2.4.1</Version>
 		<PackageReadmeFile>Readme.md</PackageReadmeFile>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="JetBrains.Annotations" Version="2024.2.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="bin\$(Configuration)\$(TargetFramework)\*.xml" Pack="true" PackagePath="\" />
+		<PackageReference Include="Ulid" Version="1.3.3" />
 	</ItemGroup>
 
 	<ItemGroup>
