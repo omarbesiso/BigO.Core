@@ -59,7 +59,8 @@ public static class DateTimeExtensions
         return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond);
 #else
         // In .NET 7 and later, we can use the constructor with microseconds
-        return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond, dateTime.Microsecond);
+        return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond,
+            dateTime.Microsecond);
 #endif
     }
 

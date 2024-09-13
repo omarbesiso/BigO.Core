@@ -209,7 +209,7 @@ public readonly record struct DateRange : IComparable<DateRange>
             yield return date;
         }
     }
-    
+
     /// <summary>
     ///     Splits the date range into multiple date ranges, each representing a week (7 days).
     /// </summary>

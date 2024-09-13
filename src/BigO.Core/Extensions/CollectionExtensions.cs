@@ -9,6 +9,57 @@ namespace BigO.Core.Extensions;
 public static class CollectionExtensions
 {
     /// <summary>
+    ///     Shuffles the elements of the specified list.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the list.</typeparam>
+    /// <param name="list">The list to shuffle.</param>
+    /// <param name="preserveOriginal">
+    ///     Specifies whether to preserve the original list. If <c>true</c>, the shuffle is performed on a copy of the list;
+    ///     otherwise, the shuffle is performed on the original list. Defaults to <c>false</c>.
+    /// </param>
+    /// <returns>
+    ///     A shuffled list. This can be either a new list if <paramref name="preserveOriginal" /> is true, or the
+    ///     original list otherwise.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if the input list is <c>null</c>.</exception>
+    /// <remarks>
+    ///     This method uses the Fisher–Yates shuffle algorithm for an efficient and unbiased shuffle.
+    ///     The algorithm has a time complexity of O(n), where n is the number of elements.
+    ///     When <paramref name="preserveOriginal" /> is set to <c>true</c>, a copy of the list is made to ensure that the
+    ///     original
+    ///     list's order is not altered.
+    ///     The shuffle operation uses <see cref="Random.Shared" />, which is suitable for general-purpose use but not for
+    ///     cryptographic purposes.
+    /// </remarks>
+    /// <example>
+    ///     <code><![CDATA[
+    /// IList<int> numbers = new List<int> { 1, 2, 3, 4, 5 };
+    /// IList<int> shuffledNumbers = numbers.Shuffle();
+    /// IList<int> originalPreservedShuffle = numbers.Shuffle(true);
+    /// ]]></code>
+    /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IList<T> Shuffle<T>(this IList<T> list, bool preserveOriginal = false)
+    {
+        Guard.NotNull(list);
+
+        var shuffledList = preserveOriginal ? new List<T>(list) : list;
+
+        if (shuffledList.Count <= 1)
+        {
+            return shuffledList;
+        }
+
+        for (var i = shuffledList.Count - 1; i > 0; i--)
+        {
+            var j = Random.Shared.Next(0, i + 1);
+            (shuffledList[i], shuffledList[j]) = (shuffledList[j], shuffledList[i]);
+        }
+
+        return shuffledList;
+    }
+
+    /// <summary>
     ///     Adds a value to the collection if it does not already exist in the collection.
     /// </summary>
     /// <typeparam name="T">The type of elements in the collection.</typeparam>
