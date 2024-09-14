@@ -17,8 +17,8 @@ public readonly record struct DateRange : IComparable<DateRange>
     private static readonly DateOnly MaxDate = DateOnly.MaxValue;
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="DateRange" /> struct with default values. Start date is defaulted to
-    ///     today and end date is set to the maximum date.
+    ///     Initializes a new instance of the <see cref="DateRange" /> struct with default values.
+    ///     The start date defaults to today and the end date defaults to the maximum allowable date.
     /// </summary>
     public DateRange() : this(DateTime.Today.ToDateOnly(), MaxDate)
     {
@@ -31,7 +31,7 @@ public readonly record struct DateRange : IComparable<DateRange>
     /// <param name="endDate">The end date of the date range, or null to indicate an open-ended range.</param>
     /// <exception cref="ArgumentException">Thrown if the end date is before the start date.</exception>
     [JsonConstructor]
-    public DateRange(DateOnly startDate, DateOnly? endDate)
+    public DateRange(DateOnly startDate, DateOnly? endDate = null)
     {
         ValidateDates(startDate, endDate);
         StartDate = startDate;
@@ -245,6 +245,12 @@ public readonly record struct DateRange : IComparable<DateRange>
         return new DateRange(startDate, endDate);
     }
 
+    /// <summary>
+    ///     Validates the start and end dates.
+    /// </summary>
+    /// <param name="startDate">The start date to validate.</param>
+    /// <param name="endDate">The end date to validate, or null for an open-ended range.</param>
+    /// <exception cref="ArgumentException">Thrown if the end date is before the start date.</exception>
     private static void ValidateDates(DateOnly startDate, DateOnly? endDate)
     {
         if (startDate == default)
