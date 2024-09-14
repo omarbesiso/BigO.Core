@@ -10,7 +10,7 @@ namespace BigO.Core.Types;
 /// </summary>
 [PublicAPI]
 [DataContract]
-public readonly record struct DateTimeRange : IComparable<DateTimeRange>
+public readonly record struct DateTimeRange
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="DateTimeRange" /> struct.
@@ -53,22 +53,6 @@ public readonly record struct DateTimeRange : IComparable<DateTimeRange>
     [JsonPropertyName("endDate")]
     [DataMember(Name = "endDate", Order = 20)]
     public DateTime EndDate { get; }
-
-    /// <summary>
-    ///     Compares the current <see cref="DateTimeRange" /> instance to another <see cref="DateTimeRange" /> instance.
-    /// </summary>
-    /// <param name="other">The <see cref="DateTimeRange" /> instance to compare with the current instance.</param>
-    /// <returns>A value indicating the relative order of the instances being compared.</returns>
-    /// <remarks>
-    ///     The comparison is performed by comparing the start date times of the two time ranges. If the start date times are
-    ///     equal,
-    ///     the end date times are compared.
-    /// </remarks>
-    public int CompareTo(DateTimeRange other)
-    {
-        var startDateComparison = StartDate.CompareTo(other.StartDate);
-        return startDateComparison != 0 ? startDateComparison : EndDate.CompareTo(other.EndDate);
-    }
 
     /// <summary>
     ///     Indicates whether the current object is equal to another object of the same type.

@@ -11,7 +11,7 @@ namespace BigO.Core.Types;
 [PublicAPI]
 [DataContract]
 [JsonConverter(typeof(DateRangeConverter))]
-public readonly record struct DateRange : IComparable<DateRange>
+public readonly record struct DateRange
 {
     private const char Separator = '-';
     private static readonly DateOnly MaxDate = DateOnly.MaxValue;
@@ -55,38 +55,6 @@ public readonly record struct DateRange : IComparable<DateRange>
     [JsonPropertyName("endDate")]
     [DataMember(Name = "endDate", Order = 20)]
     public DateOnly EndDate { get; private init; }
-
-    /// <summary>
-    ///     Compares the current instance to another <see cref="DateRange" /> instance and returns an integer that indicates
-    ///     whether the current instance precedes, follows, or occurs in the same position in the sort order as the other
-    ///     instance.
-    /// </summary>
-    /// <param name="other">The <see cref="DateRange" /> instance to compare with the current instance.</param>
-    /// <returns>
-    ///     A value that indicates the relative order of the objects being compared. The return value has these meanings:
-    ///     <list type="bullet">
-    ///         <item>
-    ///             <description>
-    ///                 Less than zero: The current instance precedes <paramref name="other" /> in the sort order.
-    ///             </description>
-    ///         </item>
-    ///         <item>
-    ///             <description>
-    ///                 Zero: The current instance occurs in the same position in the sort order as <paramref name="other" />.
-    ///             </description>
-    ///         </item>
-    ///         <item>
-    ///             <description>
-    ///                 Greater than zero: The current instance follows <paramref name="other" /> in the sort order.
-    ///             </description>
-    ///         </item>
-    ///     </list>
-    /// </returns>
-    public int CompareTo(DateRange other)
-    {
-        var startDateComparison = StartDate.CompareTo(other.StartDate);
-        return startDateComparison != 0 ? startDateComparison : EndDate.CompareTo(other.EndDate);
-    }
 
     /// <summary>
     ///     Returns a hash code for this instance.
