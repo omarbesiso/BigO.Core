@@ -9,16 +9,20 @@ namespace BigO.Core.Extensions;
 public static class DateTimeExtensions
 {
     /// <summary>
-    ///     Converts a <see cref="DateTime" /> object to a <see cref="DateOnly" /> object.
+    ///     Converts a <see cref="DateTime" /> object to a <see cref="DateOnly" /> object, retaining only the date component.
     /// </summary>
-    /// <param name="dateTime">The <see cref="DateTime" /> object to convert.</param>
-    /// <returns>A <see cref="DateOnly" /> object representing the date part of the provided <see cref="DateTime" />.</returns>
+    /// <param name="dateTime">
+    ///     The <see cref="DateTime" /> object to convert. The time component is discarded, and only the year,
+    ///     month, and day values are used.
+    /// </param>
+    /// <returns>
+    ///     A <see cref="DateOnly" /> object representing the date part (year, month, and day) of the provided
+    ///     <see cref="DateTime" />.
+    /// </returns>
     /// <remarks>
-    ///     This extension method is useful for scenarios where only the date part of a <see cref="DateTime" /> object is
-    ///     needed,
-    ///     and the time part can be disregarded. The resulting <see cref="DateOnly" /> object encapsulates the year, month,
-    ///     and day
-    ///     components of the original <see cref="DateTime" />.
+    ///     This extension method is useful when only the date portion of a <see cref="DateTime" /> is needed,
+    ///     and the time component can be disregarded. The resulting <see cref="DateOnly" /> object encapsulates the
+    ///     year, month, and day components.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
@@ -33,16 +37,22 @@ public static class DateTimeExtensions
         return new DateOnly(dateTime.Year, dateTime.Month, dateTime.Day);
     }
 
+
     /// <summary>
-    ///     Converts a <see cref="DateTime" /> object to a <see cref="TimeOnly" /> object.
+    ///     Converts a <see cref="DateTime" /> object to a <see cref="TimeOnly" /> object, retaining only the time component.
     /// </summary>
-    /// <param name="dateTime">The <see cref="DateTime" /> object to convert.</param>
-    /// <returns>A <see cref="TimeOnly" /> object representing the time part of the provided <see cref="DateTime" />.</returns>
+    /// <param name="dateTime">
+    ///     The <see cref="DateTime" /> object to convert. The date component is discarded, and only the hour,
+    ///     minute, second, and millisecond (and microsecond for .NET 7+) values are retained.
+    /// </param>
+    /// <returns>
+    ///     A <see cref="TimeOnly" /> object representing the time portion (hour, minute, second, millisecond,
+    ///     and microsecond for .NET 7+) of the provided <see cref="DateTime" />.
+    /// </returns>
     /// <remarks>
-    ///     This extension method is useful for cases where only the time part of a <see cref="DateTime" /> object is needed,
-    ///     and the date part can be disregarded. The resulting <see cref="TimeOnly" /> object encapsulates the hour, minute,
-    ///     second,
-    ///     and millisecond components of the original <see cref="DateTime" />.
+    ///     This extension method is useful when only the time portion of a <see cref="DateTime" /> is needed,
+    ///     and the date component can be disregarded. The resulting <see cref="TimeOnly" /> object encapsulates the hour,
+    ///     minute, second, millisecond, and, in .NET 7+, the microsecond components.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
@@ -55,8 +65,8 @@ public static class DateTimeExtensions
     public static TimeOnly ToTimeOnly(this DateTime dateTime)
     {
 #if NET6_0
-        // In .NET 6, TimeOnly constructor doesn't have a microseconds parameter
-        return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond);
+    // In .NET 6, TimeOnly constructor doesn't have a microseconds parameter
+    return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond);
 #else
         // In .NET 7 and later, we can use the constructor with microseconds
         return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond,

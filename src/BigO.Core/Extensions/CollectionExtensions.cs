@@ -69,11 +69,14 @@ public static class CollectionExtensions
     ///     <c>true</c> if the value was added to the collection;
     ///     <c>false</c> if the value already exists in the collection.
     /// </returns>
-    /// <exception cref="ArgumentNullException">Thrown if the collection is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if the <paramref name="collection" /> is <c>null</c>.</exception>
+    /// <exception cref="NotSupportedException">Thrown if the collection is read-only.</exception>
     /// <remarks>
     ///     This method checks if the collection already contains the given value. If not, the value is added.
-    ///     For collections that implement <see cref="HashSet{T}" />, this operation is more efficient as
-    ///     <see cref="HashSet{T}.Add" /> is used, which already handles uniqueness checks.
+    ///     For collections that implement <see cref="ISet{T}" />, this operation is more efficient as
+    ///     <see cref="ISet{T}.Add" /> is used, which already handles uniqueness checks.
+    ///     **Thread Safety:** This method is not thread-safe. If the collection is accessed concurrently
+    ///     by multiple threads, ensure proper synchronization to avoid race conditions.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
@@ -87,11 +90,16 @@ public static class CollectionExtensions
     /// </example>
     public static bool AddUnique<T>([NoEnumeration] this ICollection<T> collection, T value)
     {
-        Guard.NotNull(collection);
+        Guard.NotNull(collection, nameof(collection));
 
-        if (collection is HashSet<T> hashSet)
+        if (collection is ISet<T> set)
         {
-            return hashSet.Add(value);
+            return set.Add(value);
+        }
+
+        if (collection.IsReadOnly)
+        {
+            throw new NotSupportedException("The collection is read-only.");
         }
 
         if (collection.Contains(value))
@@ -101,80 +109,6 @@ public static class CollectionExtensions
 
         collection.Add(value);
         return true;
-    }
-
-    /// <summary>
-    ///     Adds a range of unique values to the collection.
-    /// </summary>
-    /// <typeparam name="T">The type of elements in the collection and enumerable.</typeparam>
-    /// <param name="collection">The collection to which the values will be added.</param>
-    /// <param name="values">The values to add to the collection.</param>
-    /// <returns>
-    ///     The count of values successfully added to the collection.
-    ///     If the values are already present in the collection, they are not added, and hence not counted.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///     Thrown if the collection is <c>null</c>. The method returns 0 if the values are <c>null</c>.
-    /// </exception>
-    /// <remarks>
-    ///     This method iterates over the provided values and adds each one to the collection if it does not already exist.
-    ///     For collections that implement <see cref="HashSet{T}" />, this operation is more efficient.
-    ///     If the provided values are already a <see cref="HashSet{T}" />, the method uses it directly for better performance.
-    ///     Otherwise, for other types of collections, the method uses a temporary <see cref="HashSet{T}" /> to buffer the
-    ///     values,
-    ///     which helps in avoiding duplicate entries.
-    /// </remarks>
-    /// <example>
-    ///     <code><![CDATA[
-    ///     ICollection<int> numbers = new List<int> { 1, 2 };
-    ///     int addedCount = numbers.AddUniqueRange(new int[] { 2, 3, 4 });
-    ///     // addedCount is 2, numbers now contains { 1, 2, 3, 4 }
-    /// 
-    ///     // Using HashSet<T>
-    ///     HashSet<int> moreNumbers = new HashSet<int> { 5, 6 };
-    ///     addedCount = numbers.AddUniqueRange(moreNumbers);
-    ///     // addedCount is 2, numbers now contains { 1, 2, 3, 4, 5, 6 }
-    ///     ]]></code>
-    /// </example>
-    public static int AddUniqueRange<T>(this ICollection<T> collection, IEnumerable<T>? values)
-    {
-        Guard.NotNull(collection);
-
-        if (values == null)
-        {
-            return 0;
-        }
-
-        var counter = 0;
-
-        // Special case for HashSet<T>
-        if (collection is HashSet<T> hashSet)
-        {
-            counter += values.Count(hashSet.Add);
-            return counter;
-        }
-
-        // Check if values is already a HashSet<T>
-        if (values is HashSet<T> valueHashSet)
-        {
-            foreach (var value in valueHashSet.Where(value => !collection.Contains(value)))
-            {
-                collection.Add(value);
-                counter++;
-            }
-        }
-        else
-        {
-            // Buffer values for other collections using a HashSet<T>
-            var valueSet = new HashSet<T>(values);
-            foreach (var value in valueSet.Where(value => !collection.Contains(value)))
-            {
-                collection.Add(value);
-                counter++;
-            }
-        }
-
-        return counter;
     }
 
 
@@ -317,5 +251,81 @@ public static class CollectionExtensions
         // For larger collections, using HashSet can be more efficient
         var valueSet = new HashSet<T>(values);
         return collection.Any(valueSet.Contains);
+    }
+
+
+    /// <summary>
+    ///     Adds a range of unique values to the collection.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the collection and enumerable.</typeparam>
+    /// <param name="collection">The collection to which the values will be added.</param>
+    /// <param name="values">The values to add to the collection.</param>
+    /// <returns>
+    ///     The count of values successfully added to the collection.
+    ///     If the values are already present in the collection, they are not added, and hence not counted.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown if the <paramref name="collection" /> is <c>null</c>.
+    /// </exception>
+    /// <exception cref="NotSupportedException">
+    ///     Thrown if the collection is read-only.
+    /// </exception>
+    /// <remarks>
+    ///     This method iterates over the provided values and adds each one to the collection if it does not already exist.
+    ///     For collections that implement <see cref="ISet{T}" />, this operation is more efficient as
+    ///     <see cref="ISet{T}.Add" /> is used, which handles uniqueness checks.
+    ///     For other collections, a temporary <see cref="HashSet{T}" /> is used to improve performance of uniqueness checks.
+    ///     **Thread Safety:** This method is not thread-safe. If the collection is accessed concurrently
+    ///     by multiple threads, ensure proper synchronization to avoid race conditions.
+    /// </remarks>
+    /// <example>
+    ///     <code><![CDATA[
+    ///     ICollection<int> numbers = new List<int> { 1, 2 };
+    ///     int addedCount = numbers.AddUniqueRange(new int[] { 2, 3, 4 });
+    ///     // addedCount is 2, numbers now contains { 1, 2, 3, 4 }
+    /// 
+    ///     // Using HashSet<T>
+    ///     HashSet<int> moreNumbers = new HashSet<int> { 5, 6 };
+    ///     addedCount = numbers.AddUniqueRange(moreNumbers);
+    ///     // addedCount is 2, numbers now contains { 1, 2, 3, 4, 5, 6 }
+    ///     ]]></code>
+    /// </example>
+    public static int AddUniqueRange<T>([NoEnumeration] this ICollection<T> collection, IEnumerable<T>? values)
+    {
+        Guard.NotNull(collection, nameof(collection));
+
+        if (values == null)
+        {
+            return 0;
+        }
+
+        if (collection.IsReadOnly)
+        {
+            throw new NotSupportedException("Cannot add items to a read-only collection.");
+        }
+
+        var counter = 0;
+
+        if (collection is ISet<T> set)
+        {
+            counter += values.Count(set.Add);
+        }
+        else
+        {
+            // Create a temporary HashSet<T> from the collection for faster lookups
+            var existingItems = new HashSet<T>(collection);
+            foreach (var value in values)
+            {
+                if (!existingItems.Add(value))
+                {
+                    continue;
+                }
+
+                collection.Add(value);
+                counter++;
+            }
+        }
+
+        return counter;
     }
 }

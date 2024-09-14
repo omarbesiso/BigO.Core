@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using BigO.Core.Validation;
+﻿using BigO.Core.Validation;
 
 namespace BigO.Core.Extensions;
 
