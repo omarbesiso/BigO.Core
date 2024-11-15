@@ -4,8 +4,7 @@ using BigO.Core.Validation;
 namespace BigO.Core.Extensions;
 
 /// <summary>
-///     Provides a set of useful extension methods for working with <see cref="Action" /> and <see cref="Func{TResult}" />
-///     objects.
+///     Provides a set of useful extension methods for measuring the execution time of actions and functions.
 /// </summary>
 [PublicAPI]
 public static class ActionExtensions
@@ -17,11 +16,6 @@ public static class ActionExtensions
     /// <returns>
     ///     A <see cref="TimeSpan" /> representing the elapsed time for the execution of the <paramref name="action" />.
     /// </returns>
-    /// <remarks>
-    ///     This extension method is designed to execute a given <see cref="Action" /> and measure its execution time.
-    ///     For .NET 7 and later, it uses <c>Stopwatch.GetElapsedTime(long)</c> for better performance.
-    ///     For earlier versions, it falls back to <see cref="Stopwatch.StartNew()" />.
-    /// </remarks>
     /// <exception cref="ArgumentNullException">
     ///     Thrown when the <paramref name="action" /> parameter is <c>null</c>.
     /// </exception>
@@ -30,16 +24,9 @@ public static class ActionExtensions
     {
         Guard.NotNull(action);
 
-#if NET7_0_OR_GREATER
-        var startTime = Stopwatch.GetTimestamp();
+        var startTime = GetTimestamp();
         action.Invoke();
-        return Stopwatch.GetElapsedTime(startTime);
-#else
-            var stopwatch = Stopwatch.StartNew();
-            action.Invoke();
-            stopwatch.Stop();
-            return stopwatch.Elapsed;
-#endif
+        return GetElapsedTime(startTime);
     }
 
     /// <summary>
@@ -50,11 +37,6 @@ public static class ActionExtensions
     ///     A <see cref="Task{TimeSpan}" /> representing the asynchronous operation, with the result being a
     ///     <see cref="TimeSpan" /> representing the elapsed time for the execution of the <paramref name="func" />.
     /// </returns>
-    /// <remarks>
-    ///     This extension method is designed to execute a given asynchronous function and measure its execution time.
-    ///     For .NET 7 and later, it uses <c>Stopwatch.GetElapsedTime(long)</c> for better performance.
-    ///     For earlier versions, it falls back to <see cref="Stopwatch.StartNew()" />.
-    /// </remarks>
     /// <exception cref="ArgumentNullException">
     ///     Thrown when the <paramref name="func" /> parameter is <c>null</c>.
     /// </exception>
@@ -63,16 +45,9 @@ public static class ActionExtensions
     {
         Guard.NotNull(func);
 
-#if NET7_0_OR_GREATER
-        var startTime = Stopwatch.GetTimestamp();
-        await func();
-        return Stopwatch.GetElapsedTime(startTime);
-#else
-            var stopwatch = Stopwatch.StartNew();
-            await func();
-            stopwatch.Stop();
-            return stopwatch.Elapsed;
-#endif
+        var startTime = GetTimestamp();
+        await func().ConfigureAwait(false);
+        return GetElapsedTime(startTime);
     }
 
     /// <summary>
@@ -86,13 +61,6 @@ public static class ActionExtensions
     ///     A <see cref="Task{TimeSpan}" /> representing the asynchronous operation, with the result being a
     ///     <see cref="TimeSpan" /> representing the elapsed time for the execution of the <paramref name="action" />.
     /// </returns>
-    /// <remarks>
-    ///     This extension method is designed to execute a given <see cref="Action" /> asynchronously and measure its execution
-    ///     time.
-    ///     The action is run on a separate thread using <see cref="Task.Run(Action, CancellationToken)" />.
-    ///     For .NET 7 and later, it uses <c>Stopwatch.GetElapsedTime(long)</c> for better performance.
-    ///     For earlier versions, it falls back to <see cref="Stopwatch.StartNew()" />.
-    /// </remarks>
     /// <exception cref="ArgumentNullException">
     ///     Thrown when the <paramref name="action" /> parameter is <c>null</c>.
     /// </exception>
@@ -102,16 +70,9 @@ public static class ActionExtensions
     {
         Guard.NotNull(action);
 
-#if NET7_0_OR_GREATER
-        var startTime = Stopwatch.GetTimestamp();
-        await Task.Run(action, cancellationToken);
-        return Stopwatch.GetElapsedTime(startTime);
-#else
-            var stopwatch = Stopwatch.StartNew();
-            await Task.Run(action, cancellationToken);
-            stopwatch.Stop();
-            return stopwatch.Elapsed;
-#endif
+        var startTime = GetTimestamp();
+        await Task.Run(action, cancellationToken).ConfigureAwait(false);
+        return GetElapsedTime(startTime);
     }
 
     /// <summary>
@@ -123,11 +84,6 @@ public static class ActionExtensions
     ///     A tuple containing the result of the function and a <see cref="TimeSpan" /> representing the elapsed time for the
     ///     execution.
     /// </returns>
-    /// <remarks>
-    ///     This extension method is designed to execute a given function and measure its execution time.
-    ///     For .NET 7 and later, it uses <c>Stopwatch.GetElapsedTime(long)</c> for better performance.
-    ///     For earlier versions, it falls back to <see cref="Stopwatch.StartNew()" />.
-    /// </remarks>
     /// <exception cref="ArgumentNullException">
     ///     Thrown when the <paramref name="func" /> parameter is <c>null</c>.
     /// </exception>
@@ -136,16 +92,9 @@ public static class ActionExtensions
     {
         Guard.NotNull(func);
 
-#if NET7_0_OR_GREATER
-        var startTime = Stopwatch.GetTimestamp();
+        var startTime = GetTimestamp();
         var result = func();
-        var elapsedTime = Stopwatch.GetElapsedTime(startTime);
-#else
-            var stopwatch = Stopwatch.StartNew();
-            var result = func();
-            stopwatch.Stop();
-            var elapsedTime = stopwatch.Elapsed;
-#endif
+        var elapsedTime = GetElapsedTime(startTime);
         return (result, elapsedTime);
     }
 
@@ -158,11 +107,6 @@ public static class ActionExtensions
     ///     A <see cref="Task" /> representing the asynchronous operation, with the result being a tuple containing the result
     ///     of the function and a <see cref="TimeSpan" /> representing the elapsed time for the execution.
     /// </returns>
-    /// <remarks>
-    ///     This extension method is designed to execute a given asynchronous function and measure its execution time.
-    ///     For .NET 7 and later, it uses <c>Stopwatch.GetElapsedTime(long)</c> for better performance.
-    ///     For earlier versions, it falls back to <see cref="Stopwatch.StartNew()" />.
-    /// </remarks>
     /// <exception cref="ArgumentNullException">
     ///     Thrown when the <paramref name="func" /> parameter is <c>null</c>.
     /// </exception>
@@ -172,16 +116,9 @@ public static class ActionExtensions
     {
         Guard.NotNull(func);
 
-#if NET7_0_OR_GREATER
-        var startTime = Stopwatch.GetTimestamp();
-        var result = await func();
-        var elapsedTime = Stopwatch.GetElapsedTime(startTime);
-#else
-            var stopwatch = Stopwatch.StartNew();
-            var result = await func();
-            stopwatch.Stop();
-            var elapsedTime = stopwatch.Elapsed;
-#endif
+        var startTime = GetTimestamp();
+        var result = await func().ConfigureAwait(false);
+        var elapsedTime = GetElapsedTime(startTime);
         return (result, elapsedTime);
     }
 
@@ -195,11 +132,6 @@ public static class ActionExtensions
     ///     A <see cref="Task" /> representing the asynchronous operation, with the result being a tuple containing the result
     ///     of the function and a <see cref="TimeSpan" /> representing the elapsed time for the execution.
     /// </returns>
-    /// <remarks>
-    ///     This extension method is designed to execute a given asynchronous function and measure its execution time.
-    ///     For .NET 7 and later, it uses <c>Stopwatch.GetElapsedTime(long)</c> for better performance.
-    ///     For earlier versions, it falls back to <see cref="Stopwatch.StartNew()" />.
-    /// </remarks>
     /// <exception cref="ArgumentNullException">
     ///     Thrown when the <paramref name="func" /> parameter is <c>null</c>.
     /// </exception>
@@ -209,16 +141,38 @@ public static class ActionExtensions
     {
         Guard.NotNull(func);
 
-#if NET7_0_OR_GREATER
-        var startTime = Stopwatch.GetTimestamp();
-        var result = await func();
-        var elapsedTime = Stopwatch.GetElapsedTime(startTime);
-#else
-            var stopwatch = Stopwatch.StartNew();
-            var result = await func();
-            stopwatch.Stop();
-            var elapsedTime = stopwatch.Elapsed;
-#endif
+        var startTime = GetTimestamp();
+        var result = await func().ConfigureAwait(false);
+        var elapsedTime = GetElapsedTime(startTime);
         return (result, elapsedTime);
+    }
+
+    // Private helper methods to abstract version-specific implementations
+
+    /// <summary>
+    ///     Gets the current timestamp.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static long GetTimestamp()
+    {
+        return Stopwatch.GetTimestamp();
+    }
+
+    /// <summary>
+    ///     Calculates the elapsed time from the given start timestamp.
+    /// </summary>
+    /// <param name="startTimestamp">The start timestamp.</param>
+    /// <returns>The elapsed <see cref="TimeSpan" />.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static TimeSpan GetElapsedTime(long startTimestamp)
+    {
+#if NET7_0_OR_GREATER
+        return Stopwatch.GetElapsedTime(startTimestamp);
+#else
+        var endTimestamp = Stopwatch.GetTimestamp();
+        var elapsedTicks = endTimestamp - startTimestamp;
+        var elapsedTime = TimeSpan.FromSeconds((double)elapsedTicks / Stopwatch.Frequency);
+        return elapsedTime;
+#endif
     }
 }
