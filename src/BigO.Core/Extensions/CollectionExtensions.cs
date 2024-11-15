@@ -17,6 +17,10 @@ public static class CollectionExtensions
     ///     Specifies whether to preserve the original list. If <c>true</c>, the shuffle is performed on a copy of the list;
     ///     otherwise, the shuffle is performed on the original list. Defaults to <c>false</c>.
     /// </param>
+    /// <param name="random">
+    ///     An instance of <see cref="Random" /> to use for shuffling.
+    ///     If <c>null</c>, a new <see cref="Random" /> instance is created. Defaults to <c>null</c>.
+    /// </param>
     /// <returns>
     ///     A shuffled list. This can be either a new list if <paramref name="preserveOriginal" /> is true, or the
     ///     original list otherwise.
@@ -24,24 +28,24 @@ public static class CollectionExtensions
     /// <exception cref="ArgumentNullException">Thrown if the input list is <c>null</c>.</exception>
     /// <remarks>
     ///     This method uses the Fisher–Yates shuffle algorithm for an efficient and unbiased shuffle.
-    ///     The algorithm has a time complexity of O(n), where n is the number of elements.
-    ///     When <paramref name="preserveOriginal" /> is set to <c>true</c>, a copy of the list is made to ensure that the
-    ///     original
-    ///     list's order is not altered.
-    ///     The shuffle operation uses <see cref="Random.Shared" />, which is suitable for general-purpose use but not for
-    ///     cryptographic purposes.
+    ///     Accepting a <see cref="Random" /> instance allows for better control over randomness, especially in testing
+    ///     scenarios.
+    ///     **Thread Safety:** Providing your own <see cref="Random" /> instance can improve thread safety since
+    ///     <see cref="Random.Shared" /> is not thread-safe.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
     /// IList<int> numbers = new List<int> { 1, 2, 3, 4, 5 };
     /// IList<int> shuffledNumbers = numbers.Shuffle();
-    /// IList<int> originalPreservedShuffle = numbers.Shuffle(true);
+    /// IList<int> originalPreservedShuffle = numbers.Shuffle(preserveOriginal: true);
     /// ]]></code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IList<T> Shuffle<T>(this IList<T> list, bool preserveOriginal = false)
+    public static IList<T> Shuffle<T>(this IList<T> list, bool preserveOriginal = false, Random? random = null)
     {
         Guard.NotNull(list);
+
+        random ??= new Random();
 
         var shuffledList = preserveOriginal ? new List<T>(list) : list;
 
@@ -52,7 +56,7 @@ public static class CollectionExtensions
 
         for (var i = shuffledList.Count - 1; i > 0; i--)
         {
-            var j = Random.Shared.Next(0, i + 1);
+            var j = random.Next(0, i + 1);
             (shuffledList[i], shuffledList[j]) = (shuffledList[j], shuffledList[i]);
         }
 
@@ -73,8 +77,7 @@ public static class CollectionExtensions
     /// <exception cref="NotSupportedException">Thrown if the collection is read-only.</exception>
     /// <remarks>
     ///     This method checks if the collection already contains the given value. If not, the value is added.
-    ///     For collections that implement <see cref="ISet{T}" />, this operation is more efficient as
-    ///     <see cref="ISet{T}.Add" /> is used, which already handles uniqueness checks.
+    ///     For collections that implement <see cref="ISet{T}" />, <see cref="ISet{T}.Add" /> is used for efficiency.
     ///     **Thread Safety:** This method is not thread-safe. If the collection is accessed concurrently
     ///     by multiple threads, ensure proper synchronization to avoid race conditions.
     /// </remarks>
@@ -111,7 +114,6 @@ public static class CollectionExtensions
         return true;
     }
 
-
     /// <summary>
     ///     Removes all the elements from a collection that match the conditions defined by the specified predicate.
     /// </summary>
@@ -124,9 +126,11 @@ public static class CollectionExtensions
     /// </exception>
     /// <remarks>
     ///     This method iterates through the collection and removes each element that matches the conditions
-    ///     defined by the specified predicate. If the collection implements <see cref="List{T}" />,
-    ///     <see cref="List{T}.RemoveAll" /> is used for a more efficient removal process.
-    ///     For other types of collections, the method iterates through the collection in reverse order to remove elements.
+    ///     defined by the specified predicate. For collections that implement <see cref="IList{T}" />,
+    ///     it removes items using indexing for efficiency. For other collections, it collects items to remove
+    ///     in a temporary list to avoid modifying the collection during enumeration.
+    ///     **Thread Safety:** This method is not thread-safe. If the collection is accessed concurrently,
+    ///     ensure proper synchronization to avoid race conditions.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
@@ -145,25 +149,35 @@ public static class CollectionExtensions
             return 0;
         }
 
-        if (collection is List<T> list)
+        switch (collection)
         {
-            return list.RemoveAll(predicate);
-        }
-
-        var count = 0;
-        for (var i = collection.Count - 1; i >= 0; i--)
-        {
-            var item = collection.ElementAt(i);
-            if (!predicate(item))
+            case List<T> list:
+                return list.RemoveAll(predicate);
+            case IList<T> internalList:
             {
-                continue;
-            }
+                var count = 0;
+                for (var i = internalList.Count - 1; i >= 0; i--)
+                {
+                    if (!predicate(internalList[i]))
+                    {
+                        continue;
+                    }
 
-            collection.Remove(item);
-            count++;
+                    internalList.RemoveAt(i);
+                    count++;
+                }
+
+                return count;
+            }
         }
 
-        return count;
+        var itemsToRemove = collection.Where(item => predicate(item)).ToList();
+        foreach (var item in itemsToRemove)
+        {
+            collection.Remove(item);
+        }
+
+        return itemsToRemove.Count;
     }
 
     /// <summary>
@@ -171,8 +185,8 @@ public static class CollectionExtensions
     /// </summary>
     /// <typeparam name="T">The type of elements in the collection.</typeparam>
     /// <param name="collection">The collection to which the element will be added.</param>
-    /// <param name="predicate">The predicate that determines if the element should be added.</param>
     /// <param name="value">The element to add to the collection.</param>
+    /// <param name="predicate">The predicate that determines if the element should be added.</param>
     /// <returns>
     ///     <c>true</c> if the element is added to the collection;
     ///     <c>false</c> if the element does not satisfy the predicate and is not added.
@@ -184,18 +198,20 @@ public static class CollectionExtensions
     ///     This method checks whether the provided value satisfies the predicate. If so, the value is added to the collection.
     ///     It's a convenient way to add elements conditionally without needing separate conditional logic outside the method
     ///     call.
+    ///     **Thread Safety:** This method is not thread-safe. If the collection is accessed concurrently,
+    ///     ensure proper synchronization to avoid race conditions.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
     ///     ICollection<int> numbers = new List<int>();
-    ///     bool added = numbers.AddIf(x => x > 0, 5);
+    ///     bool added = numbers.AddIf(5, x => x > 0);
     ///     // added is true, numbers now contains 5
     ///     
-    ///     added = numbers.AddIf(x => x > 0, -1);
+    ///     added = numbers.AddIf(-1, x => x > 0);
     ///     // added is false, numbers still contains only 5
     ///     ]]></code>
     /// </example>
-    public static bool AddIf<T>(this ICollection<T> collection, Func<T, bool> predicate, T value)
+    public static bool AddIf<T>(this ICollection<T> collection, T value, Func<T, bool> predicate)
     {
         Guard.NotNull(collection);
         Guard.NotNull(predicate);
@@ -223,10 +239,10 @@ public static class CollectionExtensions
     ///     Thrown if the collection is <c>null</c>.
     /// </exception>
     /// <remarks>
-    ///     This method provides an efficient way to determine if a collection contains any elements from a given set.
-    ///     For small sets of values (less than or equal to 10), it directly iterates through the values to check for their
-    ///     presence.
-    ///     For larger sets of values, it uses a <see cref="HashSet{T}" /> for more efficient lookups.
+    ///     This method efficiently determines if any of the specified elements are present in the collection.
+    ///     If the collection implements <see cref="ISet{T}" />, it uses the set's <c>Contains</c> method for efficient
+    ///     lookups.
+    ///     Otherwise, it adjusts the strategy based on the sizes of the collection and the values array.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
@@ -238,21 +254,28 @@ public static class CollectionExtensions
     ///     // containsAny is true
     ///     ]]></code>
     /// </example>
-    public static bool ContainsAny<T>([NoEnumeration] this ICollection<T> collection, params T[] values)
+    public static bool ContainsAny<T>([NoEnumeration] this ICollection<T> collection, params T[]? values)
     {
         Guard.NotNull(collection);
 
-        // For small collections, direct check might be faster
-        if (values.Length <= 10)
+        if (values == null || values.Length == 0)
+        {
+            return false;
+        }
+
+        if (collection is ISet<T> set)
+        {
+            return values.Any(set.Contains);
+        }
+
+        if (collection.Count <= 10 || values.Length > collection.Count)
         {
             return values.Any(collection.Contains);
         }
 
-        // For larger collections, using HashSet can be more efficient
         var valueSet = new HashSet<T>(values);
         return collection.Any(valueSet.Contains);
     }
-
 
     /// <summary>
     ///     Adds a range of unique values to the collection.
@@ -274,9 +297,8 @@ public static class CollectionExtensions
     ///     This method iterates over the provided values and adds each one to the collection if it does not already exist.
     ///     For collections that implement <see cref="ISet{T}" />, this operation is more efficient as
     ///     <see cref="ISet{T}.Add" /> is used, which handles uniqueness checks.
-    ///     For other collections, a temporary <see cref="HashSet{T}" /> is used to improve performance of uniqueness checks.
-    ///     **Thread Safety:** This method is not thread-safe. If the collection is accessed concurrently
-    ///     by multiple threads, ensure proper synchronization to avoid race conditions.
+    ///     **Thread Safety:** This method is not thread-safe. If the collection is accessed concurrently,
+    ///     ensure proper synchronization to avoid race conditions.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
@@ -312,7 +334,6 @@ public static class CollectionExtensions
         }
         else
         {
-            // Create a temporary HashSet<T> from the collection for faster lookups
             var existingItems = new HashSet<T>(collection);
             foreach (var value in values)
             {
