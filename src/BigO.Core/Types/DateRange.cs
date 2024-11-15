@@ -235,7 +235,10 @@ public readonly record struct DateRange
     /// <summary>
     ///     Shifts the date range by a specified number of days.
     /// </summary>
-    /// <param name="days">The number of days to shift the date range. Positive values shift forward, negative values shift backward.</param>
+    /// <param name="days">
+    ///     The number of days to shift the date range. Positive values shift forward, negative values shift
+    ///     backward.
+    /// </param>
     /// <returns>A new <see cref="DateRange" /> instance representing the shifted date range.</returns>
     public DateRange Shift(int days)
     {

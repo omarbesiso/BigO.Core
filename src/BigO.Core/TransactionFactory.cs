@@ -28,7 +28,7 @@ public static class TransactionFactory
     ///     <see cref="TransactionManager.MaximumTimeout" /> is used.
     /// </param>
     /// <returns>A new <see cref="TransactionScope" /> instance with the specified settings.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="timeOut"/> is less than or equal to zero.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="timeOut" /> is less than or equal to zero.</exception>
     /// <example>
     ///     <code><![CDATA[
     /// using (var scope = CreateTransaction(IsolationLevel.Serializable, TransactionScopeOption.RequiresNew))

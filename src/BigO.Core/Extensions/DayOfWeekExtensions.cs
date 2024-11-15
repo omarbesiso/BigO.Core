@@ -38,8 +38,8 @@ public static class DayOfWeekExtensions
     /// </example>
     public static DayOfWeek AddDays(this DayOfWeek dayOfWeek, int numberOfDays = 1)
     {
-        int totalDays = (int)dayOfWeek + numberOfDays;
-        int normalizedDays = (totalDays % 7 + 7) % 7; // Handles negative values correctly
+        var totalDays = (int)dayOfWeek + numberOfDays;
+        var normalizedDays = (totalDays % 7 + 7) % 7; // Handles negative values correctly
         return (DayOfWeek)normalizedDays;
     }
 
