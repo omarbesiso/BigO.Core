@@ -38,8 +38,9 @@ public static class DayOfWeekExtensions
     /// </example>
     public static DayOfWeek AddDays(this DayOfWeek dayOfWeek, int numberOfDays = 1)
     {
-        var offset = ((int)dayOfWeek + numberOfDays) % 7;
-        return (DayOfWeek)((offset + 7) % 7); // Handles negative values correctly
+        int totalDays = (int)dayOfWeek + numberOfDays;
+        int normalizedDays = (totalDays % 7 + 7) % 7; // Handles negative values correctly
+        return (DayOfWeek)normalizedDays;
     }
 
     /// <summary>
@@ -79,6 +80,6 @@ public static class DayOfWeekExtensions
     public static IEnumerable<DayOfWeek> GetNextDays(this DayOfWeek startDay, int count = 7)
     {
         Guard.Minimum(count, 1);
-        return Enumerable.Range(0, count).Select(i => (DayOfWeek)(((int)startDay + i) % 7));
+        return Enumerable.Range(0, count).Select(offset => (DayOfWeek)(((int)startDay + offset) % 7));
     }
 }
