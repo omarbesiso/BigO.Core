@@ -36,7 +36,7 @@ public static class ComparableExtensions
     ///     int? number = 5;
     ///     bool result = number.IsBetween(1, 10);
     ///     // result is true
-    /// 
+    ///
     ///     result = number.IsBetween(5, 5, isBoundaryInclusive: false);
     ///     // result is false
     ///     ]]></code>
@@ -44,20 +44,19 @@ public static class ComparableExtensions
     public static bool IsBetween<T>(this T? value, T lowerBoundary, T upperBoundary, bool isBoundaryInclusive = true)
         where T : IComparable<T>
     {
-        Guard.NotNull(lowerBoundary);
-        Guard.NotNull(upperBoundary);
+        Guard.NotNull(lowerBoundary, nameof(lowerBoundary));
+        Guard.NotNull(upperBoundary, nameof(upperBoundary));
 
-        if (value == null)
+        if (value is null)
         {
             return false;
         }
 
-        if (isBoundaryInclusive)
-        {
-            return value.CompareTo(lowerBoundary) >= 0 && value.CompareTo(upperBoundary) <= 0;
-        }
+        var comparer = Comparer<T>.Default;
 
-        return value.CompareTo(lowerBoundary) > 0 && value.CompareTo(upperBoundary) < 0;
+        return isBoundaryInclusive
+            ? comparer.Compare(value, lowerBoundary) >= 0 && comparer.Compare(value, upperBoundary) <= 0
+            : comparer.Compare(value, lowerBoundary) > 0 && comparer.Compare(value, upperBoundary) < 0;
     }
 
     /// <summary>
@@ -91,16 +90,18 @@ public static class ComparableExtensions
     /// </example>
     public static T Limit<T>(this T value, T maximum) where T : IComparable<T>
     {
-        Guard.NotNull(value);
-        Guard.NotNull(maximum);
+        Guard.NotNull(value, nameof(value));
+        Guard.NotNull(maximum, nameof(maximum));
 
-        return value.CompareTo(maximum) < 1 ? value : maximum;
+        var comparer = Comparer<T>.Default;
+
+        return comparer.Compare(value, maximum) <= 0 ? value : maximum;
     }
 
     /// <summary>
     ///     Limits a value to be within a specified range defined by a minimum and maximum.
     /// </summary>
-    /// <typeparam name="T">The type of the value being limited. Must implement IComparable.</typeparam>
+    /// <typeparam name="T">The type of the value being limited. Must implement <see cref="IComparable{T}" />.</typeparam>
     /// <param name="value">The value to be limited.</param>
     /// <param name="minimum">The minimum allowable value.</param>
     /// <param name="maximum">The maximum allowable value.</param>
@@ -124,23 +125,30 @@ public static class ComparableExtensions
     ///     int maxLimit = 20;
     ///     int limitedNumber = number.Limit(minLimit, maxLimit);
     ///     // limitedNumber is 15
-    /// 
+    ///
     ///     number = 25;
     ///     limitedNumber = number.Limit(minLimit, maxLimit);
     ///     // limitedNumber is 20
     ///     ]]></code>
     /// </example>
-    public static T Limit<T>(this T value, T minimum, T maximum) where T : IComparable
+    public static T Limit<T>(this T value, T minimum, T maximum) where T : IComparable<T>
     {
         Guard.NotNull(value, nameof(value));
         Guard.NotNull(minimum, nameof(minimum));
         Guard.NotNull(maximum, nameof(maximum));
 
-        if (value.CompareTo(minimum) < 0)
+        var comparer = Comparer<T>.Default;
+
+        if (comparer.Compare(value, minimum) < 0)
         {
             return minimum;
         }
 
-        return value.CompareTo(maximum) > 0 ? maximum : value;
+        if (comparer.Compare(value, maximum) > 0)
+        {
+            return maximum;
+        }
+
+        return value;
     }
 }
