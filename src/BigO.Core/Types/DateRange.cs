@@ -148,7 +148,7 @@ public readonly record struct DateRange
             return false;
         }
 
-        if (startDate == default)
+        if (startDate == default || endDate < startDate)
         {
             return false;
         }
@@ -182,7 +182,7 @@ public readonly record struct DateRange
     ///     Splits the date range into multiple date ranges, each representing a week (7 days).
     /// </summary>
     /// <returns>A collection of <see cref="DateRange" /> objects, each representing a week within the original date range.</returns>
-    public IEnumerable<DateRange> WeeksInRange()
+    public IEnumerable<DateRange> GetWeeksInRange()
     {
         var currentStart = StartDate;
         var currentEnd = StartDate.AddDays(6); // End of the first week
@@ -230,5 +230,26 @@ public readonly record struct DateRange
         {
             throw new ArgumentException("End date cannot be before start date.", nameof(endDate));
         }
+    }
+
+    /// <summary>
+    ///     Shifts the date range by a specified number of days.
+    /// </summary>
+    /// <param name="days">The number of days to shift the date range. Positive values shift forward, negative values shift backward.</param>
+    /// <returns>A new <see cref="DateRange" /> instance representing the shifted date range.</returns>
+    public DateRange Shift(int days)
+    {
+        var newStartDate = StartDate.AddDays(days);
+        var newEndDate = EndDate.AddDays(days);
+        return new DateRange(newStartDate, newEndDate);
+    }
+
+    /// <summary>
+    ///     Checks if the date range is open-ended (i.e., if the end date is the maximum allowable date).
+    /// </summary>
+    /// <returns>True if the date range is open-ended; otherwise, false.</returns>
+    public bool IsOpenEnded()
+    {
+        return EndDate == MaxDate;
     }
 }
