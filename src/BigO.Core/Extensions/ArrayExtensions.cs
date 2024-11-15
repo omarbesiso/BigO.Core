@@ -34,6 +34,17 @@ public static class ArrayExtensions
     public static void ClearRange<T>(this T[] array, int index, int length)
     {
         Guard.NotNull(array);
+
+        if (index < 0 || index >= array.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range.");
+        }
+
+        if (length < 0 || index + length > array.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(length), "Length is out of range.");
+        }
+
         Array.Clear(array, index, length);
     }
 

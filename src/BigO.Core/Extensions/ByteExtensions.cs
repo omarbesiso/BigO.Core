@@ -20,24 +20,57 @@ public static class ByteExtensions
     /// <exception cref="ArgumentNullException">Thrown if the input byte array is <c>null</c>.</exception>
     /// <remarks>
     ///     This extension method provides a convenient way to convert a byte array into a <see cref="MemoryStream" />.
-    ///     It initializes a new instance of the <see cref="MemoryStream" /> class with the specified byte array.
-    ///     The method is marked with the <see cref="MethodImplAttribute" /> and the
-    ///     <see cref="MethodImplOptions.AggressiveInlining" /> option,
-    ///     allowing the JIT compiler to inline the method's body at the call site for improved performance.
     /// </remarks>
-    /// <example>
-    ///     <code><![CDATA[
-    /// byte[] data = { 0x1, 0x2, 0x3, 0x4 };
-    /// using (MemoryStream stream = data.ToMemoryStream())
-    /// {
-    ///     // Use the MemoryStream instance.
-    /// }
-    /// ]]></code>
-    /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static MemoryStream ToMemoryStream(this byte[] buffer, bool writable = false)
     {
         Guard.NotNull(buffer);
         return new MemoryStream(buffer, writable);
+    }
+
+    /// <summary>
+    ///     Converts a subset of a byte array to a <see cref="MemoryStream" />.
+    /// </summary>
+    /// <param name="buffer">The byte array containing the data to create a <see cref="MemoryStream" /> from.</param>
+    /// <param name="index">The zero-based byte offset in <paramref name="buffer" /> at which to begin using data.</param>
+    /// <param name="count">The number of bytes to use from <paramref name="buffer" />.</param>
+    /// <param name="writable">
+    ///     A value indicating whether the <see cref="MemoryStream" /> can be written to.
+    ///     Defaults to <c>false</c>.
+    /// </param>
+    /// <returns>A <see cref="MemoryStream" /> created from the specified subset of the byte array.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the input byte array is <c>null</c>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Thrown if <paramref name="index" /> or <paramref name="count" /> are out of bounds.
+    /// </exception>
+    /// <remarks>
+    ///     This extension method allows for creating a <see cref="MemoryStream" /> from a subset of a byte array.
+    /// </remarks>
+    /// <example>
+    ///     <code><![CDATA[
+    /// byte[] data = { 0x1, 0x2, 0x3, 0x4, 0x5 };
+    /// using (MemoryStream stream = data.ToMemoryStream(1, 3))
+    /// {
+    ///     // Use the MemoryStream instance.
+    /// }
+    /// // This will create a MemoryStream with bytes { 0x2, 0x3, 0x4 }
+    /// ]]></code>
+    /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static MemoryStream ToMemoryStream(this byte[] buffer, int index, int count, bool writable = false)
+    {
+        Guard.NotNull(buffer);
+
+        if (index < 0 || index > buffer.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range.");
+        }
+
+        if (count < 0 || index + count > buffer.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(count), "Count is out of range.");
+        }
+
+        return new MemoryStream(buffer, index, count, writable);
     }
 }
