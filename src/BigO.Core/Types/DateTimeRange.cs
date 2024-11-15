@@ -147,11 +147,49 @@ public readonly record struct DateTimeRange
 
         if (endDate <= startDate)
         {
-            throw new ArgumentException(
-                $"The end date '{endDate}' is less than or equal the start date '{startDate}'.");
+            return false;
         }
 
         dateRange = new DateTimeRange(startDate, endDate);
         return true;
+    }
+
+    /// <summary>
+    ///     Checks if the date range is open-ended (i.e., if the end date is the maximum allowable date).
+    /// </summary>
+    /// <returns>True if the date range is open-ended; otherwise, false.</returns>
+    public bool IsOpenEnded()
+    {
+        return EndDate == DateTime.MaxValue;
+    }
+
+    /// <summary>
+    ///     Shifts the date range by a specified number of days.
+    /// </summary>
+    /// <param name="days">
+    ///     The number of days to shift the date range. Positive values shift forward, negative values shift
+    ///     backward.
+    /// </param>
+    /// <returns>A new <see cref="DateTimeRange" /> instance representing the shifted date range.</returns>
+    public DateTimeRange ShiftDays(int days)
+    {
+        var newStartDate = StartDate.AddDays(days);
+        var newEndDate = EndDate.AddDays(days);
+        return new DateTimeRange(newStartDate, newEndDate);
+    }
+
+    /// <summary>
+    ///     Shifts the date range by a specified number of hours.
+    /// </summary>
+    /// <param name="hours">
+    ///     The number of hours to shift the date range. Positive values shift forward, negative values shift
+    ///     backward.
+    /// </param>
+    /// <returns>A new <see cref="DateTimeRange" /> instance representing the shifted date range.</returns>
+    public DateTimeRange ShiftHours(int hours)
+    {
+        var newStartDate = StartDate.AddHours(hours);
+        var newEndDate = EndDate.AddHours(hours);
+        return new DateTimeRange(newStartDate, newEndDate);
     }
 }

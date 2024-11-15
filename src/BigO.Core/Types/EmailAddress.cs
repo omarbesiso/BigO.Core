@@ -246,7 +246,7 @@ public readonly record struct EmailAddress : IComparable<EmailAddress>
         var parts = Value.Split('@');
         if (parts.Length != 2)
         {
-            throw new FormatException("Invalid email format.");
+            throw new FormatException("The email address must contain exactly one '@' symbol.");
         }
 
         var localPart = parts[0];
@@ -255,7 +255,7 @@ public readonly record struct EmailAddress : IComparable<EmailAddress>
         var domainParts = domain.Split('.');
         if (domainParts.Length < 2)
         {
-            throw new FormatException("Invalid domain format.");
+            throw new FormatException("The domain part must contain at least one '.' symbol.");
         }
 
         string topLevelDomain;
@@ -281,5 +281,30 @@ public readonly record struct EmailAddress : IComparable<EmailAddress>
         }
 
         return (localPart, domain, secondLevelDomain, topLevelDomain);
+    }
+
+    /// <summary>
+    ///     Checks if the email address is from a specific domain.
+    /// </summary>
+    /// <param name="domain">The domain to check against.</param>
+    /// <returns><c>true</c> if the email address is from the specified domain; otherwise, <c>false</c>.</returns>
+    public bool IsFromDomain(string domain)
+    {
+        return Value.EndsWith($"@{domain}", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    ///     Gets the username part of the email address (before the '@' symbol).
+    /// </summary>
+    /// <returns>The username part of the email address.</returns>
+    public string GetUsername()
+    {
+        var parts = Value.Split('@');
+        if (parts.Length != 2)
+        {
+            throw new FormatException("Invalid email format.");
+        }
+
+        return parts[0];
     }
 }
