@@ -8,102 +8,6 @@ namespace BigO.Core.Extensions;
 [PublicAPI]
 public static class DateOnlyExtensions
 {
-#if NET7_0_OR_GREATER
-    /// <summary>
-    ///     Converts a <see cref="DateOnly" /> object to a <see cref="DateTime" /> object with the specified time and kind.
-    /// </summary>
-    /// <param name="dateOnly">The <see cref="DateOnly" /> object to convert.</param>
-    /// <param name="time">The <see cref="TimeOnly" /> component to use in the <see cref="DateTime" />.</param>
-    /// <param name="kind">The <see cref="DateTimeKind" /> to assign to the resulting <see cref="DateTime" />.</param>
-    /// <returns>A <see cref="DateTime" /> representing the combined date and time with the specified kind.</returns>
-    /// <remarks>
-    ///     This method creates a <see cref="DateTime" /> from a <see cref="DateOnly" /> and a <see cref="TimeOnly" />.
-    /// </remarks>
-    /// <example>
-    ///     <code><![CDATA[
-    ///     var dateOnly = new DateOnly(2023, 1, 15);
-    ///     var timeOnly = new TimeOnly(14, 30, 0); // 2:30 PM
-    ///     var dateTime = dateOnly.ToDateTime(timeOnly, DateTimeKind.Local);
-    ///     // dateTime represents January 15, 2023, at 2:30 PM local time
-    ///     ]]></code>
-    /// </example>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateTime ToDateTime(this DateOnly dateOnly, TimeOnly time,
-        DateTimeKind kind = DateTimeKind.Unspecified)
-    {
-        return dateOnly.ToDateTime(time, kind);
-    }
-
-    /// <summary>
-    ///     Converts a <see cref="DateOnly" /> object to a <see cref="DateTime" /> object at midnight with the specified kind.
-    /// </summary>
-    /// <param name="dateOnly">The <see cref="DateOnly" /> object to convert.</param>
-    /// <param name="kind">The <see cref="DateTimeKind" /> to assign to the resulting <see cref="DateTime" />.</param>
-    /// <returns>A <see cref="DateTime" /> representing the date at midnight with the specified kind.</returns>
-    /// <remarks>
-    ///     This method creates a <see cref="DateTime" /> from a <see cref="DateOnly" /> with the time set to midnight.
-    /// </remarks>
-    /// <example>
-    ///     <code><![CDATA[
-    ///     var dateOnly = new DateOnly(2023, 1, 15);
-    ///     var dateTime = dateOnly.ToDateTime(DateTimeKind.Utc);
-    ///     // dateTime represents January 15, 2023, at 00:00:00 UTC
-    ///     ]]></code>
-    /// </example>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateTime ToDateTime(this DateOnly dateOnly, DateTimeKind kind = DateTimeKind.Unspecified)
-    {
-        return dateOnly.ToDateTime(TimeOnly.MinValue, kind);
-    }
-#else
-        /// <summary>
-        ///     Converts a <see cref="DateOnly"/> object to a <see cref="DateTime"/> object with the specified time and kind.
-        /// </summary>
-        /// <param name="dateOnly">The <see cref="DateOnly"/> object to convert.</param>
-        /// <param name="time">The <see cref="TimeOnly"/> component to use in the <see cref="DateTime"/>.</param>
-        /// <param name="kind">The <see cref="DateTimeKind"/> to assign to the resulting <see cref="DateTime"/>.</param>
-        /// <returns>A <see cref="DateTime"/> representing the combined date and time with the specified kind.</returns>
-        /// <remarks>
-        ///     This method creates a <see cref="DateTime"/> from a <see cref="DateOnly"/> and a <see cref="TimeOnly"/>.
-        /// </remarks>
-        /// <example>
-        ///     <code><![CDATA[
-        ///     var dateOnly = new DateOnly(2023, 1, 15);
-        ///     var timeOnly = new TimeOnly(14, 30, 0); // 2:30 PM
-        ///     var dateTime = dateOnly.ToDateTime(timeOnly, DateTimeKind.Local);
-        ///     // dateTime represents January 15, 2023, at 2:30 PM local time
-        ///     ]]></code>
-        /// </example>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DateTime ToDateTime(this DateOnly dateOnly, TimeOnly time, DateTimeKind kind =
- DateTimeKind.Unspecified)
-        {
-            return new DateTime(dateOnly.Year, dateOnly.Month, dateOnly.Day, time.Hour, time.Minute, time.Second, time.Millisecond, kind);
-        }
-
-        /// <summary>
-        ///     Converts a <see cref="DateOnly"/> object to a <see cref="DateTime"/> object at midnight with the specified kind.
-        /// </summary>
-        /// <param name="dateOnly">The <see cref="DateOnly"/> object to convert.</param>
-        /// <param name="kind">The <see cref="DateTimeKind"/> to assign to the resulting <see cref="DateTime"/>.</param>
-        /// <returns>A <see cref="DateTime"/> representing the date at midnight with the specified kind.</returns>
-        /// <remarks>
-        ///     This method creates a <see cref="DateTime"/> from a <see cref="DateOnly"/> with the time set to midnight.
-        /// </remarks>
-        /// <example>
-        ///     <code><![CDATA[
-        ///     var dateOnly = new DateOnly(2023, 1, 15);
-        ///     var dateTime = dateOnly.ToDateTime(DateTimeKind.Utc);
-        ///     // dateTime represents January 15, 2023, at 00:00:00 UTC
-        ///     ]]></code>
-        /// </example>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DateTime ToDateTime(this DateOnly dateOnly, DateTimeKind kind = DateTimeKind.Unspecified)
-        {
-            return new DateTime(dateOnly.Year, dateOnly.Month, dateOnly.Day, 0, 0, 0, kind);
-        }
-#endif
-
     /// <summary>
     ///     Calculates the age based on the date of birth, an optional maturity date, and an optional time zone.
     /// </summary>
@@ -121,11 +25,9 @@ public static class DateOnlyExtensions
     ///     Thrown if <paramref name="dateOfBirth" /> is in the future relative to the maturity date or current date.
     /// </exception>
     /// <remarks>
-    ///     This method calculates the age in years based on full years elapsed, accounting for birthdays and leap years.
+    ///     This method calculates the age in years based on full years elapsed, accounting for birthdays.
     ///     If the <paramref name="maturityDate" /> is <c>null</c>, the current date in the specified time zone is used.
     ///     If the <paramref name="timeZoneInfo" /> is <c>null</c>, the local system time zone is used.
-    ///     **Note on Leap Years:** For individuals born on February 29, the method adjusts the date of birth to February 28
-    ///     in non-leap years to ensure accurate age calculation.
     ///     **Thread Safety:** This method is not thread-safe if used with mutable shared state.
     /// </remarks>
     /// <example>
@@ -135,20 +37,20 @@ public static class DateOnlyExtensions
     /// int age = dateOfBirth.Age();
     /// Console.WriteLine(age); // The current age based on the date of birth.
     /// 
-    /// age = dateOfBirth.Age(new DateOnly(2022, 2, 28));
-    /// Console.WriteLine(age); // The age as of February 28, 2022.
+    /// age = dateOfBirth.Age(new DateOnly(2023, 2, 28));
+    /// Console.WriteLine(age); // The age as of February 28, 2023.
     /// 
-    /// age = dateOfBirth.Age(timeZoneInfo: TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time"));
+    /// var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+    /// age = dateOfBirth.Age(timeZoneInfo: timeZone);
     /// Console.WriteLine(age); // The age based on the date of birth and a specific time zone.
-    ///     ]]></code>
+    /// ]]></code>
     /// </example>
     public static int Age(this DateOnly dateOfBirth, DateOnly? maturityDate = null, TimeZoneInfo? timeZoneInfo = null)
     {
         timeZoneInfo ??= TimeZoneInfo.Local;
 
-        var currentDateTime = maturityDate?.ToDateTime(new TimeOnly(0, 0), DateTimeKind.Unspecified)
-                              ?? TimeZoneInfo.ConvertTime(DateTime.Now, timeZoneInfo);
-        var today = DateOnly.FromDateTime(currentDateTime);
+        var today = maturityDate ?? DateOnly.FromDateTime(
+            TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneInfo));
 
         if (dateOfBirth > today)
         {
@@ -157,21 +59,10 @@ public static class DateOnlyExtensions
                 nameof(dateOfBirth));
         }
 
-        // Adjust for leap year birthdays
-        var adjustedDateOfBirth = dateOfBirth;
+        var age = today.Year - dateOfBirth.Year;
 
-        if (dateOfBirth is { Month: 2, Day: 29 })
-        {
-            if (!DateTime.IsLeapYear(today.Year))
-            {
-                adjustedDateOfBirth = new DateOnly(dateOfBirth.Year, 2, 28);
-            }
-        }
-
-        var age = today.Year - adjustedDateOfBirth.Year;
-
-        if (today.Month < adjustedDateOfBirth.Month
-            || (today.Month == adjustedDateOfBirth.Month && today.Day < adjustedDateOfBirth.Day))
+        if (today.Month < dateOfBirth.Month ||
+            (today.Month == dateOfBirth.Month && today.Day < dateOfBirth.Day))
         {
             age--;
         }
@@ -287,7 +178,7 @@ public static class DateOnlyExtensions
     {
         var firstDateOfMonth = new DateOnly(date.Year, date.Month, 1);
 
-        if (!dayOfWeek.HasValue)
+        if (dayOfWeek == null)
         {
             return firstDateOfMonth;
         }
