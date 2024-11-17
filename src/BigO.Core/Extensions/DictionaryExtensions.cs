@@ -122,21 +122,52 @@ public static class DictionaryExtensions
 
     /// <summary>
     ///     Merges another dictionary into the current dictionary. If the same key exists in both dictionaries,
-    ///     the value from the other dictionary overwrites the value in the current dictionary.
+    ///     the value from the other dictionary overwrites the value in the current dictionary by default.
     /// </summary>
     /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
     /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
     /// <param name="dictionary">The current dictionary to merge into.</param>
     /// <param name="otherDictionary">The dictionary to merge from.</param>
+    /// <param name="overwriteExisting">
+    ///     A boolean value indicating whether to overwrite existing values in the current dictionary.
+    ///     Default is <c>true</c>.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown when <paramref name="dictionary" /> or <paramref name="otherDictionary" /> is <c>null</c>.
+    /// </exception>
+    /// <example>
+    ///     <code><![CDATA[
+    /// IDictionary<string, int> dictionary1 = new Dictionary<string, int>
+    /// {
+    ///     { "One", 1 },
+    ///     { "Two", 2 }
+    /// };
+    /// 
+    /// IDictionary<string, int> dictionary2 = new Dictionary<string, int>
+    /// {
+    ///     { "Two", 22 },
+    ///     { "Three", 3 }
+    /// };
+    /// 
+    /// dictionary1.Merge(dictionary2, overwriteExisting: true);
+    /// // dictionary1 now contains: { "One", 1 }, { "Two", 22 }, { "Three", 3 }
+    /// 
+    /// dictionary1.Merge(dictionary2, overwriteExisting: false);
+    /// // dictionary1 remains unchanged: { "One", 1 }, { "Two", 22 }, { "Three", 3 }
+    /// ]]></code>
+    /// </example>
     public static void Merge<TKey, TValue>(this IDictionary<TKey, TValue> dictionary,
-        IDictionary<TKey, TValue> otherDictionary)
+        IDictionary<TKey, TValue> otherDictionary, bool overwriteExisting = true)
     {
         Guard.NotNull(dictionary);
         Guard.NotNull(otherDictionary);
 
         foreach (var kvp in otherDictionary)
         {
-            dictionary[kvp.Key] = kvp.Value;
+            if (overwriteExisting || !dictionary.ContainsKey(kvp.Key))
+            {
+                dictionary[kvp.Key] = kvp.Value;
+            }
         }
     }
 }
