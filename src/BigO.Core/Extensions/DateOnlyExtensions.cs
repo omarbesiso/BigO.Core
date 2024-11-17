@@ -9,6 +9,35 @@ namespace BigO.Core.Extensions;
 public static class DateOnlyExtensions
 {
     /// <summary>
+    ///     Converts the specified <see cref="DateOnly" /> instance to a <see cref="DateTime" /> instance with the time set to
+    ///     midnight (00:00:00) and the kind set to <see cref="DateTimeKind.Unspecified" />.
+    /// </summary>
+    /// <param name="dateOnly">The <see cref="DateOnly" /> instance to convert.</param>
+    /// <returns>
+    ///     A <see cref="DateTime" /> instance representing the same date as the specified <see cref="DateOnly" /> instance,
+    ///     with the time set to midnight (00:00:00) and the kind set to <see cref="DateTimeKind.Unspecified" />.
+    /// </returns>
+    /// <example>
+    ///     <code><![CDATA[
+    /// DateOnly dateOnly = new DateOnly(2023, 1, 1);
+    /// DateTime dateTime = dateOnly.ToDateTime();
+    /// // dateTime will be January 1, 2023, 00:00:00 with DateTimeKind.Unspecified
+    /// ]]></code>
+    /// </example>
+    /// <remarks>
+    ///     This method converts a <see cref="DateOnly" /> instance to a <see cref="DateTime" /> instance by setting the time
+    ///     to
+    ///     midnight (00:00:00) and the kind to <see cref="DateTimeKind.Unspecified" />. This is useful when you need to work
+    ///     with
+    ///     APIs or libraries that require <see cref="DateTime" /> instances but you only have date information.
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static DateTime ToDateTime(this DateOnly dateOnly)
+    {
+        return dateOnly.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified);
+    }
+
+    /// <summary>
     ///     Calculates the age based on the date of birth, an optional maturity date, and an optional time zone.
     /// </summary>
     /// <param name="dateOfBirth">The date of birth.</param>
@@ -473,38 +502,28 @@ public static class DateOnlyExtensions
     }
 
     /// <summary>
-    ///     Returns a new <see cref="DateOnly" /> instance representing the day after the specified date.
+    ///     Returns a new <see cref="DateTime" /> instance representing the day after the specified date.
     /// </summary>
     /// <param name="date">The date for which to find the next day.</param>
-    /// <returns>
-    ///     A new <see cref="DateOnly" /> instance representing the day after the specified date.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">
-    ///     Thrown when the date is <see cref="DateOnly.MaxValue" /> and cannot have a next day.
-    /// </exception>
-    /// <remarks>
-    ///     Adds one day to the specified <see cref="DateOnly" /> instance to calculate the next day.
-    ///     If the date is <see cref="DateOnly.MaxValue" />, an <see cref="InvalidOperationException" /> is thrown.
-    /// </remarks>
+    /// <returns>A new <see cref="DateTime" /> instance representing the day after the specified date.</returns>
     /// <example>
     ///     <code><![CDATA[
-    /// var today = DateOnly.Today;
-    /// var tomorrow = today.NextDay(); // Tomorrow's date
-    /// 
-    /// // Edge case:
-    /// var maxDate = DateOnly.MaxValue;
-    /// // Throws InvalidOperationException
-    /// var nextDay = maxDate.NextDay();
-    ///     ]]></code>
+    /// DateTime today = DateTime.Today;
+    /// DateTime tomorrow = today.NextDay(); // tomorrow will be the day after today
+    /// ]]></code>
     /// </example>
+    /// <remarks>
+    ///     This extension method adds one day to the specified <see cref="DateTime" /> instance to calculate the next day. It
+    ///     returns a new <see cref="DateTime" /> instance representing the day after the specified date, without modifying the
+    ///     original date. If the specified date is the last day of the year, the returned date will be the first day of the
+    ///     next year.
+    /// </remarks>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Thrown if the resulting <see cref="DateTime" /> is greater than <see cref="DateTime.MaxValue" />.
+    /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateOnly NextDay(this DateOnly date)
+    public static DateTime NextDay(this DateTime date)
     {
-        if (date == DateOnly.MaxValue)
-        {
-            throw new InvalidOperationException("Cannot get the next day of DateOnly.MaxValue.");
-        }
-
         return date.AddDays(1);
     }
 
