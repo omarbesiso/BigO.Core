@@ -48,13 +48,13 @@ public static class ByteExtensions
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
-    /// byte[] data = { 0x1, 0x2, 0x3, 0x4, 0x5 };
-    /// using (MemoryStream stream = data.ToMemoryStream(1, 3))
-    /// {
-    ///     // Use the MemoryStream instance.
-    /// }
-    /// // This will create a MemoryStream with bytes { 0x2, 0x3, 0x4 }
-    /// ]]></code>
+    ///     byte[] data = { 0x1, 0x2, 0x3, 0x4, 0x5 };
+    ///     using (MemoryStream stream = data.ToMemoryStream(1, 3))
+    ///     {
+    ///         // Use the MemoryStream instance.
+    ///     }
+    ///     // This will create a MemoryStream with bytes { 0x2, 0x3, 0x4 }
+    ///     ]]></code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static MemoryStream ToMemoryStream(this byte[] buffer, int index, int count, bool writable = false)
@@ -72,5 +72,30 @@ public static class ByteExtensions
         }
 
         return new MemoryStream(buffer, index, count, writable);
+    }
+
+    /// <summary>
+    ///     Converts a <see cref="ReadOnlyMemory{T}" /> of <see cref="byte" /> to a <see cref="MemoryStream" />.
+    /// </summary>
+    /// <param name="readOnlyMemory">The <see cref="ReadOnlyMemory{T}" /> of bytes to convert.</param>
+    /// <returns>A <see cref="MemoryStream" /> created from the <see cref="ReadOnlyMemory{T}" />.</returns>
+    /// <remarks>
+    ///     <para>
+    ///         This overload can be helpful when you have a <see cref="ReadOnlyMemory{Byte}" /> (e.g., from certain
+    ///         APIs) and want to quickly convert it to a <see cref="MemoryStream" /> without creating an intermediate
+    ///         array copy.
+    ///     </para>
+    ///     <example>
+    ///         <code><![CDATA[
+    ///         ReadOnlyMemory<byte> readOnlyData = new byte[] { 1, 2, 3, 4 };
+    ///         using MemoryStream stream = readOnlyData.ToMemoryStream();
+    ///         // stream now contains { 1, 2, 3, 4 }
+    ///         ]]></code>
+    ///     </example>
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static MemoryStream ToMemoryStream(this ReadOnlyMemory<byte> readOnlyMemory)
+    {
+        return new MemoryStream(readOnlyMemory.ToArray());
     }
 }
