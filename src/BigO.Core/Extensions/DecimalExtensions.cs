@@ -16,8 +16,14 @@ public static class DecimalExtensions
     /// <param name="value">The decimal value to convert.</param>
     /// <param name="cultureName">The name of the culture to use for the currency string formatting. Default is "en-US".</param>
     /// <returns>A string representing the given decimal value as a currency in the specified culture.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="cultureName" /> parameter is <c>null</c> or empty.</exception>
-    /// <exception cref="CultureNotFoundException">Thrown when the culture specified by the <paramref name="cultureName" /> parameter is not found.</exception>
+    /// <exception cref="ArgumentNullException">
+    ///     Thrown when the <paramref name="cultureName" /> parameter is <c>null</c> or
+    ///     empty.
+    /// </exception>
+    /// <exception cref="CultureNotFoundException">
+    ///     Thrown when the culture specified by the <paramref name="cultureName" />
+    ///     parameter is not found.
+    /// </exception>
     /// <example>
     ///     <code>
     /// decimal value = 1234.56m;

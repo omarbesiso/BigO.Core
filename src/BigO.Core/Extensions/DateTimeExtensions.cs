@@ -65,8 +65,8 @@ public static class DateTimeExtensions
     public static TimeOnly ToTimeOnly(this DateTime dateTime)
     {
 #if NET6_0
-    // In .NET 6, TimeOnly constructor doesn't have a microseconds parameter
-    return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond);
+        // In .NET 6, TimeOnly constructor doesn't have a microseconds parameter
+        return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond);
 #else
         // In .NET 7 and later, we can use the constructor with microseconds
         return new TimeOnly(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond,
