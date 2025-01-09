@@ -8,7 +8,7 @@ public static partial class PropertyGuard
     /// <summary>
     ///     Ensures that the given property value does not exceed a specified maximum value.
     ///     If the value exceeds the maximum, an <see cref="ArgumentOutOfRangeException" /> is thrown.
-    ///     This method is applicable for types implementing <see cref="IComparable" />.
+    ///     This method is applicable for types implementing <see cref="IComparable{T}" />.
     /// </summary>
     /// <typeparam name="T">The type of the property value being checked. Must implement <see cref="IComparable" />.</typeparam>
     /// <param name="value">The property value to be checked.</param>
@@ -34,7 +34,7 @@ public static partial class PropertyGuard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Maximum<T>(T value, T maxValue,
         [CallerMemberName] string propertyName = "",
-        string? exceptionMessage = null) where T : IComparable
+        string? exceptionMessage = null) where T : IComparable<T>
     {
         return Guard.Maximum(value, maxValue, propertyName, exceptionMessage);
     }
@@ -42,7 +42,7 @@ public static partial class PropertyGuard
     /// <summary>
     ///     Ensures that the given property value does not fall below a specified minimum value.
     ///     If the value is less than the minimum, an <see cref="ArgumentOutOfRangeException" /> is thrown.
-    ///     This method is applicable for types implementing <see cref="IComparable" />.
+    ///     This method is applicable for types implementing <see cref="IComparable{T}" />.
     /// </summary>
     /// <typeparam name="T">The type of the property value being checked. Must implement <see cref="IComparable" />.</typeparam>
     /// <param name="value">The property value to be checked.</param>
@@ -68,7 +68,7 @@ public static partial class PropertyGuard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Minimum<T>(T value, T minValue,
         [CallerMemberName] string propertyName = "",
-        string? exceptionMessage = null) where T : IComparable
+        string? exceptionMessage = null) where T : IComparable<T>
     {
         return Guard.Minimum(value, minValue, propertyName, exceptionMessage);
     }
@@ -78,7 +78,7 @@ public static partial class PropertyGuard
     ///     Validates that the minimum and maximum range parameters are logically consistent.
     ///     If the value is outside the specified minimum and maximum range, an <see cref="ArgumentOutOfRangeException" /> is
     ///     thrown.
-    ///     This method is applicable for types implementing <see cref="IComparable" />.
+    ///     This method is applicable for types implementing <see cref="IComparable{t}" />.
     /// </summary>
     /// <typeparam name="T">The type of the property value being checked. Must implement <see cref="IComparable" />.</typeparam>
     /// <param name="value">The property value to be checked.</param>
@@ -110,7 +110,7 @@ public static partial class PropertyGuard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T WithinRange<T>(T value, T minValue, T maxValue,
         [CallerMemberName] string propertyName = "",
-        string? exceptionMessage = null) where T : IComparable
+        string? exceptionMessage = null) where T : IComparable<T>
     {
         return Guard.WithinRange(value, minValue, maxValue, propertyName, exceptionMessage);
     }

@@ -1,12 +1,13 @@
 ﻿using System.Globalization;
 using System.Text.Json.Serialization;
 using BigO.Core.Extensions;
-using BigO.Core.Validation;
+
+// using BigO.Core.Validation; // Might not need Guard for TimeOnly unless default is disallowed
 
 namespace BigO.Core.Types;
 
 /// <summary>
-///     Represents a range of between two defined <see cref="TimeOnly" /> values.
+///     Represents a range between two <see cref="TimeOnly" /> values.
 /// </summary>
 [PublicAPI]
 public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
@@ -16,13 +17,17 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
     /// </summary>
     /// <param name="startTime">The start time of the time range.</param>
     /// <param name="endTime">The end time of the time range.</param>
-    /// <exception cref="ArgumentException">Thrown if the end time is before the start time.</exception>
+    /// <exception cref="ArgumentException">
+    ///     Thrown if <paramref name="endTime" /> is before <paramref name="startTime" />.
+    /// </exception>
     [JsonConstructor]
     public TimeRange(TimeOnly startTime, TimeOnly endTime)
     {
-        Guard.NotNull(startTime, nameof(startTime));
-        Guard.NotNull(endTime, nameof(endTime));
+        // If your domain forbids zero-length:
+        // if (endTime <= startTime)
+        //     throw new ArgumentException("End time must be strictly after start time.");
 
+        // Currently, you only forbid endTime < startTime:
         if (endTime < startTime)
         {
             throw new ArgumentException("End time cannot be before start time.");
@@ -47,20 +52,16 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
     public TimeOnly EndTime { get; }
 
     /// <summary>
-    ///     Gets the duration of the time range.
+    ///     Gets the duration of the time range (EndTime - StartTime).
     /// </summary>
     public TimeSpan Duration => EndTime - StartTime;
 
     /// <summary>
-    ///     Compares the current <see cref="TimeRange" /> instance to another object.
+    ///     Compares this <see cref="TimeRange" /> instance to another object.
     /// </summary>
     /// <param name="obj">The object to compare with the current instance.</param>
-    /// <returns>A value indicating the relative order of the instances being compared.</returns>
-    /// <exception cref="ArgumentException">Thrown if the object is not a <see cref="TimeRange" />.</exception>
-    /// <remarks>
-    ///     The comparison is performed by comparing the start times of the two time ranges. If the start times are equal,
-    ///     the end times are compared.
-    /// </remarks>
+    /// <returns>A signed integer that indicates the relative values of this instance and <paramref name="obj" />.</returns>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="obj" /> is not a <see cref="TimeRange" />.</exception>
     public int CompareTo(object? obj)
     {
         if (obj is TimeRange other)
@@ -72,18 +73,19 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
     }
 
     /// <summary>
-    ///     Compares the current <see cref="TimeRange" /> instance to another <see cref="TimeRange" /> instance.
+    ///     Compares this <see cref="TimeRange" /> instance to another <see cref="TimeRange" />.
     /// </summary>
-    /// <param name="other">The <see cref="TimeRange" /> instance to compare with the current instance.</param>
-    /// <returns>A value indicating the relative order of the instances being compared.</returns>
-    /// <remarks>
-    ///     The comparison is performed by comparing the start times of the two time ranges. If the start times are equal,
-    ///     the end times are compared.
-    /// </remarks>
+    /// <param name="other">The <see cref="TimeRange" /> to compare to this instance.</param>
+    /// <returns>A signed integer that indicates the relative values of this instance and <paramref name="other" />.</returns>
     public int CompareTo(TimeRange other)
     {
         var startTimeComparison = StartTime.CompareTo(other.StartTime);
-        return startTimeComparison != 0 ? startTimeComparison : EndTime.CompareTo(other.EndTime);
+        if (startTimeComparison != 0)
+        {
+            return startTimeComparison;
+        }
+
+        return EndTime.CompareTo(other.EndTime);
     }
 
     /// <summary>
@@ -91,8 +93,8 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
     /// </summary>
     /// <param name="other">The <see cref="TimeRange" /> to compare to this instance.</param>
     /// <returns>
-    ///     <c>true</c> if the value of the <paramref name="other" /> parameter is the same as the value of this instance;
-    ///     otherwise, <c>false</c>.
+    ///     <c>true</c> if the <paramref name="other" /> parameter has the same value as this instance; otherwise, <c>false</c>
+    ///     .
     /// </returns>
     public bool Equals(TimeRange other)
     {
@@ -102,50 +104,58 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
     /// <summary>
     ///     Returns the hash code for this instance.
     /// </summary>
-    /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
+    /// <returns>A hash code suitable for hashing algorithms and data structures.</returns>
     public override int GetHashCode()
     {
         return HashCode.Combine(StartTime, EndTime);
     }
 
     /// <summary>
-    ///     Determines whether this range contains the specified <see cref="TimeOnly" /> instance.
+    ///     Determines whether this range contains the specified <see cref="TimeOnly" /> value (inclusive).
     /// </summary>
     /// <param name="time">The time to be checked.</param>
     /// <returns>
-    ///     <c>true</c> if the time value falls within the range represented by this instance; otherwise, <c>false</c>.
+    ///     <c>true</c> if <paramref name="time" /> falls within [StartTime..EndTime]; otherwise, <c>false</c>.
     /// </returns>
     public bool Contains(TimeOnly time)
     {
+        // IsBetween presumably does: start <= time <= end if the last arg is true.
         return time.IsBetween(StartTime, EndTime, true);
     }
 
     /// <summary>
-    ///     Returns a string that represents the current object.
+    ///     Returns a string that represents the current object, e.g. "08:00 - 12:00".
     /// </summary>
-    /// <returns>A string that represents the current object.</returns>
     public override string ToString()
     {
+        // Example: "08:00 - 12:00" in current culture format
+        // If you want 24-hour HH:mm, you can specify: 
+        // return $"{StartTime:HH:mm} - {EndTime:HH:mm}";
         return $"{StartTime} - {EndTime}";
     }
 
     /// <summary>
-    ///     Attempts to parse a string representation of a time range into a new <see cref="TimeRange" /> object.
+    ///     Attempts to parse a string representation of a time range into a new <see cref="TimeRange" />.
+    ///     The expected format is "Start - End" using
+    ///     <see
+    ///         cref="M:System.TimeOnly.TryParse(System.ReadOnlySpan{System.Char},System.IFormatProvider,System.Globalization.DateTimeStyles,out System.TimeOnly)" />
+    ///     .
     /// </summary>
     /// <param name="s">A string containing a time range to parse.</param>
     /// <param name="timeRange">
-    ///     When this method returns, contains the <see cref="TimeRange" /> value equivalent to the time
-    ///     range contained in <paramref name="s" />, if the conversion succeeded, or <c>null</c> if the conversion failed.
+    ///     When this method returns, contains the <see cref="TimeRange" /> value if parsing succeeded,
+    ///     or <c>default</c> if the conversion failed.
     /// </param>
-    /// <param name="culture">An optional object that supplies culture-specific formatting information.</param>
+    /// <param name="culture">An optional culture-specific formatting. Defaults to current culture.</param>
     /// <returns><c>true</c> if <paramref name="s" /> was converted successfully; otherwise, <c>false</c>.</returns>
-    /// <remarks>
-    ///     This method is designed to parse a time range string of the format "StartTime - EndTime", where StartTime and
-    ///     EndTime are <see cref="TimeOnly" /> values.
-    ///     If the provided culture is not specified, the current culture is used.
-    /// </remarks>
     public static bool TryParse(string s, out TimeRange timeRange, CultureInfo? culture = null)
     {
+        timeRange = default;
+        if (string.IsNullOrWhiteSpace(s))
+        {
+            return false;
+        }
+
         var parts = s.Split(" - ");
         culture ??= CultureInfo.CurrentCulture;
 
@@ -155,6 +165,7 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
             if (TryParseTimeOnlyNet6(parts[0], culture, out var start) &&
                 TryParseTimeOnlyNet6(parts[1], culture, out var end))
             {
+                // If you want to forbid zero-length: if (end <= start) return false;
                 timeRange = new TimeRange(start, end);
                 return true;
             }
@@ -162,13 +173,13 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
             if (TimeOnly.TryParse(parts[0], culture, out var start) &&
                 TimeOnly.TryParse(parts[1], culture, out var end))
             {
+                // If you want to forbid zero-length: if (end <= start) return false;
                 timeRange = new TimeRange(start, end);
                 return true;
             }
 #endif
         }
 
-        timeRange = default;
         return false;
     }
 
@@ -180,38 +191,32 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
             result = TimeOnly.FromDateTime(dateTime);
             return true;
         }
+
         result = default;
         return false;
     }
 #endif
 
     /// <summary>
-    ///     Creates a new <see cref="TimeRange" /> object from a start time and a duration.
+    ///     Creates a new <see cref="TimeRange" /> from a start time and a duration.
     /// </summary>
-    /// <param name="startTime">The start time of the time range.</param>
-    /// <param name="duration">The duration of the time range.</param>
-    /// <returns>A new <see cref="TimeRange" /> object with the specified start time and duration.</returns>
     public static TimeRange FromDuration(TimeOnly startTime, TimeSpan duration)
     {
         return new TimeRange(startTime, startTime.Add(duration));
     }
 
     /// <summary>
-    ///     Shifts the entire time range by a specified <see cref="TimeSpan" /> and returns a new <see cref="TimeRange" />
-    ///     object.
+    ///     Shifts the entire time range by a specified <see cref="TimeSpan" />.
     /// </summary>
-    /// <param name="offset">The <see cref="TimeSpan" /> value by which the time range will be shifted.</param>
-    /// <returns>A new <see cref="TimeRange" /> object representing the shifted time range.</returns>
     public TimeRange Shift(TimeSpan offset)
     {
         return new TimeRange(StartTime.Add(offset), EndTime.Add(offset));
     }
 
     /// <summary>
-    ///     Returns a new <see cref="TimeRange" /> that encompasses both the current range and the given range.
+    ///     Returns a new <see cref="TimeRange" /> that encompasses both the current range and the given range (earliest start,
+    ///     latest end).
     /// </summary>
-    /// <param name="other">The other time range to include in the union.</param>
-    /// <returns>A new <see cref="TimeRange" /> that encompasses both the current range and the given range.</returns>
     public TimeRange Union(TimeRange other)
     {
         var startTime = StartTime < other.StartTime ? StartTime : other.StartTime;
@@ -220,19 +225,10 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
     }
 
     /// <summary>
-    ///     Merges the current <see cref="TimeRange" /> instance with another <see cref="TimeRange" /> instance to create a new
-    ///     <see cref="TimeRange" /> that encompasses both. It's a union with the mandatory check of overlapping.
+    ///     Merges this range with another <see cref="TimeRange" /> only if they overlap; otherwise, throws an exception.
+    ///     The resulting range has the earliest of the two start times and the latest of the two end times.
     /// </summary>
-    /// <param name="other">The other <see cref="TimeRange" /> instance to merge with.</param>
-    /// <returns>
-    ///     A new <see cref="TimeRange" /> instance that encompasses both the current <see cref="TimeRange" /> instance
-    ///     and the other <see cref="TimeRange" /> instance.
-    /// </returns>
-    /// <remarks>
-    ///     The resulting <see cref="TimeRange" /> instance will have a start time equal to the later of the two start times,
-    ///     and an end time equal to the earlier of the two end times.
-    /// </remarks>
-    /// <exception cref="InvalidOperationException">Thrown when the two time ranges do not overlap.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the two ranges do not overlap.</exception>
     public TimeRange Merge(TimeRange other)
     {
         if (!Overlaps(other))
@@ -246,10 +242,9 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
     }
 
     /// <summary>
-    ///     Returns a new <see cref="TimeRange" /> that is the overlap between the current range and the given range.
+    ///     Returns a new <see cref="TimeRange" /> that is the overlap (intersection) between this range and the given range.
+    ///     Returns <c>null</c> if they do not overlap.
     /// </summary>
-    /// <param name="other">The other time range to intersect with.</param>
-    /// <returns>A new <see cref="TimeRange" /> that is the overlap between the current range and the given range.</returns>
     public TimeRange? Intersect(TimeRange other)
     {
         if (!Overlaps(other))
@@ -264,27 +259,17 @@ public readonly record struct TimeRange : IComparable<TimeRange>, IComparable
 
     /// <summary>
     ///     Determines whether the current <see cref="TimeRange" /> instance overlaps with another <see cref="TimeRange" />
-    ///     instance.
+    ///     instance (inclusive).
     /// </summary>
-    /// <param name="other">The other <see cref="TimeRange" /> instance to compare to.</param>
-    /// <returns>
-    ///     <c>true</c> if the current <see cref="TimeRange" /> instance overlaps with the other <see cref="TimeRange" />
-    ///     instance; otherwise, <c>false</c>.
-    /// </returns>
     public bool Overlaps(TimeRange other)
     {
         return StartTime <= other.EndTime && EndTime >= other.StartTime;
     }
 
     /// <summary>
-    ///     Determines whether the current <see cref="TimeRange" /> instance contains another <see cref="TimeRange" />
-    ///     instance.
+    ///     Determines whether the current <see cref="TimeRange" /> instance fully contains another <see cref="TimeRange" />
+    ///     instance (inclusive).
     /// </summary>
-    /// <param name="other">The other <see cref="TimeRange" /> instance to check for containment.</param>
-    /// <returns>
-    ///     <c>true</c> if the current <see cref="TimeRange" /> instance fully contains the other <see cref="TimeRange" />
-    ///     instance; otherwise, <c>false</c>.
-    /// </returns>
     public bool Contains(TimeRange other)
     {
         return StartTime <= other.StartTime && EndTime >= other.EndTime;

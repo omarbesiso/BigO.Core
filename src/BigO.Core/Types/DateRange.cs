@@ -20,6 +20,10 @@ public readonly record struct DateRange
     ///     Initializes a new instance of the <see cref="DateRange" /> struct with default values.
     ///     The start date defaults to today and the end date defaults to the maximum allowable date.
     /// </summary>
+    /// <remarks>
+    ///     If you do not want this behavior, consider removing this constructor
+    ///     or replacing it with a static factory method.
+    /// </remarks>
     public DateRange() : this(DateTime.Today.ToDateOnly(), MaxDate)
     {
     }
@@ -59,7 +63,7 @@ public readonly record struct DateRange
     /// <summary>
     ///     Returns a hash code for this instance.
     /// </summary>
-    /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
+    /// <returns>A hash code for this instance.</returns>
     public override int GetHashCode()
     {
         return HashCode.Combine(StartDate, EndDate);
@@ -124,14 +128,16 @@ public readonly record struct DateRange
     }
 
     /// <summary>
-    ///     Tries to parse a string representation of a date range into a <see cref="DateRange" /> instance.
+    ///     Tries to parse a string representation of a date range into a <see cref="DateRange" />.
+    ///     Supports the format "yyyy-MM-dd-yyyy-MM-dd" or "yyyy-MM-dd-∞" (for open-ended).
     /// </summary>
-    /// <param name="input">The string representation of the date range, expected in "yyyy-MM-dd-yyyy-MM-dd" format.</param>
+    /// <param name="input">The string representation of the date range.</param>
     /// <param name="range">The parsed date range, if parsing is successful.</param>
     /// <returns>True if parsing is successful; otherwise, false.</returns>
     public static bool TryParse(string input, out DateRange range)
     {
-        range = new DateRange();
+        range = default;
+
         if (string.IsNullOrWhiteSpace(input))
         {
             return false;
@@ -143,11 +149,32 @@ public readonly record struct DateRange
             return false;
         }
 
-        if (!DateOnly.TryParse(parts[0], out var startDate) || !DateOnly.TryParse(parts[1], out var endDate))
+        // Attempt to parse start date
+        if (!DateOnly.TryParse(parts[0], out var startDate))
         {
             return false;
         }
 
+        // Check if the end date is "∞"
+        if (parts[1].Trim() == "∞")
+        {
+            // Acceptable if startDate != default
+            if (startDate == default)
+            {
+                return false;
+            }
+
+            range = new DateRange(startDate);
+            return true;
+        }
+
+        // Otherwise parse the end date
+        if (!DateOnly.TryParse(parts[1], out var endDate))
+        {
+            return false;
+        }
+
+        // Validate order
         if (startDate == default || endDate < startDate)
         {
             return false;
@@ -159,11 +186,14 @@ public readonly record struct DateRange
 
     /// <summary>
     ///     Returns a string representation of the date range.
+    ///     For open-ended ranges (i.e., <see cref="EndDate" /> == <see cref="DateOnly.MaxValue" />), prints "-∞".
     /// </summary>
     /// <returns>A string that represents the date range.</returns>
     public override string ToString()
     {
-        return EndDate == MaxDate ? $"{StartDate:yyyy-MM-dd}-∞" : $"{StartDate:yyyy-MM-dd}-{EndDate:yyyy-MM-dd}";
+        return EndDate == MaxDate
+            ? $"{StartDate:yyyy-MM-dd}-∞"
+            : $"{StartDate:yyyy-MM-dd}-{EndDate:yyyy-MM-dd}";
     }
 
     /// <summary>
@@ -181,23 +211,23 @@ public readonly record struct DateRange
     /// <summary>
     ///     Splits the date range into multiple date ranges, each representing a week (7 days).
     /// </summary>
-    /// <returns>A collection of <see cref="DateRange" /> objects, each representing a week within the original date range.</returns>
+    /// <returns>A collection of <see cref="DateRange" /> objects, each representing a week within the original range.</returns>
     public IEnumerable<DateRange> GetWeeksInRange()
     {
         var currentStart = StartDate;
-        var currentEnd = StartDate.AddDays(6); // End of the first week
+        var currentEnd = StartDate.AddDays(6);
 
         while (currentStart <= EndDate)
         {
             if (currentEnd > EndDate)
             {
-                currentEnd = EndDate; // Adjust the last week to the end date
+                currentEnd = EndDate;
             }
 
             yield return new DateRange(currentStart, currentEnd);
 
-            currentStart = currentEnd.AddDays(1); // Start of the next interval
-            currentEnd = currentStart.AddDays(6); // End of the next interval
+            currentStart = currentEnd.AddDays(1);
+            currentEnd = currentStart.AddDays(6);
         }
     }
 
@@ -211,25 +241,6 @@ public readonly record struct DateRange
     public static DateRange Create(DateOnly startDate, DateOnly? endDate = null)
     {
         return new DateRange(startDate, endDate);
-    }
-
-    /// <summary>
-    ///     Validates the start and end dates.
-    /// </summary>
-    /// <param name="startDate">The start date to validate.</param>
-    /// <param name="endDate">The end date to validate, or null for an open-ended range.</param>
-    /// <exception cref="ArgumentException">Thrown if the end date is before the start date.</exception>
-    private static void ValidateDates(DateOnly startDate, DateOnly? endDate)
-    {
-        if (startDate == default)
-        {
-            throw new ArgumentException("Start date cannot be the default value.", nameof(startDate));
-        }
-
-        if (endDate.HasValue && endDate.Value < startDate)
-        {
-            throw new ArgumentException("End date cannot be before start date.", nameof(endDate));
-        }
     }
 
     /// <summary>
@@ -254,5 +265,27 @@ public readonly record struct DateRange
     public bool IsOpenEnded()
     {
         return EndDate == MaxDate;
+    }
+
+    /// <summary>
+    ///     Validates the start and end dates.
+    /// </summary>
+    /// <param name="startDate">The start date to validate.</param>
+    /// <param name="endDate">The end date to validate, or null for an open-ended range.</param>
+    /// <exception cref="ArgumentException">
+    ///     Thrown if the end date is before the start date
+    ///     or if the start date is the default (0001-01-01).
+    /// </exception>
+    private static void ValidateDates(DateOnly startDate, DateOnly? endDate)
+    {
+        if (startDate == default)
+        {
+            throw new ArgumentException("Start date cannot be the default (0001-01-01).", nameof(startDate));
+        }
+
+        if (endDate.HasValue && endDate.Value < startDate)
+        {
+            throw new ArgumentException("End date cannot be before start date.", nameof(endDate));
+        }
     }
 }

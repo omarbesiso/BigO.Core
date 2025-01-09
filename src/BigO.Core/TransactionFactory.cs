@@ -54,7 +54,11 @@ public static class TransactionFactory
     {
         if (timeOut.HasValue && timeOut.Value <= TimeSpan.Zero)
         {
-            throw new ArgumentOutOfRangeException(nameof(timeOut), "Timeout must be greater than zero.");
+            throw new ArgumentOutOfRangeException(
+                nameof(timeOut),
+                timeOut.Value,
+                $"Timeout must be greater than zero. The provided value was {timeOut.Value}."
+            );
         }
 
         var transactionOptions = new TransactionOptions

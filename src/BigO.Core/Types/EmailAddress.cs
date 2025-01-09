@@ -30,18 +30,7 @@ public readonly record struct EmailAddress : IComparable<EmailAddress>
     /// </summary>
     public string Value { get; }
 
-    /// <summary>
-    ///     Compares this instance with a specified <see cref="EmailAddress" /> and indicates whether this instance precedes,
-    ///     follows, or appears in the same position in the sort order.
-    /// </summary>
-    /// <param name="other">An <see cref="EmailAddress" /> to compare.</param>
-    /// <returns>
-    ///     A value that indicates the relative order of the objects being compared.
-    ///     The return value has these meanings: Less than zero: This instance precedes <paramref name="other" /> in the sort
-    ///     order.
-    ///     Zero: This instance occurs in the same position in the sort order as <paramref name="other" />.
-    ///     Greater than zero: This instance follows <paramref name="other" /> in the sort order.
-    /// </returns>
+    /// <inheritdoc />
     public int CompareTo(EmailAddress other)
     {
         return string.CompareOrdinal(Value, other.Value);
@@ -57,7 +46,13 @@ public readonly record struct EmailAddress : IComparable<EmailAddress>
     /// </exception>
     public static EmailAddress Create(string email)
     {
+        // Example usage of .NET 7+ specialized throw method (optional)
+        // #if NET7_0_OR_GREATER
+        // ArgumentNullException.ThrowIfNullOrWhiteSpace(email);
+        // #else
         Guard.NotNullOrWhiteSpace(email);
+        // #endif
+
         Guard.MaxLength(email, MaxLength);
         Guard.EmailAddress(email);
 
@@ -110,8 +105,7 @@ public readonly record struct EmailAddress : IComparable<EmailAddress>
     }
 
     /// <summary>
-    ///     Performs an implicit conversion from <see cref="EmailAddress" /> to
-    ///     <see cref="string" />.
+    ///     Performs an implicit conversion from <see cref="EmailAddress" /> to <see cref="string" />.
     /// </summary>
     /// <param name="emailAddress">The email address.</param>
     /// <returns>The result of the conversion.</returns>
@@ -121,8 +115,7 @@ public readonly record struct EmailAddress : IComparable<EmailAddress>
     }
 
     /// <summary>
-    ///     Performs an implicit conversion from <see cref="EmailAddress" /> to
-    ///     <see cref="string" />.
+    ///     Performs an implicit conversion from <see cref="EmailAddress" /> to <see cref="string" />.
     /// </summary>
     /// <param name="emailAddress">The email address.</param>
     /// <returns>The result of the conversion.</returns>
@@ -132,8 +125,7 @@ public readonly record struct EmailAddress : IComparable<EmailAddress>
     }
 
     /// <summary>
-    ///     Performs an implicit conversion from <see cref="string" /> to
-    ///     <see cref="EmailAddress" />.
+    ///     Performs an implicit conversion from <see cref="string" /> to <see cref="EmailAddress" />.
     /// </summary>
     /// <param name="emailAddress">The email address.</param>
     /// <returns>The result of the conversion.</returns>
@@ -143,8 +135,7 @@ public readonly record struct EmailAddress : IComparable<EmailAddress>
     }
 
     /// <summary>
-    ///     Performs an implicit conversion from <see cref="string" /> to
-    ///     <see cref="EmailAddress" />.
+    ///     Performs an implicit conversion from <see cref="string" /> to <see cref="EmailAddress" />.
     /// </summary>
     /// <param name="emailAddress">The email address.</param>
     /// <returns>The result of the conversion.</returns>
@@ -179,9 +170,7 @@ public readonly record struct EmailAddress : IComparable<EmailAddress>
     ///     Determines whether the specified string is a valid email address.
     /// </summary>
     /// <param name="email">The email address string to validate.</param>
-    /// <returns>
-    ///     <c>true</c> if the specified string is a valid email address; otherwise, <c>false</c>.
-    /// </returns>
+    /// <returns><c>true</c> if the specified string is a valid email address; otherwise, <c>false</c>.</returns>
     public static bool IsEmailAddressValid(string email)
     {
         return email.IsValidEmail();
@@ -193,118 +182,97 @@ public readonly record struct EmailAddress : IComparable<EmailAddress>
     /// <returns>
     ///     A tuple containing:
     ///     <list type="bullet">
-    ///         <item>
-    ///             <description>The local part of the email address (before the '@' symbol).</description>
-    ///         </item>
-    ///         <item>
-    ///             <description>The full domain part of the email address (after the '@' symbol).</description>
-    ///         </item>
-    ///         <item>
-    ///             <description>The second-level domain (SLD), which is typically the main domain name.</description>
-    ///         </item>
-    ///         <item>
-    ///             <description>
-    ///                 The top-level domain (TLD), which could be a standard TLD (e.g., .com) or a country-code TLD
-    ///                 (ccTLD) (e.g., .co.uk).
-    ///             </description>
-    ///         </item>
+    ///         <item>The local part of the email address (before the '@' symbol).</item>
+    ///         <item>The full domain part of the email address (after the '@' symbol).</item>
+    ///         <item>The second-level domain (SLD), which is typically the main domain name.</item>
+    ///         <item>The top-level domain (TLD), which could be a standard TLD (e.g., .com) or a ccTLD (e.g., .co.uk).</item>
     ///     </list>
     /// </returns>
     /// <exception cref="FormatException">
-    ///     Thrown if the email address is not in a valid format. This can occur if:
-    ///     <list type="bullet">
-    ///         <item>
-    ///             <description>The email address does not contain exactly one '@' symbol.</description>
-    ///         </item>
-    ///         <item>
-    ///             <description>The domain part does not contain at least one '.' symbol.</description>
-    ///         </item>
-    ///         <item>
-    ///             <description>The domain part has an invalid structure (e.g., missing SLD or TLD).</description>
-    ///         </item>
-    ///     </list>
+    ///     Thrown if the email address format is invalid (e.g., missing '@', missing '.', etc.).
     /// </exception>
-    /// <example>
-    ///     For an email address like "user@mail.example.co.uk", the method returns:
-    ///     <list type="bullet">
-    ///         <item>
-    ///             <description>LocalPart: "user"</description>
-    ///         </item>
-    ///         <item>
-    ///             <description>Domain: "mail.example.co.uk"</description>
-    ///         </item>
-    ///         <item>
-    ///             <description>SecondLevelDomain: "example"</description>
-    ///         </item>
-    ///         <item>
-    ///             <description>TopLevelDomain: "co.uk"</description>
-    ///         </item>
-    ///     </list>
-    /// </example>
     public (string LocalPart, string Domain, string SecondLevelDomain, string TopLevelDomain) GetParts()
     {
-        var parts = Value.Split('@');
-        if (parts.Length != 2)
-        {
-            throw new FormatException("The email address must contain exactly one '@' symbol.");
-        }
-
-        var localPart = parts[0];
-        var domain = parts[1];
-
-        var domainParts = domain.Split('.');
-        if (domainParts.Length < 2)
-        {
-            throw new FormatException("The domain part must contain at least one '.' symbol.");
-        }
-
-        string topLevelDomain;
-        string secondLevelDomain;
-
-        switch (domainParts.Length)
-        {
-            case 2:
-                // Example: example.com
-                secondLevelDomain = domainParts[0];
-                topLevelDomain = domainParts[1];
-                break;
-            case 3:
-                // Example: example.co.uk
-                secondLevelDomain = domainParts[1];
-                topLevelDomain = $"{domainParts[1]}.{domainParts[2]}";
-                break;
-            default:
-                // Example: mail.example.co.uk
-                secondLevelDomain = domainParts[^3];
-                topLevelDomain = $"{domainParts[^2]}.{domainParts[^1]}";
-                break;
-        }
-
-        return (localPart, domain, secondLevelDomain, topLevelDomain);
+        // Use a helper method for clarity
+        var (localPart, domain) = SplitEmail(Value);
+        var (sld, tld) = ExtractDomainParts(domain);
+        return (localPart, domain, sld, tld);
     }
 
     /// <summary>
     ///     Checks if the email address is from a specific domain.
     /// </summary>
-    /// <param name="domain">The domain to check against.</param>
+    /// <param name="domain">The domain to check against (e.g., "example.com").</param>
     /// <returns><c>true</c> if the email address is from the specified domain; otherwise, <c>false</c>.</returns>
     public bool IsFromDomain(string domain)
     {
-        return Value.EndsWith($"@{domain}", StringComparison.OrdinalIgnoreCase);
+        // Current implementation:
+        // return Value.EndsWith($"@{domain}", StringComparison.OrdinalIgnoreCase);
+
+        // Optional stricter match example:
+        var parts = SplitEmail(Value);
+        return parts.domain.Equals(domain, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
     ///     Gets the username part of the email address (before the '@' symbol).
     /// </summary>
     /// <returns>The username part of the email address.</returns>
+    /// <exception cref="FormatException">If the email format is invalid.</exception>
     public string GetUsername()
     {
-        var parts = Value.Split('@');
+        var (localPart, _) = SplitEmail(Value);
+        return localPart;
+    }
+
+    #region Private Helpers
+
+    /// <summary>
+    ///     Splits an email into local part and domain.
+    /// </summary>
+    /// <param name="email">The full email address.</param>
+    /// <returns>A tuple of (localPart, domain).</returns>
+    /// <exception cref="FormatException">If '@' is missing or there's more than one '@'.</exception>
+    private static (string localPart, string domain) SplitEmail(string email)
+    {
+        var parts = email.Split('@');
         if (parts.Length != 2)
         {
-            throw new FormatException("Invalid email format.");
+            throw new FormatException("The email address must contain exactly one '@' symbol.");
         }
 
-        return parts[0];
+        return (parts[0], parts[1]);
     }
+
+    /// <summary>
+    ///     Extracts the SLD and TLD from the domain.
+    /// </summary>
+    /// <param name="domain">The domain part of the email.</param>
+    /// <returns>A tuple of (SecondLevelDomain, TopLevelDomain).</returns>
+    /// <exception cref="FormatException">If the domain is missing '.' or is otherwise invalid.</exception>
+    private static (string sld, string tld) ExtractDomainParts(string domain)
+    {
+        var domainParts = domain.Split('.');
+        if (domainParts.Length < 2)
+        {
+            throw new FormatException("The domain part must contain at least one '.' symbol.");
+        }
+
+        // Pattern matching on domainParts.Length for clarity
+        return domainParts.Length switch
+        {
+            // e.g., example.com
+            2 => (domainParts[0], domainParts[1]),
+            // e.g., example.co.uk
+            3 => (domainParts[1], $"{domainParts[1]}.{domainParts[2]}"),
+            // e.g., mail.example.co.uk or more subdomains
+            _ =>
+            (
+                domainParts[^3], // second-level domain (e.g., "example")
+                $"{domainParts[^2]}.{domainParts[^1]}" // top-level domain (e.g., "co.uk")
+            )
+        };
+    }
+
+    #endregion
 }

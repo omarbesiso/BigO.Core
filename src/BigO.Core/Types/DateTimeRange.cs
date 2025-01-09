@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using BigO.Core.Extensions;
@@ -6,7 +7,7 @@ using BigO.Core.Extensions;
 namespace BigO.Core.Types;
 
 /// <summary>
-///     Value object defining a range of <see cref="DateTime" />.
+///     Represents a range of <see cref="DateTime" />.
 /// </summary>
 [PublicAPI]
 [DataContract]
@@ -15,11 +16,10 @@ public readonly record struct DateTimeRange
     /// <summary>
     ///     Initializes a new instance of the <see cref="DateTimeRange" /> struct.
     /// </summary>
-    /// <param name="startDate">The start date.</param>
-    /// <param name="endDate">The end date.</param>
+    /// <param name="startDate">The start date/time.</param>
+    /// <param name="endDate">The end date/time.</param>
     /// <exception cref="ArgumentException">
-    ///     Thrown if the end time <paramref name="startDate" /> is less than or equal the
-    ///     start time <paramref name="endDate" />.
+    ///     Thrown if <paramref name="endDate" /> is less than or equal to <paramref name="startDate" />.
     /// </exception>
     [JsonConstructor]
     public DateTimeRange(DateTime startDate, DateTime endDate)
@@ -27,7 +27,7 @@ public readonly record struct DateTimeRange
         if (endDate <= startDate)
         {
             throw new ArgumentException(
-                $"The end date '{endDate}' is less than or equal the start date '{startDate}'.");
+                $"The end date/time '{endDate}' must be strictly greater than the start date/time '{startDate}'.");
         }
 
         StartDate = startDate;
@@ -35,7 +35,7 @@ public readonly record struct DateTimeRange
     }
 
     /// <summary>
-    ///     Gets the start date.
+    ///     Gets the start date/time.
     /// </summary>
     [Required]
     [JsonInclude]
@@ -45,7 +45,7 @@ public readonly record struct DateTimeRange
     public DateTime StartDate { get; }
 
     /// <summary>
-    ///     Gets the end date.
+    ///     Gets the end date/time.
     /// </summary>
     [Required]
     [JsonInclude]
@@ -59,8 +59,8 @@ public readonly record struct DateTimeRange
     /// </summary>
     /// <param name="other">An object to compare with this object.</param>
     /// <returns>
-    ///     <c>true</c> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///     <c>false</c>.
+    ///     <c>true</c> if the current object is equal to the <paramref name="other" /> parameter;
+    ///     otherwise, <c>false</c>.
     /// </returns>
     public bool Equals(DateTimeRange other)
     {
@@ -71,7 +71,8 @@ public readonly record struct DateTimeRange
     ///     Returns a hash code for this instance.
     /// </summary>
     /// <returns>
-    ///     A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
+    ///     A hash code for this instance, suitable for use in hashing algorithms
+    ///     and data structures like a hash table.
     /// </returns>
     public override int GetHashCode()
     {
@@ -81,49 +82,61 @@ public readonly record struct DateTimeRange
     /// <summary>
     ///     Determines whether this range contains the specified <see cref="DateTime" /> instance.
     /// </summary>
-    /// <param name="date">The date to be checked.</param>
-    /// <returns><c>true</c> if the date value falls within the range represented by this instance; otherwise, <c>false</c>.</returns>
+    /// <param name="date">The date/time to be checked.</param>
+    /// <returns>
+    ///     <c>true</c> if the date/time value falls within (inclusive) the range represented by this instance;
+    ///     otherwise, <c>false</c>.
+    /// </returns>
     public bool Contains(DateTime date)
     {
+        // Assuming IsBetween is inclusive: start <= date <= end
         return date.IsBetween(StartDate, EndDate);
     }
 
     /// <summary>
-    ///     Checks if another <see cref="DateTimeRange" /> instance overlaps with this instance.
+    ///     Checks if another <see cref="DateTimeRange" /> instance overlaps with this instance (inclusive).
     /// </summary>
-    /// <param name="dateRange">The date range.</param>
-    /// <returns><c>true</c> if the date range overlaps with this instance; otherwise, <c>false</c>.</returns>
+    /// <param name="dateRange">The other date range.</param>
+    /// <returns>
+    ///     <c>true</c> if the two ranges overlap (including boundary points); otherwise, <c>false</c>.
+    /// </returns>
     public bool Overlaps(DateTimeRange dateRange)
     {
         return dateRange.StartDate <= EndDate && dateRange.EndDate >= StartDate;
     }
 
     /// <summary>
-    ///     Gets the duration of the date range in days.
+    ///     Gets the duration of the date range as a <see cref="TimeSpan" />.
     /// </summary>
-    /// <returns>The number of days between the start and end dates of the date range.</returns>
+    /// <returns>The duration (EndDate - StartDate).</returns>
     public TimeSpan Duration()
     {
         return EndDate - StartDate;
     }
 
     /// <summary>
-    ///     Returns a string representation of the date range.
+    ///     Returns a string representation of the date range, using a fixed format.
     /// </summary>
     /// <returns>
-    ///     A string in the format "MMM dd, yyyy hh:mm tt - MMM dd, yyyy hh:mm tt" representing the start and end dates of
-    ///     the date range.
+    ///     A string in the format "MMM dd, yyyy hh:mm tt - MMM dd, yyyy hh:mm tt"
+    ///     representing the start and end dates of the range.
     /// </returns>
     public override string ToString()
     {
-        return $"{StartDate:MMM dd, yyyy hh:mm tt} - {EndDate:MMM dd, yyyy hh:mm tt}";
+        // If you want culture invariance, specify CultureInfo.InvariantCulture
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "{0:MMM dd, yyyy hh:mm tt} - {1:MMM dd, yyyy hh:mm tt}",
+            StartDate,
+            EndDate
+        );
     }
 
     /// <summary>
-    ///     Tries to parse a string representation of a date range.
+    ///     Tries to parse a string representation of a date range in the format "Start - End".
     /// </summary>
-    /// <param name="input">The input string.</param>
-    /// <param name="dateRange">The parsed date range.</param>
+    /// <param name="input">The input string, e.g., "2023-01-01 09:00:00 - 2023-01-02 18:00:00".</param>
+    /// <param name="dateRange">The parsed date range, if successful.</param>
     /// <returns><c>true</c> if the input string was successfully parsed; otherwise, <c>false</c>.</returns>
     public static bool TryParse(string input, out DateTimeRange dateRange)
     {
@@ -134,17 +147,21 @@ public readonly record struct DateTimeRange
             return false;
         }
 
-        var parts = input.Split('-');
+        // Split into exactly two parts
+        var parts = input.Split('-', 2, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length != 2)
         {
             return false;
         }
 
-        if (!DateTime.TryParse(parts[0], out var startDate) || !DateTime.TryParse(parts[1], out var endDate))
+        // Attempt to parse start & end
+        if (!DateTime.TryParse(parts[0], out var startDate) ||
+            !DateTime.TryParse(parts[1], out var endDate))
         {
             return false;
         }
 
+        // Ensure end > start
         if (endDate <= startDate)
         {
             return false;
@@ -155,22 +172,21 @@ public readonly record struct DateTimeRange
     }
 
     /// <summary>
-    ///     Checks if the date range is open-ended (i.e., if the end date is the maximum allowable date).
+    ///     Checks if the date range is open-ended (i.e., if the end date is <see cref="DateTime.MaxValue" />).
     /// </summary>
-    /// <returns>True if the date range is open-ended; otherwise, false.</returns>
+    /// <returns><c>true</c> if the range ends at <see cref="DateTime.MaxValue" />; otherwise, <c>false</c>.</returns>
     public bool IsOpenEnded()
     {
         return EndDate == DateTime.MaxValue;
     }
 
     /// <summary>
-    ///     Shifts the date range by a specified number of days.
+    ///     Shifts the date range by a specified number of days (positive to shift forward, negative to shift backward).
     /// </summary>
-    /// <param name="days">
-    ///     The number of days to shift the date range. Positive values shift forward, negative values shift
-    ///     backward.
-    /// </param>
-    /// <returns>A new <see cref="DateTimeRange" /> instance representing the shifted date range.</returns>
+    /// <param name="days">The number of days to shift.</param>
+    /// <returns>
+    ///     A new <see cref="DateTimeRange" /> instance representing the shifted range.
+    /// </returns>
     public DateTimeRange ShiftDays(int days)
     {
         var newStartDate = StartDate.AddDays(days);
@@ -179,13 +195,12 @@ public readonly record struct DateTimeRange
     }
 
     /// <summary>
-    ///     Shifts the date range by a specified number of hours.
+    ///     Shifts the date range by a specified number of hours (positive to shift forward, negative to shift backward).
     /// </summary>
-    /// <param name="hours">
-    ///     The number of hours to shift the date range. Positive values shift forward, negative values shift
-    ///     backward.
-    /// </param>
-    /// <returns>A new <see cref="DateTimeRange" /> instance representing the shifted date range.</returns>
+    /// <param name="hours">The number of hours to shift.</param>
+    /// <returns>
+    ///     A new <see cref="DateTimeRange" /> instance representing the shifted range.
+    /// </returns>
     public DateTimeRange ShiftHours(int hours)
     {
         var newStartDate = StartDate.AddHours(hours);

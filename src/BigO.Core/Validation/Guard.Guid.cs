@@ -1,25 +1,24 @@
-﻿// ReSharper disable InvertIf
-
-namespace BigO.Core.Validation;
+﻿namespace BigO.Core.Validation;
 
 public static partial class Guard
 {
     /// <summary>
-    ///     Ensures that the given Guid is not empty.
-    ///     If the Guid is empty, an <see cref="ArgumentException" /> is thrown.
+    ///     Ensures that the given <paramref name="value" /> is not <see cref="Guid.Empty" />.
+    ///     If the value is <see cref="Guid.Empty" />, an <see cref="ArgumentException" /> is thrown.
     /// </summary>
-    /// <param name="value">The Guid to be checked.</param>
-    /// <param name="argumentName">
+    /// <param name="value">The GUID to be checked.</param>
+    /// <param name="paramName">
     ///     The name of the argument being checked, used in the exception message for clarity.
+    ///     Automatically provided via <see cref="CallerArgumentExpressionAttribute" />.
     /// </param>
     /// <param name="exceptionMessage">
-    ///     Custom exception message if the Guid is empty.
+    ///     Custom exception message if the GUID is empty.
     ///     If not provided, a default message is used.
     /// </param>
-    /// <returns>The non-empty Guid.</returns>
-    /// <exception cref="ArgumentException">Thrown if the Guid is empty.</exception>
+    /// <returns>The non-empty GUID.</returns>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="value" /> is <see cref="Guid.Empty" />.</exception>
     /// <remarks>
-    ///     This method is useful for validating Guid arguments to ensure they are not empty.
+    ///     This method is useful for validating GUID arguments to ensure they are not empty.
     /// </remarks>
     /// <example>
     ///     <code>
@@ -28,24 +27,22 @@ public static partial class Guard
     ///     </code>
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Guid NotEmpty(Guid value,
+    public static Guid NotEmpty(
+        Guid value,
         [CallerArgumentExpression(nameof(value))]
-        string argumentName = "",
+        string paramName = "",
         string? exceptionMessage = null)
     {
-        // Check if the Guid is empty
         if (value == Guid.Empty)
         {
             // Determine the error message to use
             var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-                ? $"The Guid '{argumentName}' cannot be empty."
+                ? $"The GUID '{paramName}' cannot be empty."
                 : exceptionMessage;
 
-            // Throw the ArgumentException with the appropriate message
-            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
+            ThrowHelper.ThrowArgumentException(paramName, errorMessage);
         }
 
-        // Return the original Guid if it is not empty
         return value;
     }
 }

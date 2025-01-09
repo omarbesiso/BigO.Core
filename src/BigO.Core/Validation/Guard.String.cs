@@ -14,7 +14,7 @@ public static partial class Guard
     ///     <see cref="ArgumentException" /> is thrown.
     /// </summary>
     /// <param name="value">The string to be checked for <c>null</c> or empty.</param>
-    /// <param name="argumentName">
+    /// <param name="paramName">
     ///     The name of the argument being checked, used in the exception message for clarity.
     /// </param>
     /// <param name="exceptionMessage">
@@ -36,25 +36,25 @@ public static partial class Guard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string NotNullOrEmpty([System.Diagnostics.CodeAnalysis.NotNull] string? value,
         [CallerArgumentExpression(nameof(value))]
-        string argumentName = "",
+        string paramName = "",
         string? exceptionMessage = null)
     {
         if (value is null)
         {
             var nullErrorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-                ? $"The value of '{argumentName}' cannot be null."
+                ? $"The value of '{paramName}' cannot be null."
                 : exceptionMessage;
 
-            ThrowHelper.ThrowArgumentNullException(argumentName, nullErrorMessage);
+            ThrowHelper.ThrowArgumentNullException(paramName, nullErrorMessage);
         }
 
         if (value.Length == 0)
         {
             var emptyErrorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-                ? $"The value of '{argumentName}' cannot be empty."
+                ? $"The value of '{paramName}' cannot be empty."
                 : exceptionMessage;
 
-            ThrowHelper.ThrowArgumentException(argumentName, emptyErrorMessage);
+            ThrowHelper.ThrowArgumentException(paramName, emptyErrorMessage);
         }
 
         return value;
@@ -68,7 +68,7 @@ public static partial class Guard
     ///     <see cref="ArgumentException" /> is thrown.
     /// </summary>
     /// <param name="value">The string to be checked for <c>null</c>, empty, or white-space.</param>
-    /// <param name="argumentName">
+    /// <param name="paramName">
     ///     The name of the argument being checked, used in the exception message for clarity.
     /// </param>
     /// <param name="exceptionMessage">
@@ -95,25 +95,25 @@ public static partial class Guard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string NotNullOrWhiteSpace([System.Diagnostics.CodeAnalysis.NotNull] string? value,
         [CallerArgumentExpression(nameof(value))]
-        string argumentName = "",
+        string paramName = "",
         string? exceptionMessage = null)
     {
         if (value is null)
         {
             var nullErrorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-                ? $"The value of '{argumentName}' cannot be null."
+                ? $"The value of '{paramName}' cannot be null."
                 : exceptionMessage;
 
-            ThrowHelper.ThrowArgumentNullException(argumentName, nullErrorMessage);
+            ThrowHelper.ThrowArgumentNullException(paramName, nullErrorMessage);
         }
 
         if (value.IsWhiteSpace())
         {
             var whitespaceErrorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-                ? $"The value of '{argumentName}' cannot be empty or whitespace."
+                ? $"The value of '{paramName}' cannot be empty or whitespace."
                 : exceptionMessage;
 
-            ThrowHelper.ThrowArgumentException(argumentName, whitespaceErrorMessage);
+            ThrowHelper.ThrowArgumentException(paramName, whitespaceErrorMessage);
         }
 
         return value;
@@ -126,7 +126,7 @@ public static partial class Guard
     /// </summary>
     /// <param name="value">The string to be checked for length. Can be <c>null</c>.</param>
     /// <param name="maxLength">The maximum allowable length of the string.</param>
-    /// <param name="argumentName">
+    /// <param name="paramName">
     ///     The name of the argument being checked, used in the exception message for clarity.
     /// </param>
     /// <param name="exceptionMessage">
@@ -152,7 +152,7 @@ public static partial class Guard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? MaxLength(string? value, int maxLength,
         [CallerArgumentExpression(nameof(value))]
-        string argumentName = "",
+        string paramName = "",
         string? exceptionMessage = null)
     {
         if (value is null)
@@ -164,10 +164,10 @@ public static partial class Guard
         if (value.Length > maxLength)
         {
             var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-                ? $"The length of '{argumentName}' cannot exceed {maxLength} characters."
+                ? $"The length of '{paramName}' cannot exceed {maxLength} characters."
                 : exceptionMessage;
 
-            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
+            ThrowHelper.ThrowArgumentException(paramName, errorMessage);
         }
 
         return value;
@@ -180,7 +180,7 @@ public static partial class Guard
     /// </summary>
     /// <param name="value">The string to be checked for minimum length. Can be <c>null</c>.</param>
     /// <param name="minLength">The minimum allowable length of the string.</param>
-    /// <param name="argumentName">
+    /// <param name="paramName">
     ///     The name of the argument being checked, used in the exception message for clarity.
     /// </param>
     /// <param name="exceptionMessage">
@@ -206,7 +206,7 @@ public static partial class Guard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? MinLength(string? value, int minLength,
         [CallerArgumentExpression(nameof(value))]
-        string argumentName = "",
+        string paramName = "",
         string? exceptionMessage = null)
     {
         if (value is null)
@@ -218,10 +218,10 @@ public static partial class Guard
         if (value.Length < minLength)
         {
             var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-                ? $"The length of '{argumentName}' must be at least {minLength} characters."
+                ? $"The length of '{paramName}' must be at least {minLength} characters."
                 : exceptionMessage;
 
-            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
+            ThrowHelper.ThrowArgumentException(paramName, errorMessage);
         }
 
         return value;
@@ -234,7 +234,7 @@ public static partial class Guard
     /// </summary>
     /// <param name="value">The string to be checked for the exact length. Can be <c>null</c>.</param>
     /// <param name="exactLength">The exact length the string must have.</param>
-    /// <param name="argumentName">
+    /// <param name="paramName">
     ///     The name of the argument being checked, used in the exception message for clarity.
     /// </param>
     /// <param name="exceptionMessage">
@@ -260,7 +260,7 @@ public static partial class Guard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? ExactLength(string? value, int exactLength,
         [CallerArgumentExpression(nameof(value))]
-        string argumentName = "",
+        string paramName = "",
         string? exceptionMessage = null)
     {
         if (value is null)
@@ -272,10 +272,10 @@ public static partial class Guard
         if (value.Length != exactLength)
         {
             var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-                ? $"The length of '{argumentName}' must be exactly {exactLength} characters."
+                ? $"The length of '{paramName}' must be exactly {exactLength} characters."
                 : exceptionMessage;
 
-            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
+            ThrowHelper.ThrowArgumentException(paramName, errorMessage);
         }
 
         return value;
@@ -291,7 +291,7 @@ public static partial class Guard
     /// <param name="value">The string to be checked for length within the specified range. Can be <c>null</c>.</param>
     /// <param name="minLength">The minimum allowable length of the string.</param>
     /// <param name="maxLength">The maximum allowable length of the string.</param>
-    /// <param name="argumentName">
+    /// <param name="paramName">
     ///     The name of the argument being checked, used in the exception message for clarity.
     /// </param>
     /// <param name="exceptionMessage">
@@ -333,7 +333,7 @@ public static partial class Guard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? StringLengthWithinRange(string? value, int minLength, int maxLength,
         [CallerArgumentExpression(nameof(value))]
-        string argumentName = "",
+        string paramName = "",
         string? exceptionMessage = null)
     {
         if (value is null)
@@ -362,10 +362,10 @@ public static partial class Guard
         if (value.Length < minLength || value.Length > maxLength)
         {
             var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-                ? $"The length of '{argumentName}' must be between {minLength} and {maxLength} characters."
+                ? $"The length of '{paramName}' must be between {minLength} and {maxLength} characters."
                 : exceptionMessage;
 
-            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
+            ThrowHelper.ThrowArgumentException(paramName, errorMessage);
         }
 
         return value;
@@ -378,7 +378,7 @@ public static partial class Guard
     /// </summary>
     /// <param name="value">The string to be validated against the regular expression. Can be <c>null</c>.</param>
     /// <param name="pattern">The regular expression pattern to match.</param>
-    /// <param name="argumentName">
+    /// <param name="paramName">
     ///     The name of the argument being checked, used in the exception message for clarity.
     /// </param>
     /// <param name="exceptionMessage">
@@ -400,7 +400,7 @@ public static partial class Guard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? MatchesRegex(string? value, string pattern,
         [CallerArgumentExpression(nameof(value))]
-        string argumentName = "",
+        string paramName = "",
         string? exceptionMessage = null)
     {
         if (value is null)
@@ -411,10 +411,10 @@ public static partial class Guard
         if (!Regex.IsMatch(value, pattern))
         {
             var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-                ? $"The value of '{argumentName}' does not match the required pattern."
+                ? $"The value of '{paramName}' does not match the required pattern."
                 : exceptionMessage;
 
-            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
+            ThrowHelper.ThrowArgumentException(paramName, errorMessage);
         }
 
         return value;
@@ -426,7 +426,7 @@ public static partial class Guard
     ///     This method allows <c>null</c> values and will return them as-is, only validating non-null strings.
     /// </summary>
     /// <param name="value">The string to be validated as an email address. Can be <c>null</c>.</param>
-    /// <param name="argumentName">
+    /// <param name="paramName">
     ///     The name of the argument being checked, used in the exception message for clarity.
     /// </param>
     /// <param name="exceptionMessage">
@@ -447,7 +447,7 @@ public static partial class Guard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? EmailAddress(string? value,
         [CallerArgumentExpression(nameof(value))]
-        string argumentName = "",
+        string paramName = "",
         string? exceptionMessage = null)
     {
         if (value is null)
@@ -458,10 +458,10 @@ public static partial class Guard
         if (!MailAddress.TryCreate(value, out _))
         {
             var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-                ? $"The value of '{argumentName}' is not a valid email address."
+                ? $"The value of '{paramName}' is not a valid email address."
                 : exceptionMessage;
 
-            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
+            ThrowHelper.ThrowArgumentException(paramName, errorMessage);
         }
 
         return value;
@@ -473,7 +473,7 @@ public static partial class Guard
     ///     This method allows <c>null</c> values and will return them as-is, only validating non-null strings.
     /// </summary>
     /// <param name="value">The string to be validated as a URL. Can be <c>null</c>.</param>
-    /// <param name="argumentName">
+    /// <param name="paramName">
     ///     The name of the argument being checked, used in the exception message for clarity.
     /// </param>
     /// <param name="exceptionMessage">
@@ -494,7 +494,7 @@ public static partial class Guard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string? Url(string? value,
         [CallerArgumentExpression(nameof(value))]
-        string argumentName = "",
+        string paramName = "",
         string? exceptionMessage = null)
     {
         if (value is null)
@@ -508,10 +508,10 @@ public static partial class Guard
         if (!isValidUrl)
         {
             var errorMessage = string.IsNullOrWhiteSpace(exceptionMessage)
-                ? $"The value of '{argumentName}' is not a valid URL."
+                ? $"The value of '{paramName}' is not a valid URL."
                 : exceptionMessage;
 
-            ThrowHelper.ThrowArgumentException(argumentName, errorMessage);
+            ThrowHelper.ThrowArgumentException(paramName, errorMessage);
         }
 
         return value;

@@ -1,38 +1,47 @@
 ﻿namespace BigO.Core;
 
 /// <summary>
-///     Defines an object base with necessary disposable implementation.
+///     Defines a base class that implements <see cref="IDisposable" /> and <see cref="IAsyncDisposable" />,
+///     providing thread-safe checks to ensure cleanup occurs only once.
 /// </summary>
 [PublicAPI]
-public abstract class DisposableObject : IDisposable
+public abstract class DisposableObject : IDisposable, IAsyncDisposable
 {
-    private readonly object _disposeLock = new(); // lock object for thread safety
-    private bool _isDisposed; // backing field for the property
+    /// <summary>
+    ///     Internal flag indicating disposal state.
+    ///     0 = not disposed, 1 = disposed.
+    /// </summary>
+    private int _disposed;
 
     /// <summary>
     ///     Gets a value indicating whether this instance is disposed.
     /// </summary>
-    /// <value><c>true</c> if this instance is disposed; otherwise, <c>false</c>.</value>
-    public bool IsDisposed
+    /// <remarks>
+    ///     Checks whether <see cref="_disposed" /> is nonzero.
+    /// </remarks>
+    public bool IsDisposed => _disposed != 0;
+
+    /// <summary>
+    ///     Asynchronously disposes this instance by calling <see cref="Dispose(bool)" /> with <c>true</c>,
+    ///     and then suppresses finalization.
+    /// </summary>
+    /// <remarks>
+    ///     If your derived class needs to perform additional asynchronous disposal work,
+    ///     override this method or call a protected async method.
+    /// </remarks>
+    /// <returns>A <see cref="ValueTask" /> that represents the asynchronous dispose operation.</returns>
+    public async ValueTask DisposeAsync()
     {
-        get
-        {
-            lock (_disposeLock)
-            {
-                return _isDisposed;
-            }
-        }
-        private set
-        {
-            lock (_disposeLock)
-            {
-                _isDisposed = value;
-            }
-        }
+        Dispose(true);
+        GC.SuppressFinalize(this);
+
+        // Perform additional async cleanup (if needed) in a derived class or separate method.
+        await ValueTask.CompletedTask;
     }
 
     /// <summary>
-    ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    ///     Disposes this instance by calling <see cref="Dispose(bool)" /> with <c>true</c>
+    ///     and suppresses finalization for this object.
     /// </summary>
     public void Dispose()
     {
@@ -41,43 +50,44 @@ public abstract class DisposableObject : IDisposable
     }
 
     /// <summary>
-    ///     Releases unmanaged and - optionally - managed resources.
+    ///     Releases the unmanaged resources used by this object, and optionally releases the managed resources.
     /// </summary>
     /// <param name="disposing">
-    ///     <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
-    ///     unmanaged resources.
+    ///     <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.
     /// </param>
     protected virtual void Dispose(bool disposing)
     {
-        lock (_disposeLock)
+        // Use Interlocked.Exchange to ensure the disposing logic
+        // is only executed once, even in multithreaded scenarios.
+        if (Interlocked.Exchange(ref _disposed, 1) != 0)
         {
-            if (_isDisposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                // Free managed resources
-                DisposeManagedResources();
-            }
-
-            // Free unmanaged resources (if any) here
-
-            _isDisposed = true;
+            // Already disposed; return immediately.
+            return;
         }
+
+        if (disposing)
+        {
+            // Dispose or free any managed objects here.
+            DisposeManagedResources();
+        }
+
+        // Free unmanaged resources here (if any).
     }
 
     /// <summary>
-    ///     Overridden in implementing objects to perform actual clean-up.
+    ///     Called by <see cref="Dispose(bool)" /> when disposing is <c>true</c>.
+    ///     Override this in derived classes to release managed resources.
     /// </summary>
     protected virtual void DisposeManagedResources()
     {
+        // Derived classes override this to release their managed resources.
     }
 
     /// <summary>
-    ///     Throws an <see cref="ObjectDisposedException" /> if the object is disposed.
+    ///     Throws an <see cref="ObjectDisposedException" /> if this object is disposed.
+    ///     Call this method in derived class methods to guard against use-after-disposal.
     /// </summary>
+    /// <exception cref="ObjectDisposedException">Thrown if the object has already been disposed.</exception>
     protected void ThrowIfDisposed()
     {
         if (IsDisposed)

@@ -15,7 +15,7 @@ public static partial class Guard
     /// </summary>
     /// <typeparam name="T">The type of the value being checked. Must be a reference type or nullable type.</typeparam>
     /// <param name="value">The value to check for <c>null</c>.</param>
-    /// <param name="argumentName">
+    /// <param name="paramName">
     ///     The name of the argument being checked, automatically populated via
     ///     <see cref="CallerArgumentExpressionAttribute" /> for better error reporting.
     /// </param>
@@ -24,7 +24,7 @@ public static partial class Guard
     /// </param>
     /// <returns>The validated <paramref name="value" />, guaranteed to be non-null.</returns>
     /// <exception cref="ArgumentNullException">
-    ///     Thrown if <paramref name="value" /> is <c>null</c>, with the provided <paramref name="argumentName" /> and
+    ///     Thrown if <paramref name="value" /> is <c>null</c>, with the provided <paramref name="paramName" /> and
     ///     <paramref name="exceptionMessage" /> in the exception message.
     /// </exception>
     /// <remarks>
@@ -41,12 +41,12 @@ public static partial class Guard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T NotNull<T>([System.Diagnostics.CodeAnalysis.NotNull] T? value,
         [CallerArgumentExpression(nameof(value))]
-        string argumentName = "",
+        string paramName = "",
         string? exceptionMessage = null)
     {
         if (value is null)
         {
-            ThrowHelper.ThrowArgumentNullException(argumentName, exceptionMessage);
+            ThrowHelper.ThrowArgumentNullException(paramName, exceptionMessage);
         }
 
         return value;

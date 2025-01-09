@@ -27,6 +27,7 @@ public static class GuidFactory
     /// Console.WriteLine(newGuid);
     /// ]]></code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Guid NewSequentialGuid()
     {
         return Ulid.NewUlid().ToGuid();
@@ -54,6 +55,7 @@ public static class GuidFactory
     /// }
     /// ]]></code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Guid[] NewSequentialGuids(int count)
     {
         Guard.Minimum(count, 1);
