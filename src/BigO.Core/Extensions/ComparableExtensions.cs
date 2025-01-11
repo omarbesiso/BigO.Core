@@ -30,22 +30,40 @@ public static class ComparableExtensions
     /// <remarks>
     ///     This method provides a generic way to check if a value of any comparable type falls within a specific range.
     ///     It can be used with numeric types, dates, and other comparable types.
+    ///     <para>
+    ///         **Edge Cases**:
+    ///         - If the <paramref name="value" /> is <c>null</c>, the method returns <c>false</c>.
+    ///         - If the <paramref name="lowerBoundary" /> is greater than the <paramref name="upperBoundary" />, the
+    ///         comparison
+    ///         may yield unexpected results. You may optionally enforce that <c>lowerBoundary</c> should not exceed
+    ///         <c>upperBoundary</c> by checking it in code.
+    ///     </para>
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
     ///     int? number = 5;
     ///     bool result = number.IsBetween(1, 10);
     ///     // result is true
-    ///
+    /// 
     ///     result = number.IsBetween(5, 5, isBoundaryInclusive: false);
     ///     // result is false
     ///     ]]></code>
     /// </example>
-    public static bool IsBetween<T>(this T? value, T lowerBoundary, T upperBoundary, bool isBoundaryInclusive = true)
+    public static bool IsBetween<T>(
+        this T? value,
+        T lowerBoundary,
+        T upperBoundary,
+        bool isBoundaryInclusive = true)
         where T : IComparable<T>
     {
         Guard.NotNull(lowerBoundary, nameof(lowerBoundary));
         Guard.NotNull(upperBoundary, nameof(upperBoundary));
+
+        // Optional: If you wish to guard against an inverted range (lower > upper), uncomment:
+        // if (Comparer<T>.Default.Compare(lowerBoundary, upperBoundary) > 0)
+        // {
+        //     throw new ArgumentException("Lower boundary cannot exceed upper boundary.");
+        // }
 
         if (value is null)
         {
@@ -53,10 +71,14 @@ public static class ComparableExtensions
         }
 
         var comparer = Comparer<T>.Default;
+        if (isBoundaryInclusive)
+        {
+            return comparer.Compare(value, lowerBoundary) >= 0
+                   && comparer.Compare(value, upperBoundary) <= 0;
+        }
 
-        return isBoundaryInclusive
-            ? comparer.Compare(value, lowerBoundary) >= 0 && comparer.Compare(value, upperBoundary) <= 0
-            : comparer.Compare(value, lowerBoundary) > 0 && comparer.Compare(value, upperBoundary) < 0;
+        return comparer.Compare(value, lowerBoundary) > 0
+               && comparer.Compare(value, upperBoundary) < 0;
     }
 
     /// <summary>
@@ -94,7 +116,6 @@ public static class ComparableExtensions
         Guard.NotNull(maximum, nameof(maximum));
 
         var comparer = Comparer<T>.Default;
-
         return comparer.Compare(value, maximum) <= 0 ? value : maximum;
     }
 
@@ -144,11 +165,8 @@ public static class ComparableExtensions
             return minimum;
         }
 
-        if (comparer.Compare(value, maximum) > 0)
-        {
-            return maximum;
-        }
-
-        return value;
+        return comparer.Compare(value, maximum) > 0
+            ? maximum
+            : value;
     }
 }

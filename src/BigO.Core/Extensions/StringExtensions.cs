@@ -30,13 +30,19 @@ public static class StringExtensions
     {
         if (string.IsNullOrWhiteSpace(input))
         {
-            return input;
+            return string.Empty; // Ensures we match the documented behavior
         }
 
-        StringBuilder sb = new();
-        foreach (var character in input.Where(char.IsDigit))
+        // Initialize StringBuilder with capacity to potentially reduce internal re-allocations
+        var sb = new StringBuilder(input.Length);
+
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+        foreach (var c in input)
         {
-            sb.Append(character);
+            if (char.IsDigit(c))
+            {
+                sb.Append(c);
+            }
         }
 
         return sb.ToString();

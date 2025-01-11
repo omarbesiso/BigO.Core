@@ -9,13 +9,14 @@ namespace BigO.Core.Extensions;
 public static class DateOnlyExtensions
 {
     /// <summary>
-    ///     Converts the specified <see cref="DateOnly" /> instance to a <see cref="DateTime" /> instance with the time set to
-    ///     midnight (00:00:00) and the kind set to <see cref="DateTimeKind.Unspecified" />.
+    ///     Converts the specified <see cref="DateOnly" /> instance to a <see cref="DateTime" /> instance
+    ///     with the time set to midnight (00:00:00) and the kind set to <see cref="DateTimeKind.Unspecified" />.
     /// </summary>
     /// <param name="dateOnly">The <see cref="DateOnly" /> instance to convert.</param>
     /// <returns>
-    ///     A <see cref="DateTime" /> instance representing the same date as the specified <see cref="DateOnly" /> instance,
-    ///     with the time set to midnight (00:00:00) and the kind set to <see cref="DateTimeKind.Unspecified" />.
+    ///     A <see cref="DateTime" /> instance representing the same date as the specified
+    ///     <see cref="DateOnly" /> instance, with the time set to midnight (00:00:00)
+    ///     and the kind set to <see cref="DateTimeKind.Unspecified" />.
     /// </returns>
     /// <example>
     ///     <code><![CDATA[
@@ -25,16 +26,50 @@ public static class DateOnlyExtensions
     /// ]]></code>
     /// </example>
     /// <remarks>
-    ///     This method converts a <see cref="DateOnly" /> instance to a <see cref="DateTime" /> instance by setting the time
-    ///     to
-    ///     midnight (00:00:00) and the kind to <see cref="DateTimeKind.Unspecified" />. This is useful when you need to work
-    ///     with
-    ///     APIs or libraries that require <see cref="DateTime" /> instances but you only have date information.
+    ///     This method converts a <see cref="DateOnly" /> instance to a <see cref="DateTime" /> instance
+    ///     by setting the time to midnight (00:00:00) and the kind to <see cref="DateTimeKind.Unspecified" />.
+    ///     This is useful when you need to work with APIs or libraries that require <see cref="DateTime" /> instances
+    ///     but you only have date information.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTime ToDateTime(this DateOnly dateOnly)
     {
         return dateOnly.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified);
+    }
+
+    /// <summary>
+    ///     Converts the specified <see cref="DateOnly" /> instance to a <see cref="DateTime" /> instance
+    ///     using the provided <paramref name="time" /> and <paramref name="kind" />.
+    /// </summary>
+    /// <param name="dateOnly">The <see cref="DateOnly" /> instance to convert.</param>
+    /// <param name="time">The <see cref="TimeOnly" /> that specifies the time of day.</param>
+    /// <param name="kind">Specifies whether the converted <see cref="DateTime" /> is UTC, local time, or unspecified.</param>
+    /// <returns>
+    ///     A <see cref="DateTime" /> instance representing the combined date and time, with the specified
+    ///     <see cref="DateTimeKind" />.
+    /// </returns>
+    /// <example>
+    ///     <code><![CDATA[
+    /// DateOnly dateOnly = new DateOnly(2023, 1, 1);
+    /// TimeOnly time = new TimeOnly(13, 30); // 1:30 PM
+    /// DateTime utcDateTime = dateOnly.ToDateTime(time, DateTimeKind.Utc);
+    /// // utcDateTime will be January 1, 2023, 13:30:00 UTC
+    /// ]]></code>
+    /// </example>
+    /// <remarks>
+    ///     This overload allows you to specify a custom time of day or <see cref="DateTimeKind" />,
+    ///     which can be useful for scenarios where you need more control over the resulting <see cref="DateTime" />.
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static DateTime ToDateTime(this DateOnly dateOnly, TimeOnly time, DateTimeKind kind)
+    {
+        // Safety check: if for any reason the consumer passes default here, just treat it as midnight
+        if (time == default)
+        {
+            time = TimeOnly.MinValue;
+        }
+
+        return dateOnly.ToDateTime(time, kind);
     }
 
     /// <summary>
@@ -57,7 +92,9 @@ public static class DateOnlyExtensions
     ///     This method calculates the age in years based on full years elapsed, accounting for birthdays.
     ///     If the <paramref name="maturityDate" /> is <c>null</c>, the current date in the specified time zone is used.
     ///     If the <paramref name="timeZoneInfo" /> is <c>null</c>, the local system time zone is used.
-    ///     **Thread Safety:** This method is not thread-safe if used with mutable shared state.
+    ///     <para>
+    ///         <strong>Thread Safety:</strong> This method is not thread-safe if used with mutable shared state.
+    ///     </para>
     /// </remarks>
     /// <example>
     ///     The following code example calculates the age based on the date of birth:
@@ -74,12 +111,14 @@ public static class DateOnlyExtensions
     /// Console.WriteLine(age); // The age based on the date of birth and a specific time zone.
     /// ]]></code>
     /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Age(this DateOnly dateOfBirth, DateOnly? maturityDate = null, TimeZoneInfo? timeZoneInfo = null)
     {
         timeZoneInfo ??= TimeZoneInfo.Local;
 
-        var today = maturityDate ?? DateOnly.FromDateTime(
-            TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneInfo));
+        // If maturityDate is null, compute 'today' from the specified TimeZoneInfo
+        var today = maturityDate
+                    ?? DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneInfo));
 
         if (dateOfBirth > today)
         {
@@ -90,6 +129,82 @@ public static class DateOnlyExtensions
 
         var age = today.Year - dateOfBirth.Year;
 
+        // Adjust if the current month/day is before the birth month/day
+        if (today.Month < dateOfBirth.Month ||
+            (today.Month == dateOfBirth.Month && today.Day < dateOfBirth.Day))
+        {
+            age--;
+        }
+
+        return age;
+    }
+
+    /// <summary>
+    ///     Calculates the age based on the date of birth, an optional <see cref="DateTime" /> maturity date,
+    ///     and an optional <see cref="TimeZoneInfo" />.
+    /// </summary>
+    /// <param name="dateOfBirth">The date of birth.</param>
+    /// <param name="maturityDateTime">
+    ///     An optional maturity date as a <see cref="DateTime" />.
+    ///     If not provided (<c>null</c>), the current date in the specified time zone is used.
+    /// </param>
+    /// <param name="timeZoneInfo">
+    ///     An optional time zone to determine the current date if <paramref name="maturityDateTime" /> is <c>null</c>.
+    ///     If not provided, the local system time zone is used.
+    /// </param>
+    /// <returns>The calculated age in years.</returns>
+    /// <exception cref="ArgumentException">
+    ///     Thrown if <paramref name="dateOfBirth" /> is in the future relative to the maturity date or current date.
+    /// </exception>
+    /// <remarks>
+    ///     This overload is useful if you already have a <see cref="DateTime" /> value for the maturity date,
+    ///     such as data from a database or external source, without manually converting to <see cref="DateOnly" />.
+    ///     <para>
+    ///         If <paramref name="maturityDateTime" /> is <c>null</c>, the current date in the specified time zone is used.
+    ///         If the <paramref name="timeZoneInfo" /> is <c>null</c>, the local system time zone is used.
+    ///     </para>
+    ///     <para>
+    ///         <strong>Thread Safety:</strong> This method is not thread-safe if used with mutable shared state.
+    ///     </para>
+    /// </remarks>
+    /// <example>
+    ///     <code><![CDATA[
+    /// var dateOfBirth = new DateOnly(1980, 2, 29);
+    /// DateTime? maturityDateTime = new DateTime(2023, 2, 28, 10, 0, 0, DateTimeKind.Utc);
+    /// var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+    /// int age = dateOfBirth.Age(maturityDateTime, timeZone);
+    /// Console.WriteLine(age); // The age as of February 28, 2023 in PST.
+    /// ]]></code>
+    /// </example>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int Age(this DateOnly dateOfBirth, DateTime? maturityDateTime, TimeZoneInfo? timeZoneInfo = null)
+    {
+        timeZoneInfo ??= TimeZoneInfo.Local;
+
+        // If maturityDateTime is null, compute 'today' from the specified TimeZoneInfo
+        DateOnly today;
+        if (!maturityDateTime.HasValue)
+        {
+            var currentDateTimeInZone = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneInfo);
+            today = DateOnly.FromDateTime(currentDateTimeInZone);
+        }
+        else
+        {
+            // Convert provided DateTime into DateOnly
+            var dateTimeInZone = TimeZoneInfo.ConvertTime(maturityDateTime.Value, timeZoneInfo);
+            today = DateOnly.FromDateTime(dateTimeInZone);
+        }
+
+        if (dateOfBirth > today)
+        {
+            throw new ArgumentException(
+                "Date of birth cannot be in the future relative to the maturity date or current date.",
+                nameof(dateOfBirth));
+        }
+
+        var age = today.Year - dateOfBirth.Year;
+
+        // Adjust if the current month/day is before the birth month/day
         if (today.Month < dateOfBirth.Month ||
             (today.Month == dateOfBirth.Month && today.Day < dateOfBirth.Day))
         {
@@ -111,13 +226,16 @@ public static class DateOnlyExtensions
     /// </returns>
     /// <remarks>
     ///     This method converts the number of weeks to days by multiplying by 7 and then rounds the result to the nearest
-    ///     whole number using
-    ///     <see cref="Math.Round(double, MidpointRounding)" /> with <see cref="MidpointRounding.AwayFromZero" />.
+    ///     whole number using <see cref="Math.Round(double, MidpointRounding)" /> with
+    ///     <see cref="MidpointRounding.AwayFromZero" />.
     ///     The calculated number of days is then added to the original date using <see cref="DateOnly.AddDays(int)" />.
     ///     **Fractional Weeks Handling:**
     ///     - Fractions of a week are converted to days and rounded to the nearest whole day.
     ///     - For example, adding 2.5 weeks results in adding 18 days (2.5 * 7 = 17.5, rounded to 18).
     ///     - Negative fractional weeks are handled similarly, subtracting the rounded number of days.
+    ///     **Edge Case:**
+    ///     - If the resulting day count moves the date outside the valid <see cref="DateOnly" /> range, an
+    ///     <see cref="ArgumentOutOfRangeException" /> may be thrown by <see cref="DateOnly.AddDays(int)" />.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
@@ -132,7 +250,12 @@ public static class DateOnlyExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateOnly AddWeeks(this DateOnly date, double numberOfWeeks)
     {
-        var numberOfDaysToAdd = (int)Math.Round(numberOfWeeks * 7, MidpointRounding.AwayFromZero);
+        if (numberOfWeeks == 0d)
+        {
+            return date;
+        }
+
+        var numberOfDaysToAdd = (int)Math.Round(numberOfWeeks * 7d, MidpointRounding.AwayFromZero);
         return date.AddDays(numberOfDaysToAdd);
     }
 
@@ -149,6 +272,9 @@ public static class DateOnlyExtensions
     ///     The method is marked with the <see cref="MethodImplAttribute" /> and the
     ///     <see cref="MethodImplOptions.AggressiveInlining" /> option, allowing the JIT compiler to inline the method's body
     ///     at the call site for improved performance.
+    ///     **Edge Cases and Exceptions:**
+    ///     - If the year is less than 1 or greater than 9999, or if the month is less than 1 or greater than 12,
+    ///     an <see cref="ArgumentOutOfRangeException" /> is thrown by <see cref="DateTime.DaysInMonth" />.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">
     ///     Thrown if:
@@ -174,6 +300,7 @@ public static class DateOnlyExtensions
         return DateTime.DaysInMonth(date.Year, date.Month);
     }
 
+
     /// <summary>
     ///     Gets the first date of the month for the specified <see cref="DateOnly" />. Optionally, finds the first occurrence
     ///     of a specific <see cref="DayOfWeek" />.
@@ -191,6 +318,9 @@ public static class DateOnlyExtensions
     ///     provided, it calculates the offset to the first occurrence of that day within the month without iteration.
     ///     This is useful for scheduling and calendar-related functionality where the first occurrence of a particular day is
     ///     needed.
+    ///     **Note:** If <paramref name="dayOfWeek" /> matches the <see cref="DateOnly.DayOfWeek" /> of the first day of the
+    ///     month,
+    ///     the 1st of the month is returned directly (offset = 0).
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
@@ -207,7 +337,14 @@ public static class DateOnlyExtensions
     {
         var firstDateOfMonth = new DateOnly(date.Year, date.Month, 1);
 
-        if (dayOfWeek == null)
+        // If no specific dayOfWeek is requested, just return the first day of the month.
+        if (!dayOfWeek.HasValue)
+        {
+            return firstDateOfMonth;
+        }
+
+        // Optional micro-optimization: short-circuit if they match
+        if (dayOfWeek.Value == firstDateOfMonth.DayOfWeek)
         {
             return firstDateOfMonth;
         }
@@ -215,6 +352,7 @@ public static class DateOnlyExtensions
         var daysToAdd = ((int)dayOfWeek.Value - (int)firstDateOfMonth.DayOfWeek + 7) % 7;
         return firstDateOfMonth.AddDays(daysToAdd);
     }
+
 
     /// <summary>
     ///     Gets the first date of the week for the specified <see cref="DateOnly" />, based on the specified or current
@@ -230,10 +368,13 @@ public static class DateOnlyExtensions
     /// </returns>
     /// <remarks>
     ///     This method calculates the first date of the week based on the specified or current culture's definition of the
-    ///     first day of the week.
-    ///     It computes the offset from the given date to the first day of the week without iteration.
+    ///     first day of the week. It computes the offset from the given date to the first day of the week without iteration.
     ///     This method is particularly useful in applications involving calendar and scheduling functionality where the start
     ///     of the week varies depending on cultural settings.
+    ///     **Edge Case:**
+    ///     If <paramref name="date" /> is very close to <see cref="DateOnly.MinValue" /> and the calculated offset is large,
+    ///     calling <see cref="DateOnly.AddDays(int)" /> with a negative value might throw an
+    ///     <see cref="ArgumentOutOfRangeException" />.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
@@ -250,10 +391,15 @@ public static class DateOnlyExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateOnly GetFirstDateOfWeek(this DateOnly date, CultureInfo? cultureInfo = null)
     {
-        var ci = cultureInfo ?? CultureInfo.CurrentCulture;
-        var firstDayOfWeek = ci.DateTimeFormat.FirstDayOfWeek;
+        var effectiveCulture = cultureInfo ?? CultureInfo.CurrentCulture;
+        var firstDayOfWeek = effectiveCulture.DateTimeFormat.FirstDayOfWeek;
 
         var offset = ((int)date.DayOfWeek - (int)firstDayOfWeek + 7) % 7;
+        if (offset == 0)
+        {
+            return date;
+        }
+
         return date.AddDays(-offset);
     }
 
@@ -274,6 +420,10 @@ public static class DateOnlyExtensions
     ///     provided, it calculates the offset to the last occurrence of that day within the month without iteration.
     ///     This method is useful for scheduling and calendar-related functionality, such as determining the end of a billing
     ///     cycle or planning monthly events.
+    ///     **Edge Case:**
+    ///     If <paramref name="date" /> is very close to <see cref="DateOnly.MinValue" /> and subtracting days pushes it below
+    ///     the
+    ///     valid range, an <see cref="ArgumentOutOfRangeException" /> may occur.
     /// </remarks>
     /// <example>
     ///     <code><![CDATA[
@@ -288,10 +438,16 @@ public static class DateOnlyExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateOnly GetLastDateOfMonth(this DateOnly date, DayOfWeek? dayOfWeek = null)
     {
-        var lastDay = DateTime.DaysInMonth(date.Year, date.Month);
-        var lastDateOfMonth = new DateOnly(date.Year, date.Month, lastDay);
+        var daysInMonth = DateTime.DaysInMonth(date.Year, date.Month);
+        var lastDateOfMonth = new DateOnly(date.Year, date.Month, daysInMonth);
 
         if (!dayOfWeek.HasValue)
+        {
+            return lastDateOfMonth;
+        }
+
+        // Optional micro-optimization: if they match, no need to adjust
+        if (lastDateOfMonth.DayOfWeek == dayOfWeek.Value)
         {
             return lastDateOfMonth;
         }
@@ -299,6 +455,7 @@ public static class DateOnlyExtensions
         var daysToSubtract = ((int)lastDateOfMonth.DayOfWeek - (int)dayOfWeek.Value + 7) % 7;
         return lastDateOfMonth.AddDays(-daysToSubtract);
     }
+
 
     /// <summary>
     ///     Gets the last date of the week for the specified <see cref="DateOnly" /> value.
@@ -473,7 +630,7 @@ public static class DateOnlyExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsLeapDay(this DateOnly date)
     {
-        return date.Month == 2 && date.Day == 29;
+        return date is { Month: 2, Day: 29 };
     }
 
     /// <summary>
